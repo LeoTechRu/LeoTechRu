@@ -2,19 +2,13 @@
 
 Я изучаю Python, SAP, DBA и процессы интеграции.
 
-Написать мне: <a href="https://t.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="daniilshat" height="20" width="20" /></a></p>
-Лайфстайл заметки: <a href="https://t.me/emgap" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="daniilshat" height="40" width="40" /></a></p>
-Заметки по развитию в IT: <a href="https://t.me/intdata" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="daniilshat" height="40" width="40" /></a></p>
-Научпоп и техноньюз: <a href="https://t.me/scipunk" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="daniilshat" height="40" width="40" /></a></p>
+Написать мне: <a href="https://t.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Я в TG" title="Я в TG" height="30" width="30" /></a> <a href="https://vk.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/vk.svg" alt="Я в ВК" title="Я в ВК" height="30" width="30" /></a>
+</p>
+Мои заметки в TG: <a href="https://t.me/emgap" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Лайфстайл заметки" title="Лайфстайл заметки" height="30" width="30" /></a> <a href="https://t.me/intdata" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Заметки по IT" title="Заметки по IT" height="30" width="30" /></a> <a href="https://t.me/scipunk" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Научпоп и техноньюз" title="Научпоп и техноньюз" height="40" width="30" /></a>  
 
-
-
-### Connect with me:
 <p align="left">
-<a href="https://vk.com/daniilshat" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/vk.svg" alt="daniilshat" height="40" width="40" /></a>
-<a href="https://codepen.io/daniilshat" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/codepen.svg" alt="daniilshat" height="40" width="40" /></a>
-<a href="https://open.spotify.com/user/p0dhegmrdlyqah3o1od5aypb0?si=M-nsOUPpQLuqfVTpim6CEg&utm_source=copy-link" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/5d465d2dc41025f6921c12e40cf3fa0a40b5bddb/icons/spotify-2.svg" alt="daniilshat" height="40" width="40" /></a>
-<a href="https://habr.com/ru/users/daniilshat/posts/" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="daniilshat" height="60" width="60" /></a>
+<a href="https://codepen.io/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/codepen.svg" alt="daniilshat" height="40" width="40" /></a>
+<a href="https://habr.com/ru/users/leotechru/posts/" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="daniilshat" height="60" width="60" /></a>
 </p>
 
 ### Технологии и инструменты которые я изучаю:
