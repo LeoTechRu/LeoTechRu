@@ -65,3 +65,6 @@
 ### Избранные ссылки 
 [**TG: Архив | IT Библиотека**](https://t.me/It_Books_Library) </p>
 [**TG: Books Книги Программиста**](https://t.me/programming_books_it)
+
+### :fire: My Stats :
+[![GitHub Streak](http://github-readme-streak-stats.herokuapp.com?user=leotechru&theme=dark&background=000000)](https://git.io/streak-stats)
