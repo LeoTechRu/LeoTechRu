@@ -69,6 +69,8 @@
 ### :fire: My Stats :
 [![codewars](https://www.codewars.com/users/leotechru/badges/large)](https://www.codewars.com/users/leotechru)
 
+[![KnlnKS's LeetCode stats](https://leetcode-stats-six.vercel.app/api?username=leotechru&theme=dark)](https://github.com/KnlnKS/leetcode-stats)
+
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=leotechru)](https://github.com/anuraghazra/github-readme-stats)
 
 [![trophy](https://github-profile-trophy.vercel.app/?username=leotechru)](https://github.com/ryo-ma/github-profile-trophy)
