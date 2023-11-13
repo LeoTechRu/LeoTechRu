@@ -74,6 +74,6 @@
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=leotechru)](https://github.com/anuraghazra/github-readme-stats)
 
-[![trophy](https://github-profile-trophy.vercel.app/?username=leotechru)](https://github.com/ryo-ma/github-profile-trophy)
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=leotechru&theme=vision-friendly-dark)](https://github.com/anuraghazra/github-readme-stats)
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=leotechru&theme=vision-friendly-dark)](https://github.com/anuraghazra/github-readme-stats) [![StackOverflow](https://github-readme-stackoverflow.vercel.app/?userID=13289908&layout=compact&theme=dark)](https://stackoverflow.com/users/13289908/omid-nikrah)
+[![StackOverflow](https://github-readme-stackoverflow.vercel.app/?userID=13289908&layout=compact&theme=dark)](https://stackoverflow.com/users/13289908/omid-nikrah)
