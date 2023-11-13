@@ -18,6 +18,7 @@
 <a href="https://codepen.io/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/codepen.svg" alt="LeoTechRu" height="40" width="40" /></a>
 <a href="https://habr.com/ru/users/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="LeoTechRu" height="60" width="60" /></a>
 </p>
+<img src="https://komarev.com/ghpvc/?username=leotechru&style=flat-square&color=blue" alt=""/>
 
 ### Технологии и инструменты которые я изучаю:
 <p align="left"> 
