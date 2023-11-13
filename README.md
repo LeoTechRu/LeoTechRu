@@ -2,17 +2,13 @@
 
 - 🌱 Я изучаю **SAP, Python, DBA, DevOps**
 
-- 📝 I regularly write articles on [**Habr (Ru)**](https://habr.com/ru/users/daniilshat/posts/)
+- 📝 Веду [**лайфстайл-заметки**](https://t.me/emgap), [**заметки по IT**](https://t.me/intdata) и [**сохраняю избранные научпоп и техно новости**](https://t.me/scipunk).
 
-- 📫 How to reach me **daniilshstukhin@gmail.com**
+- 📫 Написать мне можно в [**TG**](https://t.me/leotechru) или [**VK**](https://vk.me/leotechru) 
 
-- 📄 Know about my experiences [**Habr Career (Ru)**](https://career.habr.com/daniilshat)
+- 📄 Мой карьерный трек: [**Habr Career (Ru)**](https://career.habr.com/leotechru)
 
 - 🌍 Мой родной язык русский, I study English (A2)
-
-Написать мне: <a href="https://t.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Я в TG" title="Я в TG" height="30" width="30" /></a> <a href="https://vk.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/vk.svg" alt="Я в ВК" title="Я в ВК" height="30" width="30" /></a>
-</p>
-Мои заметки в TG: <a href="https://t.me/emgap" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Лайфстайл заметки" title="Лайфстайл заметки" height="30" width="30" /></a> <a href="https://t.me/intdata" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Заметки по IT" title="Заметки по IT" height="30" width="30" /></a> <a href="https://t.me/scipunk" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Научпоп и техноньюз" title="Научпоп и техноньюз" height="40" width="30" /></a>  
 
 <p align="left">
 <a href="https://codepen.io/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/codepen.svg" alt="daniilshat" height="40" width="40" /></a>
@@ -40,10 +36,7 @@
 <a href="https://www.gitkraken.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/daniilshat/daniilshat/2583381c09497c680369e95dce7e029d93484d94/icons/gitkraken.svg" alt="git" width="40" height="40"/> </a> 
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/figma.svg" alt="figma" width="30" height="40"/> </a> 
 </p>
-Избранные ссылки
-</p>
-Книги:
-</p>
-[TG: Архив | IT Библиотека](https://t.me/It_Books_Library)
 
-[TG: Books Книги Программиста](https://t.me/programming_books_it)
+### Избранные ссылки 
+[**TG: Архив | IT Библиотека**](https://t.me/It_Books_Library) </p>
+[**TG: Books Книги Программиста**](https://t.me/programming_books_it)
