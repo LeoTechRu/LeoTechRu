@@ -20,7 +20,6 @@
 <a href="https://codepen.io/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/codepen.svg" alt="LeoTechRu" height="40" width="40" /></a>
 <a href="https://habr.com/ru/users/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="LeoTechRu" height="60" width="60" /></a>
 </p>
-<img src="https://komarev.com/ghpvc/?username=leotechru&style=flat-square&color=blue" alt=""/>
 
 ### Технологии и инструменты которые я изучаю:
 <p align="left"> 
@@ -67,6 +66,8 @@
 [**TG: Books Книги Программиста**](https://t.me/programming_books_it)
 
 ### :fire: My Stats :
+![](https://komarev.com/ghpvc/?username=leotechru&style=flat-square&color=blue)
+
 [![codewars](https://www.codewars.com/users/leotechru/badges/large)](https://www.codewars.com/users/leotechru)
 
 [![KnlnKS's LeetCode stats](https://leetcode-stats-six.vercel.app/api?username=leotechru&theme=dark)](https://github.com/KnlnKS/leetcode-stats)
@@ -76,3 +77,5 @@
 [![trophy](https://github-profile-trophy.vercel.app/?username=leotechru)](https://github.com/ryo-ma/github-profile-trophy)
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=leotechru&theme=vision-friendly-dark)](https://github.com/anuraghazra/github-readme-stats)
+
+[![Ashutosh's github activity graph](https://activity-graph.herokuapp.com/graph?username=leotechru)](https://github.com/ashutosh00710/github-readme-activity-graph)
