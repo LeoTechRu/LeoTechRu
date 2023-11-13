@@ -1,16 +1,13 @@
-### Hi there 👋
+Дороу. Меня зовут Леонид, мне 26 лет. Начинающий DevOps-инженер в X5 Group.
 
-<!--
-**LeoTechRu/LeoTechRu** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Я изучаю Python, SAP, DBA и процессы интеграции.
 
-Here are some ideas to get you started:
+Тут буду публиковать решения домашних заданий по Python.
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+Написать мне можно в https://t.me/leotechru
+
+Я публикую свои заметки по обучению в https://t.me/intdata
+
+А так-же публикую всякие технические новости и научпоп в https://t.me/scipunk
+
+Ну и иногда публикую заметки по ментальному и физическому развитию в https://t.me/EmGap
