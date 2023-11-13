@@ -1,6 +1,14 @@
 Дороу. Меня зовут Леонид, мне 26 лет. Начинающий DevOps-инженер в X5 Group.
 
-Я изучаю Python, SAP, DBA и процессы интеграции.
+- 🌱 Я изучаю **SAP, Python, DBA, DevOps**
+
+- 📝 I regularly write articles on [**Habr (Ru)**](https://habr.com/ru/users/daniilshat/posts/)
+
+- 📫 How to reach me **daniilshstukhin@gmail.com**
+
+- 📄 Know about my experiences [**Habr Career (Ru)**](https://career.habr.com/daniilshat)
+
+- 🌍 Мой родной язык русский, I study English (A2)
 
 Написать мне: <a href="https://t.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/Telegram.svg" alt="Я в TG" title="Я в TG" height="30" width="30" /></a> <a href="https://vk.me/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/2d7eafe5250314b3d422c86b35de062e0f1f5178/icons/vk.svg" alt="Я в ВК" title="Я в ВК" height="30" width="30" /></a>
 </p>
