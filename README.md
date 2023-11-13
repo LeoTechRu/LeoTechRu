@@ -1,4 +1,7 @@
 Дороу. Меня зовут Леонид, мне 26 лет. Начинающий DevOps-инженер в X5 Group.
+<div id="header" align="center">
+  <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="100"/>
+</div>
 
 - 🌱 Я изучаю **SAP, Python, DBA, DevOps**
 
