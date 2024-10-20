@@ -3,7 +3,7 @@
 
 - 🌱 Привет, меня зовут **Леонид**. **Я изучаю DevOps-стек: Linux, Python, DBA**
 
-- 📝 Мои [**лайфстайл-заметки**](https://t.me/LeonTechRu) и [**заметки по IT**](https://t.me/intdata)).
+- 📝 Мои TG-каналы: [**LeonTech lifestyle**](https://t.me/LeonTechRu) и [**intData: Future Has Come**](https://t.me/intdata).
 
 - 📫 Написать мне можно в [**TG**](https://t.me/leotechru) или на почту leotechru@ya.ru
 
