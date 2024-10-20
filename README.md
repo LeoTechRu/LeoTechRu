@@ -1,5 +1,5 @@
 
-<img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif"/> <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif"/>
+<img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif"/>
 
 Дороу. Меня зовут Леонид, мне 27 лет. Я изучаю DevOps-стек и тружусь в роли ведущего специалиста поддержки тестовых стендов торговой системы Московской биржи. <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="10%"/>
 
