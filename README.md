@@ -1,7 +1,7 @@
 
 <img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif" width="600" height="300"/>
 
-Дороу. Меня зовут Леонид, мне 26 лет. Начинающий DevOps-инженер в X5 Group.
+Дороу. Меня зовут Леонид, мне 27 лет. Я изучаю DevOps-стек и тружусь в роли ведущего специалиста поддержки тестовых стендов торговой системы Московской биржи.
 
 <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="100"/>
 
