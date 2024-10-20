@@ -7,7 +7,7 @@
 
 - 📫 Написать мне можно в [**TG**](https://t.me/leotechru).
 
-- 📄 Мой карьерный трек: <a href="https://www.linkedin.com/in/leotechru/" target="blank"><img align="center" src="https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin&logoColor=white" alt="LeoTechRu"/></a> <a href="[https://habr.com/ru/users/leotechru](https://career.habr.com/leotechru)" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="LeoTechRu" height="60" width="60" /></a>. Сейчас тружусь в роли ведущего специалиста поддержки тестовых стендов торговой системы Московской биржи.
+- 📄 Мой карьерный трек: <a href="https://www.linkedin.com/in/leotechru/" target="blank"><img align="center" src="https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin&logoColor=white" alt="LeoTechRu"/></a> <a href="https://career.habr.com/leotechru" target="blank"><img align="center" src="https://raw.githubusercontent.com/daniilshat/daniilshat/d71898e2a08f31fd3f9512a9d30d3cb1d025a649/icons/habr.svg" alt="LeoTechRu" height="60" width="60" /></a>. Сейчас тружусь в роли ведущего специалиста поддержки тестовых стендов торговой системы Московской биржи.
 
 - 🌍 Мой родной язык русский, I study English (A2)
 
