@@ -1,6 +1,7 @@
 
 <img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif"/>
 <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="10%"/>
+
 - 🌱 Привет, меня зовут **Леонид**. **Я изучаю DevOps-стек: Linux, Python, DBA**
 
 - 📝 Мои [**лайфстайл-заметки**](https://t.me/LeonTechRu) и [**заметки по IT**](https://t.me/intdata)).
