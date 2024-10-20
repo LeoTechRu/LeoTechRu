@@ -1,6 +1,5 @@
 
 <img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif"/>
-<img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="10%"/>
 
 - 🌱 Привет, меня зовут **Леонид**. **Я изучаю DevOps-стек: Linux, Python, DBA**
 
@@ -58,19 +57,19 @@
   <img src="https://github.com/devicons/devicon/blob/master/icons/git/git-original-wordmark.svg" title="Git" **alt="Git" width="40" height="40"/>
 </div>
 
-### Избранные ссылки 
-[**TG: Архив | IT Библиотека**](https://t.me/It_Books_Library) </p>
-[**TG: Books Книги Программиста**](https://t.me/programming_books_it)
-
 ### :fire: My Stats :
 ![](https://komarev.com/ghpvc/?username=leotechru&style=flat-square&color=blue)
 
 [![codewars](https://www.codewars.com/users/leotechru/badges/large)](https://www.codewars.com/users/leotechru)
-
-[![KnlnKS's LeetCode stats](https://leetcode-stats-six.vercel.app/api?username=leotechru&theme=dark)](https://github.com/KnlnKS/leetcode-stats)
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=leotechru)](https://github.com/anuraghazra/github-readme-stats)
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=leotechru&theme=vision-friendly-dark)](https://github.com/anuraghazra/github-readme-stats)
 
 [![StackOverflow](https://github-readme-stackoverflow.vercel.app/?userID=13289908&layout=compact&theme=dark)](https://stackoverflow.com/users/13289908/omid-nikrah)
+
+### Всякие полезные ссылки
+[**TG: Архив | IT Библиотека**](https://t.me/It_Books_Library) </p>
+[**TG: Books Книги Программиста**](https://t.me/programming_books_it)
+
+<img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="10%"/>
