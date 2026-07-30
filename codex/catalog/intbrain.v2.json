@@ -1,0 +1,35 @@
+{
+  "schema_version": "intdata.plugin-source.v1",
+  "plugin": {
+    "name": "intbrain",
+    "version": "2.0.0",
+    "visibility": "private_workspace",
+    "archetype": "tool_only",
+    "public_submission": false
+  },
+  "source": {
+    "repository": "https://github.com/LeoTechPro/intBrain-client.git",
+    "path": "codex/plugins/intbrain",
+    "ref": "main",
+    "owner": "intBrain-client",
+    "copied_business_logic": false
+  },
+  "mcp": {
+    "endpoint": "https://brain.intdata.pro/mcp",
+    "transport": "streamable_http",
+    "authentication": "oauth2.1",
+    "resource": "https://brain.intdata.pro/mcp",
+    "scope": "intbrain:admin"
+  },
+  "catalog": {
+    "version": "2.0.0",
+    "tool_count": 55,
+    "digest_sha256": "c627c9091bfe68adbd0eae41b8e7ea57ea9bc6ff3b0bfc8de0baca61375fe5f7",
+    "canonical_path": "codex/plugins/intbrain/catalog/intbrain-mcp-tools.v2.json",
+    "runtime_url": "https://brain.intdata.pro/.well-known/intbrain-mcp-tools.json"
+  },
+  "tracking": {
+    "issue": "https://github.com/LeoTechPro/int/issues/806",
+    "openspec": "brain/openspec/changes/issue-806-intbrain-operator-plugin"
+  }
+}

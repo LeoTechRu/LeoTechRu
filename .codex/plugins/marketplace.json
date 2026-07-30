@@ -31,8 +31,10 @@
     {
       "name": "intbrain",
       "source": {
-        "source": "local",
-        "path": "./codex/plugins/intbrain"
+        "source": "git-subdir",
+        "url": "https://github.com/LeoTechPro/intBrain-client.git",
+        "path": "./codex/plugins/intbrain",
+        "ref": "main"
       },
       "policy": {
         "installation": "INSTALLED_BY_DEFAULT",
