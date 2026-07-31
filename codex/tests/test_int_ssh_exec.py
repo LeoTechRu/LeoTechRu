@@ -27,6 +27,11 @@ class IntSshExecTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     ssh_exec.validate_destination(value)
 
+    def test_direct_fallback_rejects_untrusted_bare_alias(self):
+        with self.assertRaises(ValueError):
+            ssh_exec.validate_direct_destination("work-alias")
+        self.assertEqual(ssh_exec.validate_direct_destination("agents@vds.intdata.pro"), "agents@vds.intdata.pro")
+
     def test_remote_command_quotes_argv_and_cwd(self):
         command = ssh_exec.build_remote_command(["printf", "%s", "a; $(id)"], "/srv/space dir")
         self.assertEqual(command, "cd -- '/srv/space dir' && exec printf %s 'a; $(id)'")
@@ -38,8 +43,22 @@ class IntSshExecTest(unittest.TestCase):
         self.assertIsInstance(command, list)
         self.assertEqual(command[0], "/usr/bin/ssh")
         self.assertIn("StrictHostKeyChecking=yes", command)
+        self.assertIn("ForwardAgent=no", command)
+        self.assertIn("ClearAllForwardings=yes", command)
+        self.assertIn("PermitLocalCommand=no", command)
+        self.assertIn("ProxyCommand=none", command)
         self.assertNotIn("shell=True", command)
         self.assertEqual(command[-1], "exec uname -a")
+
+    def test_direct_fallback_isolates_user_config_and_agent(self):
+        route = {"ssh_args": ["agents@vds.intdata.pro"], "destination": "agents@vds.intdata.pro", "transport": "legacy", "fallback_used": False, "logical_host": None}
+        with mock.patch.object(ssh_exec, "resolve_target", return_value=route), mock.patch.object(ssh_exec, "resolve_ssh_executable", return_value="ssh"):
+            command, _ = ssh_exec.build_ssh_command("agents@vds.intdata.pro", ["true"])
+        self.assertIn("-F", command)
+        self.assertIn("none", command)
+        self.assertIn("IdentityAgent=none", command)
+        self.assertIn("ForwardAgent=no", command)
+        self.assertIn("ProxyCommand=none", command)
 
     def test_run_bounded_discards_excess_without_unbounded_capture(self):
         class Stream:
@@ -61,8 +80,8 @@ class IntSshExecTest(unittest.TestCase):
         self.assertFalse(timed_out)
         self.assertNotIn("shell", popen.call_args.kwargs)
 
-    def test_mutation_requires_confirmation_and_issue_before_spawn(self):
-        args = {"host": "dev-agents", "argv": ["true"], "execution_mode": "mutation"}
+    def test_arbitrary_execution_always_requires_confirmation_and_issue_before_spawn(self):
+        args = {"host": "dev-agents", "argv": ["rm", "-rf", "/tmp/example"]}
         with mock.patch.object(mcp_cli, "_run") as run:
             with self.assertRaises(PermissionError):
                 mcp_cli._call_runtime("ssh_execute", args)
@@ -74,8 +93,8 @@ class IntSshExecTest(unittest.TestCase):
                 mcp_cli._call_runtime("ssh_execute", args)
         run.assert_not_called()
 
-    def test_read_only_execution_builds_structured_engine_argv(self):
-        args = {"host": "dev-agents", "argv": ["uname", "-a"], "execution_mode": "read_only", "timeout_sec": 7}
+    def test_confirmed_execution_builds_structured_engine_argv(self):
+        args = {"host": "dev-agents", "argv": ["uname", "-a"], "confirm_mutation": True, "issue_context": "#816", "timeout_sec": 7}
         with mock.patch.object(mcp_cli, "_run", return_value={"ok": True}) as run:
             payload = mcp_cli._call_runtime("ssh_execute", args)
         self.assertTrue(payload["ok"])

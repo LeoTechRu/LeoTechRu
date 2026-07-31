@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import ipaddress
 import re
 import shlex
 import subprocess
@@ -26,7 +27,20 @@ DEFAULT_MAX_OUTPUT_BYTES = 262144
 def validate_destination(value: str) -> str:
     destination = value.strip()
     if not destination or destination.startswith("-") or not DESTINATION_RE.fullmatch(destination):
-        raise ValueError("SSH destination must be an explicit safe alias or [user@]host")
+        raise ValueError("SSH destination must be an explicit safe logical host or [user@]FQDN")
+    return destination
+
+
+def validate_direct_destination(value: str) -> str:
+    destination = validate_destination(value)
+    hostname = destination.rsplit("@", 1)[-1]
+    try:
+        ipaddress.ip_address(hostname)
+        return destination
+    except ValueError:
+        pass
+    if "." not in hostname or hostname.startswith(".") or hostname.endswith("."):
+        raise ValueError("native fallback requires an explicit FQDN/IP, not an untrusted SSH alias")
     return destination
 
 
@@ -60,13 +74,18 @@ def build_ssh_command(host: str, argv: Sequence[str], *, remote_cwd: str | None 
     # Unknown names are accepted only because the caller supplied that exact
     # destination. Nothing is inferred or substituted.
     if route.get("logical_host") is None:
-        ssh_args = [requested]
+        ssh_args = ["-F", "none", validate_direct_destination(requested)]
     command = [
         resolve_ssh_executable(),
         "-o", "BatchMode=yes",
         "-o", "PasswordAuthentication=no",
         "-o", "KbdInteractiveAuthentication=no",
         "-o", "StrictHostKeyChecking=yes",
+        "-o", "IdentityAgent=none",
+        "-o", "ForwardAgent=no",
+        "-o", "ClearAllForwardings=yes",
+        "-o", "PermitLocalCommand=no",
+        "-o", "ProxyCommand=none",
         *ssh_args,
         build_remote_command(argv, remote_cwd),
     ]

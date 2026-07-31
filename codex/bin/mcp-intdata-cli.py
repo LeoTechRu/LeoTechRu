@@ -109,10 +109,9 @@ RUNTIME_TOOLS = [
             "argv": _args_prop("Remote command argv; no local shell is used."),
             "remote_cwd": {"type": "string"},
             "mode": {"type": "string", "enum": ["auto", "tailnet", "public"]},
-            "execution_mode": {"type": "string", "enum": ["read_only", "mutation"]},
             "max_output_bytes": {"type": "integer", "minimum": 1024, "maximum": 1048576},
         },
-        ["host", "argv", "execution_mode"],
+        ["confirm_mutation", "issue_context", "host", "argv"],
     ),
     _tool("browser_profile_launch", "Deprecated compatibility: launch an allowed Firefox MCP profile. Mutating; requires confirmation.", {**COMMON_RUN_PROPS, **_mutation_props(), "profile": {"type": "string", "enum": BROWSER_PROFILE_NAMES}, "args": _args_prop("Optional launcher arguments.")}, ["confirm_mutation", "issue_context", "profile"]),
 ]
@@ -414,13 +413,9 @@ def _call_runtime(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
             argv.append("--destination-only")
         return _run(argv, cwd=cwd, timeout_sec=timeout)
     if name == "ssh_execute":
-        execution_mode = str(arguments.get("execution_mode") or "")
-        if execution_mode not in {"read_only", "mutation"}:
-            raise ValueError("execution_mode must be read_only or mutation")
-        if execution_mode == "mutation":
-            _require_mutation(arguments)
-            if not re.fullmatch(r"#[1-9][0-9]*", str(arguments.get("issue_context") or "")):
-                raise PermissionError("mutating SSH command requires issue_context=#N")
+        _require_mutation(arguments)
+        if not re.fullmatch(r"#[1-9][0-9]*", str(arguments.get("issue_context") or "")):
+            raise PermissionError("arbitrary SSH execution requires issue_context=#N")
         argv = [
             sys.executable,
             str(ROOT_DIR / "codex" / "bin" / "int_ssh_exec.py"),
