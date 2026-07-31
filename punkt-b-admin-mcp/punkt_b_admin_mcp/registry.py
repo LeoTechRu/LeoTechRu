@@ -49,6 +49,10 @@ class Registry:
 def load_registry() -> Registry:
     raw = files("punkt_b_admin_mcp").joinpath("capability_registry.json").read_bytes()
     payload = json.loads(raw)
+    output_raw = files("punkt_b_admin_mcp").joinpath("output_schemas.json").read_bytes()
+    output_schemas = json.loads(output_raw)
+    if not isinstance(output_schemas, dict):
+        raise ValueError("Output schema registry must be an object")
     if payload.get("contour") != "dev":
         raise ValueError("Capability registry must be dev-only")
     entries: list[ToolEntry] = []
@@ -67,7 +71,7 @@ def load_registry() -> Registry:
             raise ValueError(f"Tool name does not match service/operation: {name}")
         if risk not in RISK_CLASSES:
             raise ValueError(f"Invalid risk for {name}")
-        if not isinstance(item.get("input_schema"), dict) or not isinstance(item.get("output_schema"), dict):
+        if not isinstance(item.get("input_schema"), dict) or not isinstance(output_schemas.get(name), dict):
             raise ValueError(f"Missing schema for {name}")
         if item.get("required_permission") != "users:manage":
             raise ValueError(f"Invalid permission for {name}")
@@ -82,7 +86,7 @@ def load_registry() -> Registry:
             adapter=str(item.get("adapter", "")),
             risk=risk,
             input_schema=item["input_schema"],
-            output_schema=item["output_schema"],
+            output_schema=output_schemas[name],
             required_permission=item["required_permission"],
             required_secrets=tuple(item.get("required_secrets", [])),
             timeout_seconds=float(item.get("timeout_seconds", 10)),
@@ -99,5 +103,14 @@ def load_registry() -> Registry:
     service_inventory = {entry.service for entry in entries}
     if not REQUIRED_SERVICES.issubset(service_inventory):
         raise ValueError(f"Missing required services: {sorted(REQUIRED_SERVICES - service_inventory)}")
-    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    if set(output_schemas) != names:
+        raise ValueError("Output schema registry must exactly match the tool inventory")
+    if any(schema.get("type") != "object" or schema.get("additionalProperties") is not False for schema in output_schemas.values()):
+        raise ValueError("Every output schema must be a closed object")
+    canonical = json.dumps(
+        {"capabilities": payload, "output_schemas": output_schemas},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
     return Registry(str(payload["version"]), "dev", tuple(entries), hashlib.sha256(canonical).hexdigest())

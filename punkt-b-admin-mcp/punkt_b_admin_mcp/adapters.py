@@ -86,7 +86,7 @@ class AdapterDispatcher:
                 raw = await client.request("GET", "/api/v4/account")
                 if not isinstance(raw, dict):
                     raise GatewayError("PROVIDER_REQUEST_FAILED", "amoCRM returned invalid data")
-                return {key: raw[key] for key in ("id", "name", "subdomain", "country") if key in raw}
+                return {key: str(raw[key])[:200] for key in ("id", "name", "subdomain", "country") if key in raw}
             finally:
                 await client.close()
         except Exception as exc:
@@ -110,7 +110,7 @@ class AdapterDispatcher:
             items = []
             for lead in leads[:limit]:
                 if isinstance(lead, dict):
-                    items.append({key: lead[key] for key in ("id", "status", "created_at", "updated_at") if key in lead})
+                    items.append({key: str(lead[key])[:200] for key in ("id", "status", "created_at", "updated_at") if key in lead})
             return {"count": len(items), "leads": items}
         except Exception as exc:
             raise GatewayError("PROVIDER_REQUEST_FAILED", "Umnico read failed", retryable=True) from exc
@@ -138,7 +138,7 @@ class AdapterDispatcher:
                 candidates = candidates.get("groups", [])
             for group in candidates[:100] if isinstance(candidates, list) else []:
                 if isinstance(group, dict):
-                    groups.append({key: group[key] for key in ("id", "name", "title") if key in group})
+                    groups.append({key: str(group[key])[:200] for key in ("id", "name", "title") if key in group})
             return {"count": len(groups), "groups": groups}
         except GatewayError:
             raise
@@ -163,7 +163,7 @@ class AdapterDispatcher:
             profile = raw.get("result", raw) if isinstance(raw, dict) else {}
             if not isinstance(profile, dict):
                 raise GatewayError("PROVIDER_REQUEST_FAILED", "Bitrix24 returned invalid data")
-            return {key: profile[key] for key in ("ID", "ACTIVE", "ADMIN", "TIME_ZONE") if key in profile}
+            return {key: str(profile[key])[:200] for key in ("ID", "ACTIVE", "ADMIN", "TIME_ZONE") if key in profile}
         except Exception as exc:
             raise GatewayError("PROVIDER_REQUEST_FAILED", "Bitrix24 read failed", retryable=True) from exc
         finally:
@@ -176,7 +176,10 @@ class AdapterDispatcher:
         except ImportError as exc:
             raise GatewayError("ADAPTER_NOT_CONFIGURED", "vakas-mcp service library is not installed") from exc
         manifest = load_manifest()
-        return {"valid": True, "surfaces": len(manifest.get("surfaces", [])), "source": manifest.get("official_source")}
+        result = {"valid": True, "surfaces": len(manifest.get("surfaces", []))}
+        if isinstance(manifest.get("official_source"), str):
+            result["source"] = manifest["official_source"][:1000]
+        return result
 
     @staticmethod
     async def _deterministic_compute(payload: dict[str, Any], _caller_token: str) -> Any:
@@ -238,7 +241,7 @@ class AdapterDispatcher:
             candidates = data.get("result", [])
             for project in candidates[:100] if isinstance(candidates, list) else []:
                 if isinstance(project, dict):
-                    projects.append({key: project[key] for key in ("id", "title", "descr") if key in project})
+                    projects.append({key: str(project[key])[:500] for key in ("id", "title", "descr") if key in project})
             return {"count": len(projects), "projects": projects}
 
         return await asyncio.to_thread(read)

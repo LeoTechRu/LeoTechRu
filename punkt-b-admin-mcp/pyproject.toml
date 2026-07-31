@@ -22,7 +22,7 @@ punkt-b-admin-mcp = "punkt_b_admin_mcp.server:main"
 include = ["punkt_b_admin_mcp*"]
 
 [tool.setuptools.package-data]
-punkt_b_admin_mcp = ["capability_registry.json"]
+punkt_b_admin_mcp = ["capability_registry.json", "output_schemas.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

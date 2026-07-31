@@ -54,6 +54,11 @@ class RegistryTests(unittest.TestCase):
         self.assertGreater(len(writes), 0)
         self.assertTrue(all(tool.confirmation_required and tool.idempotency_required for tool in writes))
 
+    def test_every_runtime_output_schema_is_closed_and_bounded(self) -> None:
+        for tool in load_registry().tools:
+            self.assertEqual(tool.output_schema.get("type"), "object", tool.tool_name)
+            self.assertIs(tool.output_schema.get("additionalProperties"), False, tool.tool_name)
+
 
 class SecurityTests(unittest.TestCase):
     def test_write_gates_require_every_field_and_matching_hash(self) -> None:
@@ -110,7 +115,7 @@ class SecurityTests(unittest.TestCase):
         async def adapter(_payload: dict[str, object], _token: str) -> object:
             nonlocal calls
             calls += 1
-            return {"accepted": True}
+            return {"accepted": True, "receipt_id": "test-receipt"}
 
         dispatcher = AdapterDispatcher(config())
         dispatcher.register_for_test("test.write", adapter)

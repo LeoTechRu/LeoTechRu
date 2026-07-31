@@ -24,6 +24,14 @@ class GatewayError(ValueError):
 def validate_json_schema(value: Any, schema: dict[str, Any], *, path: str = "input") -> None:
     """Validate the bounded JSON-Schema subset used by the committed registry."""
     expected = schema.get("type")
+    if isinstance(expected, list):
+        if value is None and "null" in expected:
+            return
+        candidates = [item for item in expected if item != "null"]
+        if len(candidates) != 1:
+            raise GatewayError("INVALID_SCHEMA", f"{path} uses an unsupported type union")
+        validate_json_schema(value, {**schema, "type": candidates[0]}, path=path)
+        return
     if expected == "object":
         if not isinstance(value, dict):
             raise GatewayError("INVALID_INPUT", f"{path} must be an object")
@@ -64,6 +72,8 @@ def validate_json_schema(value: Any, schema: dict[str, Any], *, path: str = "inp
             raise GatewayError("INVALID_INPUT", f"{path} must be a number")
     elif expected == "boolean" and not isinstance(value, bool):
         raise GatewayError("INVALID_INPUT", f"{path} must be a boolean")
+    elif expected == "null" and value is not None:
+        raise GatewayError("INVALID_INPUT", f"{path} must be null")
     if "minimum" in schema and value < schema["minimum"]:
         raise GatewayError("INVALID_INPUT", f"{path} is below the minimum")
     if "maximum" in schema and value > schema["maximum"]:
