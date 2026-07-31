@@ -42,6 +42,14 @@ mailbox read-only; project files search metadata only under the fixed VFS root.
 Reporting and sales analytics are bounded deterministic computations. Mail
 bodies, attachments and binary project files are never returned.
 
+The gateway process is deployed only on the VDS. PC clients reach the same
+loopback URL through the approved tunnel and do not install provider libraries
+or receive provider secrets. The VDS checkout supplies the canonical
+`amocrm-mcp`, `getcourse-mcp`, `bitrix24-mcp` and `vakas-mcp` source packages;
+`requirements.lock` pins their third-party runtime dependencies. A deployment
+must set `PYTHONPATH` to those four reviewed source roots and record the exact
+`/int/tools` commit in its artifact manifest.
+
 The committed input schema is also the exact schema advertised by `tools/list`
 and is revalidated immediately before dispatch. Registry `output_schema`
 describes the adapter data field; the gateway wraps it in the stable

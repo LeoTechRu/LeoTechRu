@@ -155,6 +155,22 @@ class SecurityTests(unittest.TestCase):
         result = asyncio.run(AdapterDispatcher(config()).execute(entry, {"values": [1, 2.5, 3]}))
         self.assertEqual(result, {"count": 3, "sum": 6.5, "minimum": 1, "maximum": 3})
 
+    def test_adapter_output_schema_is_enforced(self) -> None:
+        entry = replace(
+            next(tool for tool in load_registry().tools if tool.risk == "read"),
+            adapter="test.invalid_output",
+            output_schema={"type": "object", "required": ["safe"], "additionalProperties": False,
+                           "properties": {"safe": {"type": "boolean"}}},
+        )
+
+        async def adapter(_payload: dict[str, object], _token: str) -> object:
+            return {"raw_remote_body": "must not escape"}
+
+        dispatcher = AdapterDispatcher(config())
+        dispatcher.register_for_test("test.invalid_output", adapter)
+        with self.assertRaisesRegex(GatewayError, "output"):
+            asyncio.run(dispatcher.execute(entry, {}))
+
 
 class ConfigTests(unittest.TestCase):
     def test_non_loopback_bind_is_rejected(self) -> None:

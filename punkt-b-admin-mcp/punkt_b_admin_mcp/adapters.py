@@ -65,7 +65,9 @@ class AdapterDispatcher:
         if adapter is None:
             raise GatewayError("ADAPTER_NOT_CONFIGURED", "Canonical service adapter is not configured")
         try:
-            return redact(await asyncio.wait_for(adapter(payload, caller_token), timeout=entry.timeout_seconds))
+            result = redact(await asyncio.wait_for(adapter(payload, caller_token), timeout=entry.timeout_seconds))
+            validate_json_schema(result, entry.output_schema, path="output")
+            return result
         except TimeoutError as exc:
             raise GatewayError("ADAPTER_TIMEOUT", "Service adapter timed out", retryable=True) from exc
 
@@ -81,7 +83,10 @@ class AdapterDispatcher:
             service_config = AmoConfig()
             client = AmoClient(AuthManager(service_config), service_config.base_url)
             try:
-                return await client.request("GET", "/api/v4/account")
+                raw = await client.request("GET", "/api/v4/account")
+                if not isinstance(raw, dict):
+                    raise GatewayError("PROVIDER_REQUEST_FAILED", "amoCRM returned invalid data")
+                return {key: raw[key] for key in ("id", "name", "subdomain", "country") if key in raw}
             finally:
                 await client.close()
         except Exception as exc:
@@ -100,7 +105,13 @@ class AdapterDispatcher:
         limit = min(25, max(1, int(payload.get("limit", 25))))
         client = UmnicoClient(api_key=api_key, base_url=os.getenv("UMNICO_BASE_URL", "https://api.umnico.com/v1.3"))
         try:
-            return await client.request("GET", f"/leads/{section}", params={"offset": 0, "limit": limit})
+            raw = await client.request("GET", f"/leads/{section}", params={"offset": 0, "limit": limit})
+            leads = raw if isinstance(raw, list) else raw.get("leads", []) if isinstance(raw, dict) else []
+            items = []
+            for lead in leads[:limit]:
+                if isinstance(lead, dict):
+                    items.append({key: lead[key] for key in ("id", "status", "created_at", "updated_at") if key in lead})
+            return {"count": len(items), "leads": items}
         except Exception as exc:
             raise GatewayError("PROVIDER_REQUEST_FAILED", "Umnico read failed", retryable=True) from exc
         finally:
@@ -121,7 +132,14 @@ class AdapterDispatcher:
             data = await client.get("/pl/api/account/groups")
             if isinstance(data, dict) and (data.get("success") is False or data.get("error")):
                 raise GatewayError("PROVIDER_REQUEST_FAILED", "GetCourse returned an error", retryable=False)
-            return data
+            groups = []
+            candidates = data.get("groups", data.get("result", [])) if isinstance(data, dict) else []
+            if isinstance(candidates, dict):
+                candidates = candidates.get("groups", [])
+            for group in candidates[:100] if isinstance(candidates, list) else []:
+                if isinstance(group, dict):
+                    groups.append({key: group[key] for key in ("id", "name", "title") if key in group})
+            return {"count": len(groups), "groups": groups}
         except GatewayError:
             raise
         except Exception as exc:
@@ -141,7 +159,11 @@ class AdapterDispatcher:
             raise GatewayError("ADAPTER_NOT_CONFIGURED", "Bitrix24 runtime webhook is not configured")
         client = Bitrix24Client(service_config)
         try:
-            return await client.call("profile")
+            raw = await client.call("profile")
+            profile = raw.get("result", raw) if isinstance(raw, dict) else {}
+            if not isinstance(profile, dict):
+                raise GatewayError("PROVIDER_REQUEST_FAILED", "Bitrix24 returned invalid data")
+            return {key: profile[key] for key in ("ID", "ACTIVE", "ADMIN", "TIME_ZONE") if key in profile}
         except Exception as exc:
             raise GatewayError("PROVIDER_REQUEST_FAILED", "Bitrix24 read failed", retryable=True) from exc
         finally:
@@ -212,7 +234,12 @@ class AdapterDispatcher:
                 raise GatewayError("PROVIDER_REQUEST_FAILED", "Tilda read failed", retryable=True) from exc
             if not isinstance(data, dict) or data.get("status") != "FOUND":
                 raise GatewayError("PROVIDER_REQUEST_FAILED", "Tilda returned an error")
-            return data.get("result", [])
+            projects = []
+            candidates = data.get("result", [])
+            for project in candidates[:100] if isinstance(candidates, list) else []:
+                if isinstance(project, dict):
+                    projects.append({key: project[key] for key in ("id", "title", "descr") if key in project})
+            return {"count": len(projects), "projects": projects}
 
         return await asyncio.to_thread(read)
 
@@ -256,7 +283,6 @@ class AdapterDispatcher:
             matches.append({
                 "id": str(chat.get("id", ""))[:64],
                 "title": title[:200],
-                "username": username[:100],
             })
             if len(matches) == 25:
                 break
