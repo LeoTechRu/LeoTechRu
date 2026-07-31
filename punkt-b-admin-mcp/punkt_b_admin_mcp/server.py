@@ -8,7 +8,9 @@ from typing import Any
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.settings import AuthSettings
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from punkt_b_admin_mcp.adapters import AdapterDispatcher
@@ -19,6 +21,29 @@ from punkt_b_admin_mcp.security import GatewayError, RateLimiter
 
 
 logger = logging.getLogger("punkt_b_admin_mcp.audit")
+
+
+class SecureFastMCP(FastMCP):
+    """Apply Host/Origin validation outside FastMCP's bearer middleware."""
+
+    def streamable_http_app(self):
+        app = super().streamable_http_app()
+        validator = self.settings.transport_security
+
+        async def validate_transport(request, call_next):
+            if validator is not None:
+                from mcp.server.transport_security import TransportSecurityMiddleware
+
+                rejection = await TransportSecurityMiddleware(validator).validate_request(
+                    request,
+                    is_post=request.method == "POST",
+                )
+                if rejection is not None:
+                    return rejection
+            return await call_next(request)
+
+        app.add_middleware(BaseHTTPMiddleware, dispatch=validate_transport)
+        return app
 
 
 def _ok(registry: Registry, entry: ToolEntry, data: Any, request_id: str) -> dict[str, Any]:
@@ -48,7 +73,7 @@ def create_server(config: Config | None = None, registry: Registry | None = None
     config = config or Config.load()
     registry = registry or load_registry()
     verifier = SupabaseAdminTokenVerifier(config)
-    mcp = FastMCP(
+    mcp = SecureFastMCP(
         "Punkt B Admin Gateway",
         instructions="Private dev gateway. Every call requires current users:manage authority.",
         token_verifier=verifier,
@@ -61,6 +86,11 @@ def create_server(config: Config | None = None, registry: Registry | None = None
             issuer_url=config.oauth_issuer,
             resource_server_url=config.resource_url,
             required_scopes=["users:manage"],
+        ),
+        transport_security=TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=["127.0.0.1:17443", "localhost:17443", "[::1]:17443"],
+            allowed_origins=["http://127.0.0.1:17443", "http://localhost:17443", "http://[::1]:17443"],
         ),
     )
     dispatcher = AdapterDispatcher(config)
@@ -141,6 +171,8 @@ def create_server(config: Config | None = None, registry: Registry | None = None
         if registered is None:
             raise RuntimeError(f"Failed to register tool: {entry.tool_name}")
         registered.parameters = entry.input_schema
+        registered.fn_metadata.arg_model.model_config["extra"] = "forbid"
+        registered.fn_metadata.arg_model.model_rebuild(force=True)
 
     return mcp
 

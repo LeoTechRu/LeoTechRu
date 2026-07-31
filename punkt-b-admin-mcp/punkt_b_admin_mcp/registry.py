@@ -14,6 +14,27 @@ REQUIRED_SERVICES = {
     "lk", "tilda", "amocrm", "umnico", "getcourse", "bitrix24", "vakas",
     "telegram", "accounting_mail", "reporting", "project_files", "sales_analytics",
 }
+REQUIRED_TOOL_NAMES = {
+    "punktb_lk_admin_context", "punktb_tilda_projects_list", "punktb_amocrm_account_get",
+    "punktb_umnico_chats_list", "punktb_getcourse_groups_list", "punktb_bitrix24_profile_get",
+    "punktb_vakas_manifest_validate", "punktb_telegram_search", "punktb_accounting_mail_threads_list",
+    "punktb_reporting_summary_compute", "punktb_project_files_search", "punktb_sales_analytics_summary_compute",
+    "punktb_amocrm_entity_update", "punktb_umnico_message_send", "punktb_getcourse_user_import",
+    "punktb_bitrix24_entity_update", "punktb_vakas_dispatch", "punktb_telegram_message_send",
+    "punktb_accounting_mail_message_send",
+}
+WRITE_INPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "confirm_write": {"type": "boolean"},
+        "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 200},
+        "target": {"type": "string", "minLength": 1, "maxLength": 500},
+        "preview": {},
+        "preview_hash": {"type": "string", "minLength": 64, "maxLength": 64},
+    },
+    "required": ["confirm_write", "idempotency_key", "target", "preview", "preview_hash"],
+    "additionalProperties": False,
+}
 
 
 @dataclass(frozen=True)
@@ -75,17 +96,25 @@ def load_registry() -> Registry:
             raise ValueError(f"Missing schema for {name}")
         if item.get("required_permission") != "users:manage":
             raise ValueError(f"Invalid permission for {name}")
-        if not isinstance(annotations, dict) or not REQUIRED_ANNOTATIONS.issubset(annotations):
+        if not isinstance(annotations, dict) or set(annotations) != REQUIRED_ANNOTATIONS:
             raise ValueError(f"Missing annotations for {name}")
         if risk in WRITE_RISKS and not (item.get("idempotency_required") and item.get("confirmation_required")):
             raise ValueError(f"Write-capable tool lacks gates: {name}")
+        read_only = risk in {"read", "compute"}
+        if bool(annotations["readOnlyHint"]) != read_only:
+            raise ValueError(f"Risk/readOnlyHint mismatch for {name}")
+        if bool(annotations["destructiveHint"]) != (risk == "destructive"):
+            raise ValueError(f"Risk/destructiveHint mismatch for {name}")
+        if bool(annotations["idempotentHint"]) != (read_only or bool(item.get("idempotency_required"))):
+            raise ValueError(f"Risk/idempotentHint mismatch for {name}")
+        input_schema = WRITE_INPUT_SCHEMA if risk in WRITE_RISKS else item["input_schema"]
         entry = ToolEntry(
             tool_name=name,
             service=service,
             operation=operation,
             adapter=str(item.get("adapter", "")),
             risk=risk,
-            input_schema=item["input_schema"],
+            input_schema=input_schema,
             output_schema=output_schemas[name],
             required_permission=item["required_permission"],
             required_secrets=tuple(item.get("required_secrets", [])),
@@ -101,14 +130,16 @@ def load_registry() -> Registry:
         names.add(name)
         entries.append(entry)
     service_inventory = {entry.service for entry in entries}
-    if not REQUIRED_SERVICES.issubset(service_inventory):
-        raise ValueError(f"Missing required services: {sorted(REQUIRED_SERVICES - service_inventory)}")
+    if service_inventory != REQUIRED_SERVICES:
+        raise ValueError("Service inventory must exactly match the approved 12 namespaces")
+    if names != REQUIRED_TOOL_NAMES:
+        raise ValueError("Tool inventory must exactly match the approved registry")
     if set(output_schemas) != names:
         raise ValueError("Output schema registry must exactly match the tool inventory")
     if any(schema.get("type") != "object" or schema.get("additionalProperties") is not False for schema in output_schemas.values()):
         raise ValueError("Every output schema must be a closed object")
     canonical = json.dumps(
-        {"capabilities": payload, "output_schemas": output_schemas},
+        {"capabilities": payload, "output_schemas": output_schemas, "write_input_schema": WRITE_INPUT_SCHEMA},
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),

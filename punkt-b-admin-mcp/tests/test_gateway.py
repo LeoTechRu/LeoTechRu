@@ -53,6 +53,9 @@ class RegistryTests(unittest.TestCase):
         writes = [tool for tool in load_registry().tools if tool.risk in {"write", "publish", "destructive"}]
         self.assertGreater(len(writes), 0)
         self.assertTrue(all(tool.confirmation_required and tool.idempotency_required for tool in writes))
+        for tool in writes:
+            self.assertEqual(set(tool.input_schema["properties"]), set(tool.input_schema["required"]))
+            self.assertIs(tool.input_schema["additionalProperties"], False)
 
     def test_every_runtime_output_schema_is_closed_and_bounded(self) -> None:
         for tool in load_registry().tools:
@@ -252,6 +255,46 @@ class ServerTests(unittest.TestCase):
         route_paths = {getattr(route, "path", None) for route in server.streamable_http_app().routes}
         self.assertIn("/.well-known/oauth-protected-resource/mcp", route_paths)
         self.assertIn("/mcp/.well-known/oauth-protected-resource", route_paths)
+
+    def test_runtime_argument_model_matches_advertised_closed_schema(self) -> None:
+        from pydantic import ValidationError
+        from punkt_b_admin_mcp.server import create_server
+
+        server = create_server(config())
+        read_entry = load_registry().by_name()["punktb_lk_admin_context"]
+        read_tool = server._tool_manager.get_tool(read_entry.tool_name)
+        self.assertIsNotNone(read_tool)
+        with self.assertRaises(ValidationError):
+            read_tool.fn_metadata.arg_model.model_validate({"unknown": True})
+
+        write_entry = load_registry().by_name()["punktb_amocrm_entity_update"]
+        write_tool = server._tool_manager.get_tool(write_entry.tool_name)
+        preview = {"action": "test"}
+        payload = {
+            "confirm_write": True,
+            "idempotency_key": "runtime-schema",
+            "target": "object:1",
+            "preview": preview,
+            "preview_hash": canonical_preview_hash(preview),
+        }
+        validated = write_tool.fn_metadata.arg_model.model_validate(payload)
+        self.assertEqual(validated.model_dump(), payload)
+
+    def test_transport_security_rejects_unknown_origin_before_auth(self) -> None:
+        from starlette.testclient import TestClient
+        from punkt_b_admin_mcp.server import create_server
+
+        app = create_server(config()).streamable_http_app()
+        with TestClient(app) as client:
+            response = client.get(
+                "/mcp",
+                headers={"host": "127.0.0.1:17443", "origin": "http://attacker.example:17443"},
+            )
+            absent_origin = client.get("/mcp", headers={"host": "127.0.0.1:17443"})
+            attacker_host = client.get("/mcp", headers={"host": "attacker.example:17443"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(absent_origin.status_code, 401)
+        self.assertEqual(attacker_host.status_code, 421)
 
 
 if __name__ == "__main__":
