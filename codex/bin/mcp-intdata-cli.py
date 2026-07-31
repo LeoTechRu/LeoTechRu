@@ -99,6 +99,21 @@ RUNTIME_TOOLS = [
     _tool("host_bootstrap", "Run Codex host bootstrap. Mutating; requires confirmation.", {**COMMON_RUN_PROPS, **_mutation_props(), "args": _args_prop()}, ["confirm_mutation", "issue_context"]),
     _tool("recovery_bundle", "Create a Codex recovery bundle. Mutating; requires confirmation.", {**COMMON_RUN_PROPS, **_mutation_props(), "args": _args_prop()}, ["confirm_mutation", "issue_context"]),
     _tool("ssh_resolve", "Resolve IntData SSH host transport and optional destination-only diagnostics.", {**COMMON_RUN_PROPS, "host": {"type": "string"}, "mode": {"type": "string"}, "json": {"type": "boolean"}, "destination_only": {"type": "boolean"}}, ["host"]),
+    _tool(
+        "ssh_execute",
+        "Run a bounded structured command through native OpenSSH. Mutating mode requires confirmation and issue context.",
+        {
+            **COMMON_RUN_PROPS,
+            **_mutation_props(),
+            "host": {"type": "string", "description": "Explicit SSH alias or [user@]host."},
+            "argv": _args_prop("Remote command argv; no local shell is used."),
+            "remote_cwd": {"type": "string"},
+            "mode": {"type": "string", "enum": ["auto", "tailnet", "public"]},
+            "execution_mode": {"type": "string", "enum": ["read_only", "mutation"]},
+            "max_output_bytes": {"type": "integer", "minimum": 1024, "maximum": 1048576},
+        },
+        ["host", "argv", "execution_mode"],
+    ),
     _tool("browser_profile_launch", "Deprecated compatibility: launch an allowed Firefox MCP profile. Mutating; requires confirmation.", {**COMMON_RUN_PROPS, **_mutation_props(), "profile": {"type": "string", "enum": BROWSER_PROFILE_NAMES}, "args": _args_prop("Optional launcher arguments.")}, ["confirm_mutation", "issue_context", "profile"]),
 ]
 
@@ -398,6 +413,31 @@ def _call_runtime(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if arguments.get("destination_only"):
             argv.append("--destination-only")
         return _run(argv, cwd=cwd, timeout_sec=timeout)
+    if name == "ssh_execute":
+        execution_mode = str(arguments.get("execution_mode") or "")
+        if execution_mode not in {"read_only", "mutation"}:
+            raise ValueError("execution_mode must be read_only or mutation")
+        if execution_mode == "mutation":
+            _require_mutation(arguments)
+            if not re.fullmatch(r"#[1-9][0-9]*", str(arguments.get("issue_context") or "")):
+                raise PermissionError("mutating SSH command requires issue_context=#N")
+        argv = [
+            sys.executable,
+            str(ROOT_DIR / "codex" / "bin" / "int_ssh_exec.py"),
+            "--host",
+            str(arguments["host"]),
+            "--json",
+        ]
+        if arguments.get("remote_cwd"):
+            argv.extend(["--remote-cwd", str(arguments["remote_cwd"])])
+        if arguments.get("mode"):
+            argv.extend(["--mode", str(arguments["mode"])])
+        if timeout is not None:
+            argv.extend(["--timeout-sec", str(timeout)])
+        if arguments.get("max_output_bytes") is not None:
+            argv.extend(["--max-output-bytes", str(arguments["max_output_bytes"])])
+        argv.extend(["--", *_safe_args(arguments.get("argv"))])
+        return _run(argv, cwd=cwd, timeout_sec=(int(timeout) + 5) if timeout is not None else 35)
     if name == "browser_profile_launch":
         _require_mutation(arguments)
         profile = str(arguments["profile"])

@@ -126,14 +126,20 @@ def resolve_ssh_executable() -> str:
 
 
 def endpoint_to_args(spec: TargetSpec, transport: str, config_path: Path | None, probe_timeout_sec: int) -> tuple[list[str], str]:
-    args = ["-o", "BatchMode=yes", "-o", f"ConnectTimeout={probe_timeout_sec}"]
+    args = [
+        "-o", "BatchMode=yes",
+        "-o", "PasswordAuthentication=no",
+        "-o", "KbdInteractiveAuthentication=no",
+        "-o", "StrictHostKeyChecking=yes",
+        "-o", f"ConnectTimeout={probe_timeout_sec}",
+    ]
     if config_path is not None:
         alias = spec.tailnet_alias if transport == "tailnet" else spec.public_alias
         args.extend(["-F", str(config_path), alias])
         return args, alias
 
     host = spec.tailnet_host if transport == "tailnet" else spec.public_host
-    args.extend(["-o", "StrictHostKeyChecking=accept-new", "-i", spec.identity_file, f"{spec.user}@{host}"])
+    args.extend(["-o", "IdentitiesOnly=yes", "-i", spec.identity_file, f"{spec.user}@{host}"])
     return args, f"{spec.user}@{host}"
 
 

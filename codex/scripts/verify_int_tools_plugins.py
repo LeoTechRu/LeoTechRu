@@ -19,7 +19,7 @@ FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane"}
 EXPECTED_COUNTS = {
     "intbrain": 31,
     "intdata-control": 12,
-    "intdata-runtime": 8,
+    "intdata-runtime": 9,
     "dba": 1,
 }
 
@@ -51,6 +51,7 @@ TOOL_SKILLS = {
         "host_bootstrap": "host-diagnostics",
         "recovery_bundle": "host-diagnostics",
         "ssh_resolve": "ssh",
+        "ssh_execute": "ssh",
         "browser_profile_launch": "firefox-devtools-testing",
         "intdata_vault_sanitize": "vault-maintenance",
         "intdata_runtime_vault_gc": "vault-maintenance",
@@ -109,7 +110,7 @@ REQUIRED_CARD_MARKERS = [
 # intentionally NOT here: they are advisory provenance, not high-risk mutation.
 GUARDED_TOOLS = {
     "openspec_archive", "openspec_change_mutate", "openspec_spec_mutate", "openspec_new", "openspec_exec_mutate",
-    "host_bootstrap", "recovery_bundle", "browser_profile_launch",
+    "host_bootstrap", "recovery_bundle", "browser_profile_launch", "ssh_execute",
     "intdata_vault_sanitize", "intdata_runtime_vault_gc",
     "intbrain_context_store", "intbrain_graph_link", "intbrain_group_policy_upsert", "intbrain_jobs_sync_runtime",
     "intbrain_job_policy_upsert", "intbrain_pm_task_create", "intbrain_pm_task_patch", "intbrain_import_vault_pm",
@@ -424,7 +425,7 @@ def verify_guard_cases(profile: str) -> None:
             ("openspec_archive", {"change_name": "guard-negative"}),
             ("openspec_change_mutate", {"subcommand": "set", "args": ["guard-negative"]}),
         ],
-        "intdata-runtime": [("host_bootstrap", {}), ("recovery_bundle", {}), ("browser_profile_launch", {"profile": "firefox-default"}), ("intdata_vault_sanitize", {"dry_run": False})],
+        "intdata-runtime": [("host_bootstrap", {}), ("recovery_bundle", {}), ("ssh_execute", {"host": "dev-agents", "argv": ["true"], "execution_mode": "mutation"}), ("browser_profile_launch", {"profile": "firefox-default"}), ("intdata_vault_sanitize", {"dry_run": False})],
         "intbrain": [("intbrain_context_store", {"owner_id": 1, "kind": "note", "title": "guard", "text_content": "guard"}), ("intbrain_pm_task_create", {"owner_id": 1, "title": "guard"}), ("intbrain_jobs_sync_runtime", {"owner_id": 1})],
         "dba": [("intdata_cli", {"command": "dba", "args": ["migrate", "apply"]})],
     }

@@ -1,7 +1,7 @@
 {
   "name": "intdata-runtime",
-  "version": "1.0.2",
-  "description": "intData runtime tools for host diagnostics, SSH, Firefox DevTools browser testing, vault sanitize, and runtime GC.",
+  "version": "1.1.0",
+  "description": "intData runtime tools for host diagnostics, resolver-first native SSH, Firefox DevTools browser testing, vault sanitize, and runtime GC.",
   "author": {
     "name": "IntData",
     "email": "owner@intdata.pro"
@@ -11,8 +11,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "intData Runtime",
-    "shortDescription": "Host, SSH, Firefox browser testing, vault and GC",
-    "longDescription": "Guarded intData runtime MCP tools for host preflight/bootstrap/recovery, SSH resolution, Firefox DevTools browser testing workflows, vault sanitize, and runtime GC.",
+    "shortDescription": "Host, guarded native SSH, Firefox browser testing, vault and GC",
+    "longDescription": "Guarded intData runtime MCP tools for host preflight/bootstrap/recovery, resolver-first bounded native SSH, Firefox DevTools browser testing workflows, vault sanitize, and runtime GC.",
     "developerName": "IntData",
     "category": "Developer Tools",
     "capabilities": [
@@ -23,7 +23,7 @@
     "brandColor": "#0F766E",
     "websiteURL": "https://intdata.pro/",
     "defaultPrompt": [
-      "Check host readiness and SSH route.",
+      "Check host readiness, resolve the preferred SSH route, and use guarded native SSH fallback only for an explicit destination.",
       "Use Firefox DevTools browser testing workflow for local browser-proof; legacy profile launch only with approval.",
       "Run dry-run vault maintenance."
     ]
