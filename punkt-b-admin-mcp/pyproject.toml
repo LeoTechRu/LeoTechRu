@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "punkt-b-admin-mcp"
+version = "0.1.0"
+description = "Private fail-closed network MCP gateway for Punkt B administration"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mcp==1.12.2",
+]
+
+[project.scripts]
+punkt-b-admin-mcp = "punkt_b_admin_mcp.server:main"
+
+[tool.setuptools.packages.find]
+include = ["punkt_b_admin_mcp*"]
+
+[tool.setuptools.package-data]
+punkt_b_admin_mcp = ["capability_registry.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
