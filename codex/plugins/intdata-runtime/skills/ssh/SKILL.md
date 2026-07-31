@@ -32,7 +32,7 @@ Use `ssh_resolve` as preferred read-only route discovery. It is an optimizer, no
 ### ssh_execute
 
 - Когда: нужно выполнить bounded remote command через system OpenSSH.
-- Required inputs: `host`, structured `argv`, `confirm_mutation=true`, `issue_context=#N`.
+- Required inputs: `host`, structured `argv`, `confirm_mutation`, `issue_context`. `confirm_mutation` must be `true`; `issue_context` must use `#N`.
 - Optional/schema inputs: `remote_cwd`, `mode`, `timeout_sec`, `max_output_bytes`.
 - Режим: guarded arbitrary execution; every call is treated as potentially mutating.
 - Approval / issue requirements: every arbitrary command requires `confirm_mutation=true`, `issue_context=#N`, owner approval and all production/destructive gates.
