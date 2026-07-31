@@ -129,8 +129,6 @@ def render_config_template(template_text: str, *, codex_home: Path) -> str:
                 "__MCP_OBSIDIAN_ARGS__": f'args = ["{tools_root}/codex/bin/mcp-obsidian-memory.sh"]',
                 "__MCP_BITRIX24_COMMAND__": "bash",
                 "__MCP_BITRIX24_ARGS__": f'args = ["{tools_root}/codex/bin/mcp-bitrix24.sh"]',
-                "__INTDATA_CONTROL_COMMAND__": f"{tools_root}/codex/bin/mcp-intdata-cli.cmd",
-                "__INTDATA_CONTROL_ARGS__": 'args = ["--profile", "intdata-control"]',
             }
         )
     else:
@@ -144,8 +142,6 @@ def render_config_template(template_text: str, *, codex_home: Path) -> str:
                 "__MCP_OBSIDIAN_ARGS__": "",
                 "__MCP_BITRIX24_COMMAND__": f"{tools_root}/codex/bin/mcp-bitrix24.sh",
                 "__MCP_BITRIX24_ARGS__": "",
-                "__INTDATA_CONTROL_COMMAND__": f"{tools_root}/codex/bin/mcp-intdata-cli.sh",
-                "__INTDATA_CONTROL_ARGS__": 'args = ["--profile", "intdata-control"]',
             }
         )
 

@@ -8,7 +8,6 @@
   },
   "license": "Proprietary",
   "skills": "./skills",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "intData Runtime",
     "shortDescription": "Host, guarded native SSH, Firefox browser testing, vault and GC",

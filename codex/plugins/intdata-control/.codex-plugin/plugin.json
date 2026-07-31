@@ -8,7 +8,6 @@
   },
   "license": "Proprietary",
   "skills": "./skills",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "intData Control",
     "shortDescription": "OpenSpec \u0438 routing",

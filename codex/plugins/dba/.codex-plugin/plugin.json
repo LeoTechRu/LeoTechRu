@@ -8,7 +8,6 @@
   },
   "license": "Proprietary",
   "skills": "./skills",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "intData Tools DBA",
     "shortDescription": "DB doctor, миграции и smoke-проверки",

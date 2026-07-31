@@ -273,9 +273,15 @@ def verify_manifests(report: dict[str, Any]) -> None:
         manifest = json.loads((plugin_dir / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         if manifest.get("name") != name:
             report["manifest_errors"].append(f"manifest name mismatch for {name}")
-        for key in ("skills", "mcpServers", "interface"):
+        required_keys = ("skills", "mcpServers", "interface") if name == "intbrain" else ("skills", "interface")
+        for key in required_keys:
             if key not in manifest:
                 report["manifest_errors"].append(f"{name} missing {key}")
+        if name != "intbrain":
+            if "mcpServers" in manifest:
+                report["manifest_errors"].append(f"{name} must use host-native registration, not bundled mcpServers")
+            if (plugin_dir / ".mcp.json").exists():
+                report["manifest_errors"].append(f"{name} must not bundle .mcp.json")
         interface = manifest.get("interface", {})
         for key in ("displayName", "shortDescription", "longDescription", "defaultPrompt", "brandColor"):
             if key not in interface:

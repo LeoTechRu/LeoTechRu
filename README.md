@@ -135,8 +135,8 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `D:\int\tools\codex\bin\openspec.cmd` — tracked Windows CMD operator/adapter entrypoint для локального OpenSpec CLI; agents with MCP tools use `intdata-control` OpenSpec tools first;
 - Native git sync/publish path: `git status --short --branch`, `git fetch --prune origin`, `git pull --ff-only` only on a clean checkout when behind, and owner-approved `ALLOW_MAIN_PUSH=1 git push origin main:main` for `main`;
 - `python /int/tools/codex/bin/agent_tool_routing.py validate --strict --json` — validate registry и blocker-rules для V1 high-risk tooling;
-- `D:\int\tools\codex\bin\mcp-intdata-cli.cmd --profile intdata-control` — primary Codex App MCP wrapper для OpenSpec и routing; `INT-*` issue state разрешается через `gh` и workspace mapping;
-- `D:\int\tools\codex\bin\mcp-intdata-cli.cmd --profile intdata-runtime` — MCP wrapper для host/ssh/browser runtime tooling, vault sanitize и runtime GC;
+- `bash /int/tools/codex/bin/register-intdata-mcp.sh` или `pwsh -File D:\int\tools\codex\bin\register-intdata-mcp.ps1` — read-only проверка трёх host-native регистраций `intdata-control`, `intdata-runtime`, `dba`;
+- те же команды с `--apply` создают отсутствующие регистрации через `codex mcp add`; замена drift требует `--replace`, а восстановление выполняется как `--rollback <backup.json> --apply`;
 - `python -m unittest discover -s agent_plane/tests -p test_*.py -v` — unit/integration smoke neutral Agent Tool Plane;
 - `pwsh -File /int/tools/codex/bin/mcp-firefox-devtools.ps1 -ProfileKey firefox-default -StartUrl http://127.0.0.1:8080/ -DryRun` — dry-run канонического Firefox DevTools MCP launcher-а;
 - `bash /int/tools/openclaw/ops/verify.sh` — проверка overlay OpenClaw;
@@ -185,7 +185,9 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 - Active plugin category: `Developer Tools`.
 - Removed active plugin IDs: `coordctl`, `agent-plane`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
 - Cabinet-related inventory/import tooling is outside public intTools; old standalone local product directories are not deleted without count-check and owner acceptance.
-- CLI-backed plugins use `codex/bin/mcp-intdata-cli.py` through profile launchers. Wrappers accept structured command args only; arbitrary shell strings are not supported.
+- `intdata-control`, `intdata-runtime` и `dba` являются registry-neutral plugin-пакетами без bundled `.mcp.json`; каждая ОС отдельно регистрирует их через native `codex mcp add` с абсолютными путями к проверенному Python и `codex/bin/mcp-intdata-cli.py`.
+- Установка или переустановка plugin-пакета сама по себе не создаёт и не заменяет MCP-регистрации. Default registration mode только сравнивает inventory; apply всегда оставляет rollback backup и не переносит env/cwd из существующих записей.
+- CLI-backed MCP profiles принимают только structured command args; arbitrary shell strings не поддерживаются.
 - Mutating commands require `confirm_mutation: true` and `issue_context` in `INT-*` format.
 - Hard migration note: old plugin IDs `intdata-routing`, `intdata-delivery`, `intdata-host`, `intdata-ssh`, `intdata-browser` removed; tools renamed to consolidated governance/runtime surface without aliases.
 
