@@ -22,13 +22,6 @@ import codex_recovery_bundle as recovery_bundle  # noqa: E402
 
 class HostRuntimeEntrypointsTest(unittest.TestCase):
     def test_windows_dispatch_uses_powershell_adapters(self) -> None:
-        command = host_bootstrap.build_repo_step_command(
-            "codex/tools/install_tools.sh",
-            "codex/tools/install_tools.ps1",
-            binding_origin="ignored",
-        )
-        self.assertTrue(command[0].lower().endswith(("pwsh", "powershell", "pwsh.exe", "powershell.exe")))
-
         original = host_bootstrap.current_platform
         original_ps = host_bootstrap.resolve_powershell
         host_bootstrap.current_platform = lambda: "windows"
@@ -36,10 +29,15 @@ class HostRuntimeEntrypointsTest(unittest.TestCase):
         self.addCleanup(setattr, host_bootstrap, "current_platform", original)
         self.addCleanup(setattr, host_bootstrap, "resolve_powershell", original_ps)
 
-        install_command = host_bootstrap.build_repo_step_command("codex/tools/install_tools.sh", "codex/tools/install_tools.ps1")
+        install_command = host_bootstrap.build_repo_step_command(
+            "codex/tools/install_tools.sh",
+            "codex/tools/install_tools.ps1",
+            binding_origin="ignored",
+        )
 
         self.assertEqual(install_command[:2], ["pwsh", "-File"])
-        self.assertTrue(install_command[2].endswith("codex\\tools\\install_tools.ps1"))
+        self.assertTrue(install_command[2].replace("\\", "/").endswith("codex/tools/install_tools.ps1"))
+        self.assertEqual(install_command[3:], ["-BindingOrigin", "ignored"])
 
     def test_windows_openclaw_adapter_is_machine_readable(self) -> None:
         pwsh = shutil.which("pwsh") or shutil.which("powershell")
