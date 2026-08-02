@@ -27,7 +27,15 @@ class RegistrationError(RuntimeError):
 
 
 def run_command(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(argv, text=True, capture_output=True, timeout=30, **kwargs)
+    return subprocess.run(
+        argv,
+        text=True,
+        encoding="utf-8",
+        errors="strict",
+        capture_output=True,
+        timeout=30,
+        **kwargs,
+    )
 
 
 def require_absolute_file(value: str, label: str) -> Path:

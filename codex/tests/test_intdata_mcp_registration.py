@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "bin" / "intdata_mcp_registration.py"
 SPEC = importlib.util.spec_from_file_location("intdata_mcp_registration", MODULE_PATH)
@@ -63,6 +64,18 @@ class RegistrationTests(unittest.TestCase):
 
     def exact_rows(self):
         return [row(name, wanted["command"], wanted["args"]) for name, wanted in self.wanted.items()]
+
+    def test_subprocess_output_is_decoded_as_utf8(self):
+        completed = subprocess.CompletedProcess(
+            ["codex", "mcp", "list", "--json"],
+            0,
+            "[]",
+            "",
+        )
+        with patch.object(registration.subprocess, "run", return_value=completed) as run:
+            registration.run_command(["codex", "mcp", "list", "--json"])
+        self.assertEqual(run.call_args.kwargs["encoding"], "utf-8")
+        self.assertEqual(run.call_args.kwargs["errors"], "strict")
 
     def test_classifies_exact_missing_and_drift(self):
         current = {name: value.copy() for name, value in self.wanted.items()}
