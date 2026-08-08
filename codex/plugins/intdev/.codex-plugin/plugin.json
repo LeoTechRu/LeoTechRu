@@ -1,0 +1,26 @@
+{
+  "name": "intdev",
+  "version": "1.0.0-dev.1",
+  "description": "Десять приватных workflow-навыков intData для Issues, OpenSpec, coordination, review, routing и delivery acceptance.",
+  "author": {
+    "name": "intData",
+    "email": "owner@intdata.pro"
+  },
+  "license": "Proprietary",
+  "skills": "./skills",
+  "interface": {
+    "displayName": "intDev",
+    "shortDescription": "intData governance и delivery workflows",
+    "longDescription": "Приватный distributable routing-пакет семейства intData. Канонические требования остаются в root AGENTS/OpenSpec; skills маршрутизируют к ним, не присваивают полномочия adapters и не делают отказ одного adapter глобальным запретом.",
+    "developerName": "intData",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#2563EB",
+    "websiteURL": "https://intdata.pro/mcp",
+    "defaultPrompt": [
+      "Определить Issue и OpenSpec уровень текущей работы.",
+      "Проверить coordination scope перед изменениями.",
+      "Провести evidence-based acceptance или review."
+    ]
+  }
+}

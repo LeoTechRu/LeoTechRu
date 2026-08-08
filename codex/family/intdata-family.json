@@ -1,0 +1,387 @@
+{
+  "$schema": "./intdata-family.schema.json",
+  "schema_version": "intdata.family-manifest/v1",
+  "release_state": "candidate",
+  "release_id": "intdata-family-candidate-1",
+  "revision": 1,
+  "generated_at": "2026-08-05T20:00:00Z",
+  "marketplace": {
+    "id": "intdata",
+    "display_name": "intData",
+    "repository": "https://github.com/LeoTechPro/intData-tools.git"
+  },
+  "routing_policy": {
+    "probe_failure_scope": "probe-route-only",
+    "alternative_routes": "independently-authorized",
+    "probe_mutations": "fail-closed",
+    "os_aware": true
+  },
+  "mcp_resources": [
+    {
+      "id": "agent",
+      "display_name": "intData Agent",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Agent",
+      "endpoint": "https://intdata.pro/mcp/agent",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/agent",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "owner-only",
+      "oauth_resource": "https://intdata.pro/mcp/agent",
+      "scopes": ["agent.read", "agent.mutate", "agent.admin"],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/agent",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-agent.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/agent.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "brain",
+      "display_name": "intData Brain",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Brain",
+      "endpoint": "https://intdata.pro/mcp/brain",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/brain",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "authenticated",
+      "oauth_resource": "https://intdata.pro/mcp/brain",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/brain",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intBrain-server.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/brain.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "probe",
+      "display_name": "intData Bridge Probe",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Bridge",
+      "endpoint": "https://intdata.pro/mcp/probe",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/probe",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "owner-only",
+      "oauth_resource": "https://intdata.pro/mcp/probe",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/probe",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-bridge.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/probe.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "platform",
+      "display_name": "intData Platform",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Platform",
+      "endpoint": "https://intdata.pro/mcp/platform",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/platform",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "owner-only",
+      "oauth_resource": "https://intdata.pro/mcp/platform",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/platform",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-backend.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/platform.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "punkt-b",
+      "display_name": "Punkt B",
+      "release_version": "1.0.0-dev.1",
+      "owner": "Punkt B",
+      "endpoint": "https://intdata.pro/mcp/punkt-b",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/punkt-b",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "authenticated",
+      "oauth_resource": "https://intdata.pro/mcp/punkt-b",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/punkt-b",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/punkt-b.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/punkt-b.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "crm",
+      "display_name": "intData CRM",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData CRM",
+      "endpoint": "https://intdata.pro/mcp/crm",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/crm",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "authenticated",
+      "oauth_resource": "https://intdata.pro/mcp/crm",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/crm",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intCRM-backend.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/crm.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "cms",
+      "display_name": "intData CMS",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData CMS",
+      "endpoint": "https://intdata.pro/mcp/cms",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/cms",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "authenticated",
+      "oauth_resource": "https://intdata.pro/mcp/cms",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/cms",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-backend.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/cms.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "lms",
+      "display_name": "intData LMS",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData LMS",
+      "endpoint": "https://intdata.pro/mcp/lms",
+      "metadata_uri": "https://intdata.pro/.well-known/oauth-protected-resource/mcp/lms",
+      "visibility": "public",
+      "install_access": "not-applicable",
+      "runtime_access": "authenticated",
+      "oauth_resource": "https://intdata.pro/mcp/lms",
+      "scopes": [],
+      "maturity": "planned",
+      "availability": "unavailable",
+      "authorization": {
+        "state": "unconfigured",
+        "audience": "https://intdata.pro/mcp/lms",
+        "external_bearer_forwarding": false,
+        "downstream_credential": "none"
+      },
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-backend.git",
+        "subdir": ".",
+        "manifest_path": "mcp/resources/lms.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "LICENSE",
+        "license_sha256": null
+      }
+    }
+  ],
+  "plugins": [
+    {
+      "id": "intbridge",
+      "display_name": "intData Bridge",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Bridge",
+      "category": "Developer Tools",
+      "visibility": "public",
+      "source_access": "private",
+      "install_access": "authenticated",
+      "runtime_access": "component-gated",
+      "oauth_resource": null,
+      "maturity": "planned",
+      "availability": "unavailable",
+      "skills": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration", "dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"],
+      "components": [
+        {
+          "id": "probe",
+          "display_name": "intData Bridge Probe",
+          "skills": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration"],
+          "runtime_access": "owner-only",
+          "mcp_resource": "probe",
+          "oauth_resource": "https://intdata.pro/mcp/probe",
+          "scopes": [],
+          "approval_policy": "probe-confirmation",
+          "credential_boundary": "probe",
+          "service_boundary": "probe",
+          "state_boundary": "probe"
+        },
+        {
+          "id": "dba",
+          "display_name": "intData Bridge DBA",
+          "skills": ["dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"],
+          "runtime_access": "policy-gated",
+          "mcp_resource": null,
+          "oauth_resource": null,
+          "scopes": [],
+          "approval_policy": "route-specific",
+          "credential_boundary": "dba",
+          "service_boundary": "dba",
+          "state_boundary": "dba"
+        }
+      ],
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-bridge.git",
+        "subdir": "plugins/intbridge",
+        "manifest_path": "plugins/intbridge/.codex-plugin/plugin.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "plugins/intbridge/LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "intagent",
+      "display_name": "intAgent",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Agent",
+      "category": "Developer Tools",
+      "visibility": "public",
+      "source_access": "private",
+      "install_access": "authenticated",
+      "runtime_access": "owner-only",
+      "oauth_resource": "https://intdata.pro/mcp/agent",
+      "maturity": "planned",
+      "availability": "unavailable",
+      "skills": ["agent-control", "environment-detection", "mode-resolution", "mode-router", "host-diagnostics", "hypothesis-diagnosis", "ssh", "firefox-devtools-testing", "vault-maintenance"],
+      "components": [],
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-agent.git",
+        "subdir": "plugins/intagent",
+        "manifest_path": "plugins/intagent/.codex-plugin/plugin.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "MIT",
+        "license_path": "plugins/intagent/LICENSE",
+        "license_sha256": null
+      }
+    },
+    {
+      "id": "intdev",
+      "display_name": "intDev",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Root Governance",
+      "category": "Developer Tools",
+      "visibility": "public",
+      "source_access": "private",
+      "install_access": "authenticated",
+      "runtime_access": "authenticated",
+      "oauth_resource": null,
+      "maturity": "planned",
+      "availability": "unavailable",
+      "skills": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"],
+      "components": [],
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-tools.git",
+        "subdir": "codex/plugins/intdev",
+        "manifest_path": "codex/plugins/intdev/.codex-plugin/plugin.json",
+        "commit": null,
+        "tree_sha256": null,
+        "manifest_sha256": null,
+        "license": "Proprietary",
+        "license_path": "codex/plugins/intdev/LICENSE",
+        "license_sha256": null
+      }
+    }
+  ]
+}

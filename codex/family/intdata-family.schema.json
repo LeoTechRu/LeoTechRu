@@ -1,0 +1,444 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://intdata.pro/schemas/intdata-family-manifest-v1.json",
+  "title": "intData family manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_state",
+    "release_id",
+    "revision",
+    "generated_at",
+    "marketplace",
+    "routing_policy",
+    "mcp_resources",
+    "plugins"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": "intdata.family-manifest/v1"},
+    "release_state": {"enum": ["candidate", "released"]},
+    "release_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "generated_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "marketplace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name", "repository"],
+      "properties": {
+        "id": {"const": "intdata"},
+        "display_name": {"const": "intData"},
+        "repository": {"const": "https://github.com/LeoTechPro/intData-tools.git"}
+      }
+    },
+    "routing_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["probe_failure_scope", "alternative_routes", "probe_mutations", "os_aware"],
+      "properties": {
+        "probe_failure_scope": {"const": "probe-route-only"},
+        "alternative_routes": {"const": "independently-authorized"},
+        "probe_mutations": {"const": "fail-closed"},
+        "os_aware": {"const": true}
+      }
+    },
+    "mcp_resources": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/mcp_resource"},
+      "minItems": 1
+    },
+    "plugins": {
+      "$ref": "#/$defs/plugin_collection"
+    }
+  },
+  "$defs": {
+    "sha256_or_null": {
+      "oneOf": [
+        {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        {"type": "null"}
+      ]
+    },
+    "commit_or_null": {
+      "oneOf": [
+        {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        {"type": "null"}
+      ]
+    },
+    "authorization_profile": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "audience", "external_bearer_forwarding", "downstream_credential"],
+          "properties": {
+            "state": {"const": "unconfigured"},
+            "audience": {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+            "external_bearer_forwarding": {"const": false},
+            "downstream_credential": {"const": "none"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state", "audience", "issuer", "verification", "token_type",
+            "subject_claim", "entitlement_claim", "entitlement_max_age_seconds",
+            "external_bearer_forwarding", "downstream_credential"
+          ],
+          "properties": {
+            "state": {"const": "configured"},
+            "audience": {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+            "issuer": {"type": "string", "pattern": "^https://"},
+            "verification": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["method", "jwks_uri"],
+                  "properties": {
+                    "method": {"const": "jwks"},
+                    "jwks_uri": {"type": "string", "pattern": "^https://"}
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["method", "introspection_uri"],
+                  "properties": {
+                    "method": {"const": "introspection"},
+                    "introspection_uri": {"type": "string", "pattern": "^https://"}
+                  }
+                }
+              ]
+            },
+            "token_type": {"enum": ["jwt", "opaque"]},
+            "subject_claim": {"type": "string", "minLength": 1},
+            "entitlement_claim": {"type": "string", "minLength": 1},
+            "entitlement_max_age_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+            "external_bearer_forwarding": {"const": false},
+            "downstream_credential": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "issuer", "audience", "algorithm", "key_id", "ttl_seconds"],
+              "properties": {
+                "kind": {"const": "bounded-internal-assertion"},
+                "issuer": {"type": "string", "minLength": 1},
+                "audience": {"type": "string", "minLength": 1},
+                "algorithm": {"type": "string", "minLength": 1},
+                "key_id": {"type": "string", "minLength": 1},
+                "ttl_seconds": {"type": "integer", "minimum": 1, "maximum": 60}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository", "subdir", "manifest_path", "commit", "tree_sha256",
+        "manifest_sha256", "license", "license_path", "license_sha256"
+      ],
+      "properties": {
+        "repository": {"type": "string", "pattern": "^https://github\\.com/LeoTechPro/[A-Za-z0-9._-]+\\.git$"},
+        "subdir": {"type": "string", "pattern": "^(?:\\.|[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*)$"},
+        "manifest_path": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+        "commit": {"$ref": "#/$defs/commit_or_null"},
+        "tree_sha256": {"$ref": "#/$defs/sha256_or_null"},
+        "manifest_sha256": {"$ref": "#/$defs/sha256_or_null"},
+        "license": {"type": "string", "minLength": 1},
+        "license_path": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+        "license_sha256": {"$ref": "#/$defs/sha256_or_null"}
+      }
+    },
+    "mcp_resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "display_name", "release_version", "owner", "endpoint", "metadata_uri", "visibility",
+        "install_access", "runtime_access", "oauth_resource", "scopes", "maturity",
+        "availability", "authorization", "provenance"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": ["id"],
+            "properties": {"id": {"const": "probe"}}
+          },
+          "then": {
+            "properties": {
+              "display_name": {"const": "intData Bridge Probe"},
+              "owner": {"const": "intData Bridge"},
+              "provenance": {
+                "properties": {
+                  "repository": {"const": "https://github.com/LeoTechPro/intData-bridge.git"}
+                }
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "release_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"},
+        "owner": {"type": "string", "minLength": 1},
+        "endpoint": {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+        "metadata_uri": {"type": "string", "pattern": "^https://intdata\\.pro/\\.well-known/oauth-protected-resource/mcp/[a-z0-9-]+$"},
+        "visibility": {"enum": ["public", "authenticated", "owner-only"]},
+        "install_access": {"const": "not-applicable"},
+        "runtime_access": {"enum": ["public", "authenticated", "owner-only"]},
+        "oauth_resource": {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+        "scopes": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "maturity": {"enum": ["planned", "dev", "preview", "stable"]},
+        "availability": {"enum": ["available", "unavailable"]},
+        "authorization": {"$ref": "#/$defs/authorization_profile"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "plugin_collection": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/plugin"},
+      "allOf": [
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intbridge"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intagent"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intdev"}}},
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "probe_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name", "skills", "runtime_access", "mcp_resource", "oauth_resource", "scopes", "approval_policy", "credential_boundary", "service_boundary", "state_boundary"],
+      "properties": {
+        "id": {"const": "probe"},
+        "display_name": {"const": "intData Bridge Probe"},
+        "skills": {"const": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration"]},
+        "runtime_access": {"const": "owner-only"},
+        "mcp_resource": {"const": "probe"},
+        "oauth_resource": {"const": "https://intdata.pro/mcp/probe"},
+        "scopes": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "approval_policy": {"const": "probe-confirmation"},
+        "credential_boundary": {"const": "probe"},
+        "service_boundary": {"const": "probe"},
+        "state_boundary": {"const": "probe"}
+      }
+    },
+    "dba_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name", "skills", "runtime_access", "mcp_resource", "oauth_resource", "scopes", "approval_policy", "credential_boundary", "service_boundary", "state_boundary"],
+      "properties": {
+        "id": {"const": "dba"},
+        "display_name": {"const": "intData Bridge DBA"},
+        "skills": {"const": ["dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"]},
+        "runtime_access": {"const": "policy-gated"},
+        "mcp_resource": {"const": null},
+        "oauth_resource": {"const": null},
+        "scopes": {"const": []},
+        "approval_policy": {"const": "route-specific"},
+        "credential_boundary": {"const": "dba"},
+        "service_boundary": {"const": "dba"},
+        "state_boundary": {"const": "dba"}
+      }
+    },
+    "plugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "display_name", "release_version", "owner", "category", "visibility", "source_access", "install_access",
+        "runtime_access", "oauth_resource", "maturity", "availability", "skills", "components", "provenance"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": ["id"],
+            "properties": {"id": {"const": "intbridge"}}
+          },
+          "then": {
+            "properties": {
+              "skills": {"const": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration", "dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"]},
+              "components": {
+                "minItems": 2,
+                "maxItems": 2,
+                "prefixItems": [
+                  {"$ref": "#/$defs/probe_component"},
+                  {"$ref": "#/$defs/dba_component"}
+                ],
+                "items": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["id"],
+            "properties": {"id": {"enum": ["intagent", "intdev"]}}
+          },
+          "then": {
+            "properties": {"components": {"maxItems": 0}}
+          }
+        },
+        {
+          "if": {"required": ["id"], "properties": {"id": {"const": "intagent"}}},
+          "then": {"properties": {"skills": {"const": ["agent-control", "environment-detection", "mode-resolution", "mode-router", "host-diagnostics", "hypothesis-diagnosis", "ssh", "firefox-devtools-testing", "vault-maintenance"]}}}
+        },
+        {
+          "if": {"required": ["id"], "properties": {"id": {"const": "intdev"}}},
+          "then": {"properties": {"skills": {"const": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"]}}}
+        }
+      ],
+      "properties": {
+        "id": {"enum": ["intbridge", "intagent", "intdev"]},
+        "display_name": {"type": "string", "minLength": 1},
+        "release_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"},
+        "owner": {"type": "string", "minLength": 1},
+        "category": {"const": "Developer Tools"},
+        "visibility": {"const": "public"},
+        "source_access": {"enum": ["public", "private"]},
+        "install_access": {"enum": ["public", "authenticated"]},
+        "runtime_access": {"enum": ["public", "authenticated", "owner-only", "policy-gated", "component-gated"]},
+        "oauth_resource": {
+          "oneOf": [
+            {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+            {"type": "null"}
+          ]
+        },
+        "maturity": {"enum": ["planned", "dev", "preview", "stable"]},
+        "availability": {"enum": ["available", "unavailable"]},
+        "skills": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+          "uniqueItems": true
+        },
+        "components": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/component"},
+          "uniqueItems": true
+        },
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "display_name", "skills", "runtime_access", "mcp_resource", "oauth_resource",
+        "scopes", "approval_policy", "credential_boundary", "service_boundary", "state_boundary"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "skills": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "runtime_access": {"enum": ["public", "authenticated", "owner-only", "policy-gated"]},
+        "mcp_resource": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+            {"type": "null"}
+          ]
+        },
+        "oauth_resource": {
+          "oneOf": [
+            {"type": "string", "pattern": "^https://intdata\\.pro/mcp/[a-z0-9-]+$"},
+            {"type": "null"}
+          ]
+        },
+        "scopes": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "approval_policy": {"type": "string", "minLength": 1},
+        "credential_boundary": {"type": "string", "minLength": 1},
+        "service_boundary": {"type": "string", "minLength": 1},
+        "state_boundary": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["id"],
+            "properties": {"id": {"const": "dba"}}
+          },
+          "then": {
+            "$ref": "#/$defs/dba_component"
+          }
+        }
+      ]
+    },
+    "family_catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "release_id", "revision", "generated_at", "family_hash",
+        "mcp_resources", "plugins"
+      ],
+      "properties": {
+        "schema_version": {"const": "intdata.family-catalog/v1"},
+        "release_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 1},
+        "generated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "family_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mcp_resources": {"type": "array", "items": {"$ref": "#/$defs/mcp_resource"}, "minItems": 1},
+        "plugins": {"$ref": "#/$defs/plugin_collection"}
+      }
+    },
+    "family_activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "release_id", "revision", "generated_at", "family_hash", "projections"
+      ],
+      "properties": {
+        "schema_version": {"const": "intdata.family-activation/v1"},
+        "release_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 1},
+        "generated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "family_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "projections": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["catalog", "catalog_schema", "release_lock", "marketplace"],
+          "properties": {
+            "catalog": {"allOf": [{"$ref": "#/$defs/activation_projection"}, {"properties": {"path": {"const": "intdata.family-catalog.v1.json"}}}]},
+            "catalog_schema": {"allOf": [{"$ref": "#/$defs/activation_projection"}, {"properties": {"path": {"const": "intdata.family-catalog.v1.schema.json"}}}]},
+            "release_lock": {"allOf": [{"$ref": "#/$defs/activation_projection"}, {"properties": {"path": {"const": "intdata.family-release-lock.v1.json"}}}]},
+            "marketplace": {"allOf": [{"$ref": "#/$defs/activation_projection"}, {"properties": {"path": {"const": "marketplace.json"}}}]}
+          }
+        }
+      }
+    },
+    "activation_projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"enum": [
+          "intdata.family-catalog.v1.json",
+          "intdata.family-catalog.v1.schema.json",
+          "intdata.family-release-lock.v1.json",
+          "marketplace.json"
+        ]},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}
