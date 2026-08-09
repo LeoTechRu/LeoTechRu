@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "codex" / "scripts" / "generate_intdata_family.py"
 MANIFEST = ROOT / "codex" / "family" / "intdata-family.json"
 SCHEMA = ROOT / "codex" / "family" / "intdata-family.schema.json"
+CHECKED_MARKETPLACE = ROOT / ".codex" / "plugins" / "marketplace.json"
 
 SPEC = importlib.util.spec_from_file_location("generate_intdata_family", SCRIPT)
 assert SPEC and SPEC.loader
@@ -136,6 +137,18 @@ def test_checked_in_candidate_is_schema_valid_but_not_releasable() -> None:
 
     with pytest.raises(family.FamilyManifestError, match="release_state=released"):
         family.build_outputs(manifest)
+
+
+def test_checked_in_marketplace_is_exact_family_projection() -> None:
+    manifest, _ = load_inputs()
+    marketplace = family.load_json(CHECKED_MARKETPLACE)
+
+    assert marketplace == family.build_marketplace(manifest)
+    assert [entry["name"] for entry in marketplace["plugins"]] == [
+        "intagent",
+        "intbridge",
+        "intdev",
+    ]
 
 
 def test_resource_repository_identities_match_current_owning_repositories() -> None:

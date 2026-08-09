@@ -9,18 +9,18 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import generate_intdata_family as family
+
 ROOT = Path(__file__).resolve().parents[2]
 MCP_SERVER = ROOT / "codex" / "bin" / "mcp-intdata-cli.py"
 MARKETPLACE_NAME = "intdata"
 MARKETPLACE_DISPLAY_NAME = "intData"
-PUBLIC_PLUGIN_NAMES = ("intbrain", "dba")
+PUBLIC_PLUGIN_NAMES = ("intagent", "intbridge", "intdev")
 COMPATIBILITY_PROFILE_NAMES: tuple[str, ...] = ()
 FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane"}
 EXPECTED_COUNTS = {
-    "intbrain": 31,
     "intdata-control": 12,
     "intdata-runtime": 9,
-    "dba": 1,
 }
 
 PLUGIN_DIRS = {
@@ -213,59 +213,26 @@ def verify_manifests(report: dict[str, Any]) -> None:
     marketplace_path = ROOT / ".codex" / "plugins" / "marketplace.json"
     if not marketplace_path.exists():
         report["manifest_errors"].append(f"missing required marketplace catalog: {display_path(marketplace_path)}")
-        entries = {}
-    else:
-        marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
-        if marketplace.get("name") != MARKETPLACE_NAME:
-            report["manifest_errors"].append(
-                f"marketplace name must be {MARKETPLACE_NAME!r}, got {marketplace.get('name')!r}"
-            )
-        interface = marketplace.get("interface") or {}
-        if interface.get("displayName") != MARKETPLACE_DISPLAY_NAME:
-            report["manifest_errors"].append(
-                f"marketplace displayName must be {MARKETPLACE_DISPLAY_NAME!r}, got {interface.get('displayName')!r}"
-            )
-        plugins = marketplace.get("plugins")
-        if not isinstance(plugins, list):
-            report["manifest_errors"].append("marketplace plugins must be a list")
-            entries = {}
-        else:
-            entries = {entry["name"]: entry for entry in plugins if isinstance(entry, dict) and "name" in entry}
-            public_names = set(entries)
-            forbidden = sorted(public_names & FORBIDDEN_PUBLIC_PLUGIN_NAMES)
-            if forbidden:
-                report["manifest_errors"].append({"forbidden_public_plugins": forbidden})
-            unexpected = sorted(public_names - set(PUBLIC_PLUGIN_NAMES) - FORBIDDEN_PUBLIC_PLUGIN_NAMES)
-            if unexpected:
-                report["manifest_errors"].append({"unexpected_public_plugins": unexpected})
-    for name in PUBLIC_PLUGIN_NAMES:
-        plugin_dir = PLUGIN_DIRS[name]
-        if name not in entries:
-            report["manifest_errors"].append(f"missing marketplace entry: {name}")
-            continue
-        manifest = json.loads((plugin_dir / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-        if manifest.get("name") != name:
-            report["manifest_errors"].append(f"manifest name mismatch for {name}")
-        required_keys = ("skills", "mcpServers", "interface") if name == "intbrain" else ("skills", "interface")
-        for key in required_keys:
-            if key not in manifest:
-                report["manifest_errors"].append(f"{name} missing {key}")
-        if name != "intbrain":
-            if "mcpServers" in manifest:
-                report["manifest_errors"].append(f"{name} must use host-native registration, not bundled mcpServers")
-            if (plugin_dir / ".mcp.json").exists():
-                report["manifest_errors"].append(f"{name} must not bundle .mcp.json")
-        interface = manifest.get("interface", {})
-        for key in ("displayName", "shortDescription", "longDescription", "defaultPrompt", "brandColor"):
-            if key not in interface:
-                report["manifest_errors"].append(f"{name} interface missing {key}")
-        if name == "intbrain" and CABINET_RE.search(json.dumps(manifest, ensure_ascii=False)):
-            report["manifest_errors"].append("intbrain manifest leaks Cabinet active surface")
-        if name == "intbrain":
-            mcp_config = json.loads((plugin_dir / ".mcp.json").read_text(encoding="utf-8"))
-            args = (((mcp_config.get("mcpServers") or {}).get("intbrain") or {}).get("args") or [])
-            if "D:\\int\\client\\mcp\\intbrain\\bin\\mcp-intbrain.py" not in args:
-                report["manifest_errors"].append("intbrain .mcp.json must point to /int/client canonical entrypoint")
+        return
+    marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+    manifest = family.load_json(family.DEFAULT_MANIFEST)
+    expected = family.build_marketplace(manifest)
+    if marketplace != expected:
+        report["manifest_errors"].append(
+            "checked-in marketplace must equal the canonical family projection"
+        )
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list):
+        report["manifest_errors"].append("marketplace plugins must be a list")
+        return
+    names = [entry.get("name") for entry in plugins if isinstance(entry, dict)]
+    if tuple(sorted(names)) != PUBLIC_PLUGIN_NAMES:
+        report["manifest_errors"].append(
+            {"marketplace_plugins": names, "expected": list(PUBLIC_PLUGIN_NAMES)}
+        )
+    forbidden = sorted(set(names) & FORBIDDEN_PUBLIC_PLUGIN_NAMES)
+    if forbidden:
+        report["manifest_errors"].append({"forbidden_public_plugins": forbidden})
 
 
 def extract_card(body: str, tool_name: str) -> str | None:

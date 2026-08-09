@@ -5,12 +5,12 @@
   },
   "plugins": [
     {
-      "name": "intbrain",
+      "name": "intagent",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/LeoTechPro/intData-client.git",
-        "path": "./codex/plugins/intbrain",
-        "ref": "main"
+        "url": "https://github.com/LeoTechPro/intData-agent.git",
+        "path": "./plugins/intagent",
+        "ref": "e2aa07ed8373e19cf6d5e875734fc887b53b6ecd"
       },
       "policy": {
         "installation": "INSTALLED_BY_DEFAULT",
@@ -19,10 +19,26 @@
       "category": "Developer Tools"
     },
     {
-      "name": "dba",
+      "name": "intbridge",
       "source": {
-        "source": "local",
-        "path": "./codex/plugins/dba"
+        "source": "git-subdir",
+        "url": "https://github.com/LeoTechPro/intData-bridge.git",
+        "path": "./plugins/intbridge",
+        "ref": "8ef3a2cf5f5460ad85556a65fbb6bb1f9e39401c"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "intdev",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/LeoTechPro/intData-tools.git",
+        "path": "./codex/plugins/intdev",
+        "ref": "60417600f97e8feaa67bdf5a009c2c2fbe44b72e"
       },
       "policy": {
         "installation": "INSTALLED_BY_DEFAULT",
