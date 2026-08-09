@@ -26,6 +26,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = ROOT / "codex" / "family" / "intdata-family.json"
 DEFAULT_SCHEMA = ROOT / "codex" / "family" / "intdata-family.schema.json"
 GIT_TIMEOUT_SECONDS = 30
+GIT_REAP_TIMEOUT_SECONDS = 5
+IS_WINDOWS = os.name == "nt"
+WINDOWS_CREATE_NEW_PROCESS_GROUP = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0x00000200)
+WINDOWS_CREATE_SUSPENDED = getattr(subprocess, "CREATE_SUSPENDED", 0x00000004)
 GIT_SSH_COMMAND = (
     "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "
     "-o PasswordAuthentication=no -o KbdInteractiveAuthentication=no "
@@ -258,25 +262,156 @@ def git_environment() -> dict[str, str]:
     return environment
 
 
-def terminate_process_tree(process: subprocess.Popen[bytes]) -> None:
-    if process.poll() is not None:
+class WindowsKillOnCloseJob:
+    """Own a Windows Job Object that kills every assigned process on close."""
+
+    _JOB_OBJECT_EXTENDED_LIMIT_INFORMATION = 9
+    _JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE = 0x00002000
+
+    def __init__(self, handle: int) -> None:
+        self.handle = handle
+
+    @classmethod
+    def create(cls) -> "WindowsKillOnCloseJob":
+        if not IS_WINDOWS:  # pragma: no cover - guarded by run_git
+            raise OSError("Windows Job Objects are unavailable on this platform")
+
+        import ctypes
+        from ctypes import wintypes
+
+        class IoCounters(ctypes.Structure):
+            _fields_ = [
+                ("ReadOperationCount", ctypes.c_ulonglong),
+                ("WriteOperationCount", ctypes.c_ulonglong),
+                ("OtherOperationCount", ctypes.c_ulonglong),
+                ("ReadTransferCount", ctypes.c_ulonglong),
+                ("WriteTransferCount", ctypes.c_ulonglong),
+                ("OtherTransferCount", ctypes.c_ulonglong),
+            ]
+
+        class BasicLimitInformation(ctypes.Structure):
+            _fields_ = [
+                ("PerProcessUserTimeLimit", ctypes.c_longlong),
+                ("PerJobUserTimeLimit", ctypes.c_longlong),
+                ("LimitFlags", wintypes.DWORD),
+                ("MinimumWorkingSetSize", ctypes.c_size_t),
+                ("MaximumWorkingSetSize", ctypes.c_size_t),
+                ("ActiveProcessLimit", wintypes.DWORD),
+                ("Affinity", ctypes.c_size_t),
+                ("PriorityClass", wintypes.DWORD),
+                ("SchedulingClass", wintypes.DWORD),
+            ]
+
+        class ExtendedLimitInformation(ctypes.Structure):
+            _fields_ = [
+                ("BasicLimitInformation", BasicLimitInformation),
+                ("IoInfo", IoCounters),
+                ("ProcessMemoryLimit", ctypes.c_size_t),
+                ("JobMemoryLimit", ctypes.c_size_t),
+                ("PeakProcessMemoryUsed", ctypes.c_size_t),
+                ("PeakJobMemoryUsed", ctypes.c_size_t),
+            ]
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
+        kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+        kernel32.SetInformationJobObject.argtypes = [
+            wintypes.HANDLE,
+            ctypes.c_int,
+            wintypes.LPVOID,
+            wintypes.DWORD,
+        ]
+        kernel32.SetInformationJobObject.restype = wintypes.BOOL
+
+        handle = kernel32.CreateJobObjectW(None, None)
+        if not handle:
+            raise ctypes.WinError(ctypes.get_last_error())
+        information = ExtendedLimitInformation()
+        information.BasicLimitInformation.LimitFlags = (
+            cls._JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+        )
+        if not kernel32.SetInformationJobObject(
+            handle,
+            cls._JOB_OBJECT_EXTENDED_LIMIT_INFORMATION,
+            ctypes.byref(information),
+            ctypes.sizeof(information),
+        ):
+            error = ctypes.get_last_error()
+            kernel32.CloseHandle(handle)
+            raise ctypes.WinError(error)
+        return cls(int(handle))
+
+    def assign_and_resume(self, process: subprocess.Popen[bytes]) -> None:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+        kernel32.AssignProcessToJobObject.restype = wintypes.BOOL
+        process_handle = wintypes.HANDLE(int(process._handle))  # type: ignore[attr-defined]
+        if not kernel32.AssignProcessToJobObject(
+            wintypes.HANDLE(self.handle), process_handle
+        ):
+            raise ctypes.WinError(ctypes.get_last_error())
+
+        ntdll = ctypes.WinDLL("ntdll")
+        ntdll.NtResumeProcess.argtypes = [wintypes.HANDLE]
+        ntdll.NtResumeProcess.restype = wintypes.LONG
+        status = ntdll.NtResumeProcess(process_handle)
+        if status != 0:
+            raise OSError(f"NtResumeProcess failed with NTSTATUS 0x{status & 0xFFFFFFFF:08x}")
+
+    def close(self) -> None:
+        if not self.handle:
+            return
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel32.CloseHandle.restype = wintypes.BOOL
+        handle, self.handle = self.handle, 0
+        if not kernel32.CloseHandle(wintypes.HANDLE(handle)):
+            raise ctypes.WinError(ctypes.get_last_error())
+
+
+def terminate_process_tree(
+    process: subprocess.Popen[bytes], windows_job: WindowsKillOnCloseJob | None
+) -> None:
+    if IS_WINDOWS:
+        if windows_job is None:
+            raise OSError("Git process is not contained by a Windows Job Object")
+        windows_job.close()
         return
-    if os.name == "nt":
+
+    # The group can remain alive after its leader exits, so poll() must not gate killpg().
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+
+
+def reap_process_bounded(process: subprocess.Popen[bytes]) -> None:
+    try:
+        process.communicate(timeout=GIT_REAP_TIMEOUT_SECONDS)
+        return
+    except subprocess.TimeoutExpired as exc:
+        for stream in (process.stdout, process.stderr):
+            if stream is not None:
+                stream.close()
         try:
-            subprocess.run(
-                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=5,
-            )
-        except (OSError, subprocess.TimeoutExpired):
             process.kill()
-    else:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
+        except (OSError, ProcessLookupError):
             pass
+        try:
+            process.wait(timeout=GIT_REAP_TIMEOUT_SECONDS)
+        except subprocess.TimeoutExpired as wait_exc:
+            raise FamilyManifestError(
+                "timed-out Git process tree could not be reaped"
+            ) from wait_exc
+        raise FamilyManifestError(
+            "timed-out Git process tree retained output handles after termination"
+        ) from exc
 
 
 def run_git(repo: Path, *args: str) -> bytes:
@@ -291,23 +426,54 @@ def run_git(repo: Path, *args: str) -> bytes:
         *args,
     ]
     popen_options: dict[str, Any] = {"start_new_session": True}
-    if os.name == "nt":
-        popen_options = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env=git_environment(),
-        **popen_options,
-    )
+    windows_job: WindowsKillOnCloseJob | None = None
+    if IS_WINDOWS:
+        try:
+            windows_job = WindowsKillOnCloseJob.create()
+        except OSError as exc:
+            raise FamilyManifestError("could not create an isolated Windows Git job") from exc
+        popen_options = {
+            "creationflags": WINDOWS_CREATE_NEW_PROCESS_GROUP | WINDOWS_CREATE_SUSPENDED
+        }
     try:
-        stdout, stderr = process.communicate(timeout=GIT_TIMEOUT_SECONDS)
-    except subprocess.TimeoutExpired as exc:
-        terminate_process_tree(process)
-        process.communicate()
-        raise FamilyManifestError(
-            f"git {' '.join(args)} timed out in {repo}"
-        ) from exc
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=git_environment(),
+            **popen_options,
+        )
+    except OSError:
+        if windows_job is not None:
+            windows_job.close()
+        raise
+    if windows_job is not None:
+        try:
+            windows_job.assign_and_resume(process)
+        except OSError as exc:
+            try:
+                windows_job.close()
+            finally:
+                try:
+                    process.kill()
+                except (OSError, ProcessLookupError):
+                    pass
+                reap_process_bounded(process)
+            raise FamilyManifestError(
+                "could not contain and resume the Windows Git process"
+            ) from exc
+    try:
+        try:
+            stdout, stderr = process.communicate(timeout=GIT_TIMEOUT_SECONDS)
+        except subprocess.TimeoutExpired as exc:
+            terminate_process_tree(process, windows_job)
+            reap_process_bounded(process)
+            raise FamilyManifestError(
+                f"git {' '.join(args)} timed out in {repo}"
+            ) from exc
+    finally:
+        if windows_job is not None:
+            windows_job.close()
     if process.returncode:
         message = stderr.decode("utf-8", errors="replace").strip()
         raise FamilyManifestError(f"git {' '.join(args)} failed in {repo}: {message}")

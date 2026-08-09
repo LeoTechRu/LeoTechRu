@@ -3,8 +3,10 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -59,6 +61,17 @@ def test_run_git_forces_noninteractive_auth_and_isolated_process_group(
 ) -> None:
     captured: dict = {}
 
+    class FakeJob:
+        @classmethod
+        def create(cls) -> "FakeJob":
+            return cls()
+
+        def assign_and_resume(self, _process: object) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
     class FakeProcess:
         returncode = 0
         pid = 12345
@@ -78,6 +91,8 @@ def test_run_git_forces_noninteractive_auth_and_isolated_process_group(
     monkeypatch.setenv("SSH_ASKPASS", "malicious-ssh-askpass")
     monkeypatch.setenv("GCM_INTERACTIVE", "Always")
     monkeypatch.setenv("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no")
+    if family.IS_WINDOWS:
+        monkeypatch.setattr(family, "WindowsKillOnCloseJob", FakeJob)
     monkeypatch.setattr(family.subprocess, "Popen", FakeProcess)
 
     assert family.run_git(tmp_path, "status") == b"ok"
@@ -98,8 +113,10 @@ def test_run_git_forces_noninteractive_auth_and_isolated_process_group(
     assert "SSH_ASKPASS" not in environment
     assert "BatchMode=yes" in environment["GIT_SSH_COMMAND"]
     assert "StrictHostKeyChecking=yes" in environment["GIT_SSH_COMMAND"]
-    if family.os.name == "nt":
-        assert captured["kwargs"]["creationflags"] == family.subprocess.CREATE_NEW_PROCESS_GROUP
+    if family.IS_WINDOWS:
+        assert captured["kwargs"]["creationflags"] == (
+            family.WINDOWS_CREATE_NEW_PROCESS_GROUP | family.WINDOWS_CREATE_SUSPENDED
+        )
     else:
         assert captured["kwargs"]["start_new_session"] is True
     assert captured["timeout"] == family.GIT_TIMEOUT_SECONDS
@@ -109,6 +126,17 @@ def test_run_git_timeout_terminates_the_process_tree(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     terminated: list[int] = []
+
+    class FakeJob:
+        @classmethod
+        def create(cls) -> "FakeJob":
+            return cls()
+
+        def assign_and_resume(self, _process: object) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
 
     class TimedOutProcess:
         returncode = None
@@ -128,17 +156,132 @@ def test_run_git_timeout_terminates_the_process_tree(
         def poll(self) -> int | None:
             return self.returncode
 
+    if family.IS_WINDOWS:
+        monkeypatch.setattr(family, "WindowsKillOnCloseJob", FakeJob)
     monkeypatch.setattr(family.subprocess, "Popen", TimedOutProcess)
     monkeypatch.setattr(
         family,
         "terminate_process_tree",
-        lambda process: terminated.append(process.pid),
+        lambda process, windows_job: terminated.append(process.pid),
     )
 
     with pytest.raises(family.FamilyManifestError, match="timed out"):
         family.run_git(tmp_path, "ls-remote", "origin")
 
     assert terminated == [54321]
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX process-group regression")
+def test_run_git_timeout_kills_descendant_after_parent_exits(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_git = tmp_path / "git"
+    fake_git.write_text("#!/bin/sh\nsleep 30 &\nexit 0\n", encoding="utf-8")
+    fake_git.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
+    monkeypatch.setattr(family, "GIT_TIMEOUT_SECONDS", 0.1)
+    monkeypatch.setattr(family, "GIT_REAP_TIMEOUT_SECONDS", 1)
+
+    started = time.monotonic()
+    with pytest.raises(family.FamilyManifestError, match="timed out"):
+        family.run_git(tmp_path, "status")
+
+    assert time.monotonic() - started < 2
+
+
+def test_run_git_windows_assigns_job_before_resume(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    events: list[str] = []
+
+    class FakeJob:
+        @classmethod
+        def create(cls) -> "FakeJob":
+            events.append("job-created")
+            return cls()
+
+        def assign_and_resume(self, _process: object) -> None:
+            events.append("job-assigned-and-resumed")
+
+        def close(self) -> None:
+            events.append("job-closed")
+
+    class FakeProcess:
+        returncode = 0
+        pid = 12345
+        stdout = None
+        stderr = None
+
+        def __init__(self, _command: list[str], **kwargs: object) -> None:
+            events.append("process-created-suspended")
+            assert kwargs["creationflags"] == (
+                family.WINDOWS_CREATE_NEW_PROCESS_GROUP
+                | family.WINDOWS_CREATE_SUSPENDED
+            )
+
+        def communicate(self, timeout: float | None = None) -> tuple[bytes, bytes]:
+            events.append("communicated")
+            return b"ok", b""
+
+    monkeypatch.setattr(family, "IS_WINDOWS", True)
+    monkeypatch.setattr(family, "WindowsKillOnCloseJob", FakeJob)
+    monkeypatch.setattr(family.subprocess, "Popen", FakeProcess)
+
+    assert family.run_git(tmp_path, "status") == b"ok"
+    assert events == [
+        "job-created",
+        "process-created-suspended",
+        "job-assigned-and-resumed",
+        "communicated",
+        "job-closed",
+    ]
+
+
+def test_run_git_windows_job_setup_failure_kills_suspended_process(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    events: list[str] = []
+
+    class FakeJob:
+        @classmethod
+        def create(cls) -> "FakeJob":
+            return cls()
+
+        def assign_and_resume(self, _process: object) -> None:
+            raise OSError("assignment failed")
+
+        def close(self) -> None:
+            events.append("job-closed")
+
+    class FakeProcess:
+        returncode = None
+        pid = 54321
+        stdout = None
+        stderr = None
+
+        def __init__(self, _command: list[str], **_kwargs: object) -> None:
+            pass
+
+        def kill(self) -> None:
+            events.append("process-killed")
+            self.returncode = -1
+
+        def communicate(self, timeout: float | None = None) -> tuple[bytes, bytes]:
+            events.append(f"reaped:{timeout}")
+            return b"", b""
+
+    monkeypatch.setattr(family, "IS_WINDOWS", True)
+    monkeypatch.setattr(family, "WindowsKillOnCloseJob", FakeJob)
+    monkeypatch.setattr(family.subprocess, "Popen", FakeProcess)
+
+    with pytest.raises(family.FamilyManifestError, match="contain and resume"):
+        family.run_git(tmp_path, "status")
+
+    assert events == [
+        "job-closed",
+        "process-killed",
+        f"reaped:{family.GIT_REAP_TIMEOUT_SECONDS}",
+    ]
 
 
 def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
