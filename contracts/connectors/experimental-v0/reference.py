@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 from copy import deepcopy
+from dataclasses import dataclass
+from datetime import datetime, timezone
 import hashlib
 import json
+import re
 from typing import Any, Mapping, MutableSet, Protocol, Sequence
 
 
@@ -14,6 +19,33 @@ BRIDGE_AUDIENCE = "intdata-bridge"
 
 class ContractError(ValueError):
     """A document pair fails a fail-closed cross-document invariant."""
+
+
+class TrustedJwsVerifier(Protocol):
+    """Configured cryptographic authority; implementations own trusted JWKS."""
+
+    def verify(
+        self,
+        *,
+        issuer: str,
+        kid: str,
+        alg: str,
+        signing_input: bytes,
+        signature: bytes,
+    ) -> bool: ...
+
+
+@dataclass(frozen=True)
+class TrustedRevocationContext:
+    """Signature-verified revocation state supplied outside the grant."""
+
+    issuer: str
+    snapshot_digest: str
+    revision: int
+    issued_epoch: int
+    expires_epoch: int
+    revoked_nonces: frozenset[str]
+    signature_verified: bool
 
 
 def canonical_json(document: Mapping[str, Any]) -> bytes:
@@ -43,6 +75,112 @@ def grant_claims(grant: Mapping[str, Any]) -> dict[str, Any]:
     return claims
 
 
+def _b64url_decode(value: Any, *, field: str) -> bytes:
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", value):
+        raise ContractError(f"{field} is not strict base64url")
+    try:
+        return base64.b64decode(
+            value + "=" * (-len(value) % 4), altchars=b"-_", validate=True
+        )
+    except (binascii.Error, ValueError) as error:
+        raise ContractError(f"{field} is not valid base64url") from error
+
+
+def _load_closed_json(raw: bytes, *, field: str) -> dict[str, Any]:
+    def closed_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ContractError(f"duplicate key in {field}: {key}")
+            result[key] = value
+        return result
+
+    try:
+        value = json.loads(raw.decode("utf-8"), object_pairs_hook=closed_object)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ContractError(f"{field} is not a JSON object") from error
+    if not isinstance(value, dict):
+        raise ContractError(f"{field} is not a JSON object")
+    return value
+
+
+def _verify_jws(
+    grant: Mapping[str, Any], verifier: TrustedJwsVerifier | None
+) -> None:
+    if verifier is None:
+        raise ContractError("trusted JWS verifier is required")
+    signature_block = grant.get("signature")
+    if not isinstance(signature_block, Mapping):
+        raise ContractError("grant signature is malformed")
+    alg = signature_block.get("alg")
+    kid = signature_block.get("kid")
+    issuer = grant.get("issuer")
+    if alg != "EdDSA" or not isinstance(kid, str) or not isinstance(issuer, str):
+        raise ContractError("grant signature authority is unsupported")
+    protected_text = signature_block.get("protected")
+    payload_text = signature_block.get("payload")
+    if not isinstance(protected_text, str) or not isinstance(payload_text, str):
+        raise ContractError("grant compact JWS is malformed")
+    protected_raw = _b64url_decode(protected_text, field="protected header")
+    protected = _load_closed_json(protected_raw, field="protected header")
+    if set(protected) != {"alg", "kid", "typ"}:
+        raise ContractError("protected header is not closed")
+    if protected != {"alg": "EdDSA", "kid": kid, "typ": "JWT"}:
+        raise ContractError("protected header authority mismatch")
+    if protected_raw != canonical_json(protected):
+        raise ContractError("protected header is not canonical JSON")
+    payload_raw = _b64url_decode(payload_text, field="JWS payload")
+    payload = _load_closed_json(payload_raw, field="JWS payload")
+    claims = grant_claims(grant)
+    if payload != claims:
+        raise ContractError("JWS payload does not bind exact grant claims")
+    if payload_raw != canonical_json(claims):
+        raise ContractError("JWS payload is not canonical JSON")
+    signature = _b64url_decode(signature_block.get("signature"), field="JWS signature")
+    if len(signature) != 64:
+        raise ContractError("Ed25519 signature length is invalid")
+    signing_input = f"{protected_text}.{payload_text}".encode("ascii")
+    try:
+        verified = verifier.verify(
+            issuer=issuer,
+            kid=kid,
+            alg=alg,
+            signing_input=signing_input,
+            signature=signature,
+        )
+    except Exception as error:
+        raise ContractError("trusted JWS verification failed") from error
+    if verified is not True:
+        raise ContractError("trusted JWS verification failed")
+
+
+def _validate_revocation_context(
+    grant: Mapping[str, Any],
+    context: TrustedRevocationContext | None,
+    *,
+    now_epoch: int,
+) -> None:
+    if context is None or context.signature_verified is not True:
+        raise ContractError("trusted revocation context is required")
+    expected = {
+        "issuer": grant.get("issuer"),
+        "snapshot_digest": grant.get("revocation_snapshot_digest"),
+        "revision": grant.get("revocation_snapshot_revision"),
+        "issued_epoch": grant.get("revocation_snapshot_issued_epoch"),
+        "expires_epoch": grant.get("revocation_snapshot_expires_epoch"),
+    }
+    for field, value in expected.items():
+        if getattr(context, field) != value:
+            raise ContractError(f"revocation context {field} mismatch")
+    if context.issued_epoch > now_epoch or context.expires_epoch <= now_epoch:
+        raise ContractError("trusted revocation context is stale")
+    if context.expires_epoch <= context.issued_epoch:
+        raise ContractError("trusted revocation context validity is malformed")
+    nonce = grant.get("nonce")
+    if nonce in context.revoked_nonces:
+        raise ContractError("grant nonce is revoked")
+
+
 def negotiate_version(
     offered: Sequence[str], supported: Sequence[str] = (CONTRACT_VERSION,)
 ) -> str:
@@ -61,6 +199,8 @@ def validate_grant_for_plan(
     *,
     now_epoch: int,
     consumed_nonces: set[str] | frozenset[str] = frozenset(),
+    verifier: TrustedJwsVerifier | None = None,
+    revocation_context: TrustedRevocationContext | None = None,
 ) -> None:
     """Validate semantic binding; cryptographic JWS verification is external."""
 
@@ -89,30 +229,23 @@ def validate_grant_for_plan(
             raise ContractError(f"grant {field} mismatch")
     if grant.get("plan_digest") != canonical_sha256(plan):
         raise ContractError("grant plan digest mismatch")
-    if grant.get("claims_digest") != canonical_sha256(grant_claims(grant)):
-        raise ContractError("grant claims digest mismatch")
+    constraints = grant.get("constraints")
+    if not isinstance(constraints, Mapping):
+        raise ContractError("grant constraints are malformed")
+    if constraints.get("target_set_digest") != plan.get("target_digest"):
+        raise ContractError("grant target set mismatch")
+    if grant.get("grant_class") == "one_time" and constraints.get("max_effects") != 1:
+        raise ContractError("one-time grant exceeds one effect")
     not_before = grant.get("not_before_epoch")
     expires = grant.get("expires_epoch")
     if not isinstance(not_before, int) or not isinstance(expires, int):
         raise ContractError("grant validity is malformed")
     if not_before > now_epoch or expires <= now_epoch or expires <= not_before:
         raise ContractError("grant is outside validity window")
-    snapshot_issued = grant.get("revocation_snapshot_issued_epoch")
-    snapshot_expires = grant.get("revocation_snapshot_expires_epoch")
-    if not isinstance(snapshot_issued, int) or not isinstance(snapshot_expires, int):
-        raise ContractError("revocation snapshot validity is malformed")
-    if snapshot_issued > now_epoch or snapshot_expires <= now_epoch:
-        raise ContractError("revocation snapshot is stale")
-    if snapshot_expires <= snapshot_issued:
-        raise ContractError("revocation snapshot validity is malformed")
-    constraints = grant.get("constraints")
-    if not isinstance(constraints, Mapping):
-        raise ContractError("grant constraints are malformed")
-    if grant.get("grant_class") == "one_time":
-        if constraints.get("max_effects") != 1:
-            raise ContractError("one-time grant exceeds one effect")
-        if constraints.get("target_set_digest") != plan.get("target_digest"):
-            raise ContractError("one-time grant target set mismatch")
+    if grant.get("claims_digest") != canonical_sha256(grant_claims(grant)):
+        raise ContractError("grant claims digest mismatch")
+    _verify_jws(grant, verifier)
+    _validate_revocation_context(grant, revocation_context, now_epoch=now_epoch)
     nonce = grant.get("nonce")
     if not isinstance(nonce, str) or nonce in consumed_nonces:
         raise ContractError("grant nonce replay")
@@ -135,17 +268,37 @@ def validate_receipt_for_plan(
         if receipt.get(field) != value:
             raise ContractError(f"receipt {field} mismatch")
     outcome = receipt.get("outcome")
-    if outcome == "succeeded" and (
-        receipt.get("verification_state") != "verified"
-        or receipt.get("terminal_state") != "terminal"
-    ):
-        raise ContractError("success lacks verified terminal evidence")
-    if outcome == "indeterminate" and receipt.get("terminal_state") != "indeterminate":
-        raise ContractError("indeterminate outcome was hidden")
-    started_at = receipt.get("started_at")
-    ended_at = receipt.get("ended_at")
-    if not isinstance(started_at, str) or not isinstance(ended_at, str) or ended_at < started_at:
+    matrix = {
+        "succeeded": ("verified", "terminal"),
+        "failed": ("failed", "terminal"),
+        "cancelled": ("not_applicable", "terminal"),
+        "indeterminate": ("indeterminate", "indeterminate"),
+    }
+    expected_state = matrix.get(outcome)
+    actual_state = (
+        receipt.get("verification_state"),
+        receipt.get("terminal_state"),
+    )
+    if expected_state is None or actual_state != expected_state:
+        raise ContractError("receipt outcome evidence matrix mismatch")
+    started_at = _parse_rfc3339_utc(receipt.get("started_at"), field="started_at")
+    ended_at = _parse_rfc3339_utc(receipt.get("ended_at"), field="ended_at")
+    if ended_at < started_at:
         raise ContractError("receipt timing is inconsistent")
+
+
+def _parse_rfc3339_utc(value: Any, *, field: str) -> datetime:
+    if not isinstance(value, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value
+    ):
+        raise ContractError(f"{field} is not RFC3339 UTC")
+    try:
+        parsed = datetime.fromisoformat(value[:-1] + "+00:00")
+    except ValueError as error:
+        raise ContractError(f"{field} is not RFC3339 UTC") from error
+    if parsed.tzinfo != timezone.utc:
+        raise ContractError(f"{field} is not RFC3339 UTC")
+    return parsed
 
 
 class ConnectorProtocol(Protocol):
@@ -171,9 +324,17 @@ class ConnectorProtocol(Protocol):
 class MockConnector:
     """Deterministic no-I/O reference mock for consumer conformance tests."""
 
-    def __init__(self, capability: Mapping[str, Any]) -> None:
+    def __init__(
+        self,
+        capability: Mapping[str, Any],
+        *,
+        verifier: TrustedJwsVerifier | None = None,
+        revocation_context: TrustedRevocationContext | None = None,
+    ) -> None:
         self._capability = deepcopy(dict(capability))
         self._consumed_nonces: MutableSet[str] = set()
+        self._verifier = verifier
+        self._revocation_context = revocation_context
 
     def describe(self) -> Mapping[str, Any]:
         return deepcopy(self._capability)
@@ -223,6 +384,8 @@ class MockConnector:
             plan,
             now_epoch=now_epoch,
             consumed_nonces=set(self._consumed_nonces),
+            verifier=self._verifier,
+            revocation_context=self._revocation_context,
         )
         nonce = str(grant["nonce"])
         self._consumed_nonces.add(nonce)

@@ -17,6 +17,12 @@ The contract keeps provider reads and effects separate:
 `ConnectorCapabilityV1` and `ConnectorErrorV1`. `reference.py` is a stdlib-only
 Protocol and deterministic in-memory mock. It performs no I/O.
 
+Effect execution requires two injected trusted boundaries: a JWS verifier and
+a signature-verified current revocation context. The reference module decodes
+and binds the exact protected header and canonical payload before asking the
+verifier to prove the supplied signature. The included verifier is fixture-only:
+it recognizes one exact byte sequence and is deliberately not cryptography.
+
 This `experimental-v0` contour has no semver or deprecation promise. Consumers
 must negotiate the exact `connectors-experimental-v0` version and fail closed
 when no exact version is shared.

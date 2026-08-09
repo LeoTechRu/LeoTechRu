@@ -8,7 +8,7 @@
   "connector_id": "fixture.crm",
   "operation": "contact.tag.add",
   "code": "indeterminate",
-  "retry_class": "reconcile",
+  "retry_class": "reconcile_only",
   "occurred_at": "2026-08-09T10:01:02Z",
   "trace_id": "0123456789abcdef0123456789abcdef"
 }

@@ -252,6 +252,7 @@
         "nonce",
         "revision",
         "revocation_snapshot_digest",
+        "revocation_snapshot_revision",
         "revocation_snapshot_issued_epoch",
         "revocation_snapshot_expires_epoch",
         "claims_digest",
@@ -293,6 +294,7 @@
         "nonce": { "$ref": "#/$defs/identifier" },
         "revision": { "type": "integer", "minimum": 1 },
         "revocation_snapshot_digest": { "$ref": "#/$defs/sha256" },
+        "revocation_snapshot_revision": { "type": "integer", "minimum": 1 },
         "revocation_snapshot_issued_epoch": { "type": "integer", "minimum": 0 },
         "revocation_snapshot_expires_epoch": { "type": "integer", "minimum": 1 },
         "claims_digest": { "$ref": "#/$defs/sha256" },
@@ -392,6 +394,24 @@
             "properties": {
               "verification_state": { "const": "indeterminate" },
               "terminal_state": { "const": "indeterminate" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "failed" } }, "required": ["outcome"] },
+          "then": {
+            "properties": {
+              "verification_state": { "const": "failed" },
+              "terminal_state": { "const": "terminal" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "cancelled" } }, "required": ["outcome"] },
+          "then": {
+            "properties": {
+              "verification_state": { "const": "not_applicable" },
+              "terminal_state": { "const": "terminal" }
             }
           }
         }
@@ -519,10 +539,16 @@
             "indeterminate"
           ]
         },
-        "retry_class": { "enum": ["never", "bounded", "reconcile"] },
+        "retry_class": { "enum": ["never", "bounded", "reconcile_only"] },
         "occurred_at": { "$ref": "#/$defs/timestamp" },
         "trace_id": { "type": "string", "pattern": "^[a-f0-9]{32}$" }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "code": { "const": "indeterminate" } }, "required": ["code"] },
+          "then": { "properties": { "retry_class": { "const": "reconcile_only" } } }
+        }
+      ]
     }
   }
 }
