@@ -41,12 +41,12 @@
         "repository": "https://github.com/LeoTechPro/intData-agent.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/agent.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "58bd8a51b24f031d693e401d5bac101f0acd6c25",
+        "tree_sha256": "5d89cd6fee00b939379efc3bb57576879d9b4f105dbcff69681e8e0f08cc73bf",
+        "manifest_sha256": "78a3e829ee1df5137deb46c8c61ffb28d1ec72c496c685072d0a64f427398edc",
         "license": "MIT",
         "license_path": "LICENSE",
-        "license_sha256": null
+        "license_sha256": "471f75bc6ef38333696dd6549c4355adef05291a74135649131f0a5728f5a45c"
       }
     },
     {
@@ -137,12 +137,12 @@
         "repository": "https://github.com/LeoTechPro/intData-backend.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/platform.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "47a343f1c9c907600c51bb56ec00a70539523a05",
+        "tree_sha256": "d9900421c59b1ffb4b430525c8a780e3a0c28bd77c1cd919dd108fc596338247",
+        "manifest_sha256": "87af665514eeaefe17d1d9a4bd5beb81dbe3117febe285a663abefb3e411e19a",
         "license": "Apache-2.0",
         "license_path": "LICENSE",
-        "license_sha256": null
+        "license_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
       }
     },
     {
