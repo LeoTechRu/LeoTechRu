@@ -1,0 +1,21 @@
+{
+  "message_type": "provider_invocation",
+  "contract_version": "provider-experimental-v0",
+  "provider_id": "codex",
+  "prompt": "Implement slugify in slugify.py without changing tests.",
+  "model": "gpt-5.6-sol",
+  "runtime_pin": {
+    "version": "0.146.0",
+    "sha256": "2e863156ed35ecc5253b1e2f907a9143077b9f7cb51942070c61996471ff6e04"
+  },
+  "base_tree_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "allowed_paths": ["slugify.py"],
+  "execution_mode": "disposable_coding",
+  "verifier_profile": "slugify-unittest",
+  "limits": {
+    "timeout_ms": 120000,
+    "max_line_bytes": 1048576,
+    "max_total_bytes": 4194304,
+    "max_patch_bytes": 262144
+  }
+}

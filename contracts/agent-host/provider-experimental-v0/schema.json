@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://intdata.pro/contracts/agent-host/provider-experimental-v0/schema.json",
+  "title": "Experimental Agent Host Provider Contract V0",
+  "oneOf": [
+    { "$ref": "#/$defs/provider_descriptor" },
+    { "$ref": "#/$defs/provider_invocation" },
+    { "$ref": "#/$defs/provider_execution_artifact" }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._/-]+$"
+    },
+    "provider_descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_type",
+        "contract_version",
+        "provider_id",
+        "runtime_status",
+        "auth_custody",
+        "requires_external_sandbox",
+        "supported_modes",
+        "verifier_profiles"
+      ],
+      "properties": {
+        "message_type": { "const": "provider_descriptor" },
+        "contract_version": { "const": "provider-experimental-v0" },
+        "provider_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{1,31}$" },
+        "runtime_status": { "enum": ["available", "contract_only"] },
+        "auth_custody": { "const": "native" },
+        "requires_external_sandbox": { "type": "boolean" },
+        "supported_modes": {
+          "type": "array",
+          "items": { "enum": ["disposable_coding"] },
+          "uniqueItems": true,
+          "maxItems": 4
+        },
+        "verifier_profiles": {
+          "type": "array",
+          "items": { "enum": ["slugify-unittest"] },
+          "uniqueItems": true,
+          "maxItems": 8
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "runtime_status": { "const": "contract_only" } } },
+          "then": {
+            "properties": {
+              "requires_external_sandbox": { "const": true },
+              "supported_modes": { "maxItems": 0 },
+              "verifier_profiles": { "maxItems": 0 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "provider_id": { "const": "hermes" } } },
+          "then": {
+            "properties": {
+              "runtime_status": { "const": "contract_only" },
+              "auth_custody": { "const": "native" },
+              "requires_external_sandbox": { "const": true },
+              "supported_modes": { "maxItems": 0 },
+              "verifier_profiles": { "maxItems": 0 }
+            }
+          }
+        }
+      ]
+    },
+    "provider_invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_type",
+        "contract_version",
+        "provider_id",
+        "prompt",
+        "model",
+        "runtime_pin",
+        "base_tree_sha256",
+        "allowed_paths",
+        "execution_mode",
+        "verifier_profile",
+        "limits"
+      ],
+      "properties": {
+        "message_type": { "const": "provider_invocation" },
+        "contract_version": { "const": "provider-experimental-v0" },
+        "provider_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{1,31}$" },
+        "prompt": { "type": "string", "minLength": 1, "maxLength": 32768 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._-]+$" },
+        "runtime_pin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "sha256"],
+          "properties": {
+            "version": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "base_tree_sha256": { "$ref": "#/$defs/sha256" },
+        "allowed_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relative_path" }
+        },
+        "execution_mode": { "const": "disposable_coding" },
+        "verifier_profile": { "const": "slugify-unittest" },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["timeout_ms", "max_line_bytes", "max_total_bytes", "max_patch_bytes"],
+          "properties": {
+            "timeout_ms": { "type": "integer", "minimum": 1000, "maximum": 300000 },
+            "max_line_bytes": { "type": "integer", "minimum": 1024, "maximum": 1048576 },
+            "max_total_bytes": { "type": "integer", "minimum": 1024, "maximum": 4194304 },
+            "max_patch_bytes": { "type": "integer", "minimum": 1024, "maximum": 1048576 }
+          }
+        }
+      }
+    },
+    "provider_execution_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_type",
+        "contract_version",
+        "provider_id",
+        "runtime",
+        "invocation_sha256",
+        "base_tree_sha256",
+        "final_tree_sha256",
+        "changed_paths",
+        "patch",
+        "verifier",
+        "provider_events",
+        "provider_output",
+        "usage"
+      ],
+      "properties": {
+        "message_type": { "const": "provider_execution_artifact" },
+        "contract_version": { "const": "provider-experimental-v0" },
+        "provider_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{1,31}$" },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "sha256"],
+          "properties": {
+            "version": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "invocation_sha256": { "$ref": "#/$defs/sha256" },
+        "base_tree_sha256": { "$ref": "#/$defs/sha256" },
+        "final_tree_sha256": { "$ref": "#/$defs/sha256" },
+        "changed_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "before_sha256", "after_sha256"],
+            "properties": {
+              "path": { "$ref": "#/$defs/relative_path" },
+              "before_sha256": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] },
+              "after_sha256": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] }
+            }
+          }
+        },
+        "patch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sha256", "size_bytes"],
+          "properties": {
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "size_bytes": { "type": "integer", "minimum": 0, "maximum": 1048576 }
+          }
+        },
+        "verifier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profile", "passed", "exit_code", "output_sha256", "output_size_bytes"],
+          "properties": {
+            "profile": { "const": "slugify-unittest" },
+            "passed": { "type": "boolean" },
+            "exit_code": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "output_sha256": { "$ref": "#/$defs/sha256" },
+            "output_size_bytes": { "type": "integer", "minimum": 0, "maximum": 1048576 }
+          }
+        },
+        "provider_events": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sequence", "event_type", "size_bytes", "sha256"],
+            "properties": {
+              "sequence": { "type": "integer", "minimum": 1 },
+              "event_type": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,64}$" },
+              "size_bytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+              "sha256": { "$ref": "#/$defs/sha256" }
+            }
+          }
+        },
+        "provider_output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sha256", "size_bytes", "event_count"],
+          "properties": {
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "size_bytes": { "type": "integer", "minimum": 0, "maximum": 4194304 },
+            "event_count": { "type": "integer", "minimum": 0, "maximum": 100000 }
+          }
+        },
+        "usage": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0 },
+          "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+          "maxProperties": 16
+        }
+      }
+    }
+  }
+}

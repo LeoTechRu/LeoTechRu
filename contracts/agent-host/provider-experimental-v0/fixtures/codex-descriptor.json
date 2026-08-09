@@ -1,0 +1,10 @@
+{
+  "message_type": "provider_descriptor",
+  "contract_version": "provider-experimental-v0",
+  "provider_id": "codex",
+  "runtime_status": "available",
+  "auth_custody": "native",
+  "requires_external_sandbox": false,
+  "supported_modes": ["disposable_coding"],
+  "verifier_profiles": ["slugify-unittest"]
+}

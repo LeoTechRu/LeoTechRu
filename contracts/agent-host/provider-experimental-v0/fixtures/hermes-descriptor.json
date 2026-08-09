@@ -1,0 +1,10 @@
+{
+  "message_type": "provider_descriptor",
+  "contract_version": "provider-experimental-v0",
+  "provider_id": "hermes",
+  "runtime_status": "contract_only",
+  "auth_custody": "native",
+  "requires_external_sandbox": true,
+  "supported_modes": [],
+  "verifier_profiles": []
+}
