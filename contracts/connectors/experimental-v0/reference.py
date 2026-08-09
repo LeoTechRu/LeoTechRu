@@ -289,7 +289,7 @@ def validate_receipt_for_plan(
 
 def _parse_rfc3339_utc(value: Any, *, field: str) -> datetime:
     if not isinstance(value, str) or not re.fullmatch(
-        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", value
     ):
         raise ContractError(f"{field} is not RFC3339 UTC")
     try:

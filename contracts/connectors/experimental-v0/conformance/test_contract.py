@@ -316,6 +316,25 @@ class ConnectorContractTests(unittest.TestCase):
                 receipt, self.effect_plan, self.grant
             )
 
+    def test_timestamp_fraction_is_canonical_microsecond_precision(self) -> None:
+        receipt = copy.deepcopy(self.receipt)
+        receipt["started_at"] = "2026-08-09T10:01:00.1Z"
+        receipt["ended_at"] = "2026-08-09T10:01:00.100001Z"
+        validate_document(receipt)
+        REFERENCE.validate_receipt_for_plan(
+            receipt, self.effect_plan, self.grant
+        )
+
+        too_precise = copy.deepcopy(self.receipt)
+        too_precise["started_at"] = "2026-08-09T10:01:00.0000009Z"
+        too_precise["ended_at"] = "2026-08-09T10:01:00.0000001Z"
+        with self.assertRaises(ValidationError):
+            validate_document(too_precise)
+        with self.assertRaisesRegex(REFERENCE.ContractError, "RFC3339 UTC"):
+            REFERENCE.validate_receipt_for_plan(
+                too_precise, self.effect_plan, self.grant
+            )
+
     def test_indeterminate_error_is_reconcile_only(self) -> None:
         error = load_fixture("connector-error.json")
         error["retry_class"] = "bounded"
