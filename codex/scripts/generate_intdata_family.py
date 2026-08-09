@@ -356,10 +356,20 @@ def validate_source_manifest(
         license_blob = blob_bytes(repo, commit, license_path).decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
         raise FamilyManifestError(f"{entry['id']} license file must be UTF-8 text") from exc
-    if entry["provenance"]["license"] == "Proprietary" and not (
-        "proprietary" in license_blob.lower() and "all rights reserved" in license_blob.lower()
-    ):
-        raise FamilyManifestError(f"{entry['id']} license file does not match the Proprietary contract")
+    license_markers = {
+        "Proprietary": ("proprietary", "all rights reserved"),
+        "MIT": ("mit license", "permission is hereby granted, free of charge"),
+        "Apache-2.0": ("apache license", "version 2.0"),
+    }
+    license_id = entry["provenance"]["license"]
+    markers = license_markers.get(license_id)
+    if markers is None:
+        raise FamilyManifestError(f"{entry['id']} uses unsupported license identifier: {license_id}")
+    normalized_license = license_blob.lower()
+    if not all(marker in normalized_license for marker in markers):
+        raise FamilyManifestError(
+            f"{entry['id']} license file does not match the {license_id} contract"
+        )
 
 
 def verify_provenance(

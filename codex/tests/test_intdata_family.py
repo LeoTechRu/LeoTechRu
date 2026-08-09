@@ -57,8 +57,13 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
                 continue
             license_path = repo / provenance["license_path"]
             license_path.parent.mkdir(parents=True, exist_ok=True)
+            license_fixtures = {
+                "Proprietary": "Proprietary test fixture. All rights reserved.\n",
+                "MIT": "MIT License\nPermission is hereby granted, free of charge.\n",
+                "Apache-2.0": "Apache License\nVersion 2.0\n",
+            }
             license_path.write_text(
-                "Proprietary test fixture. All rights reserved.\n", encoding="utf-8"
+                license_fixtures[provenance["license"]], encoding="utf-8"
             )
             manifest_path = repo / provenance["manifest_path"]
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -149,6 +154,17 @@ def test_resource_repository_identities_match_current_owning_repositories() -> N
     assert repositories["cms"] == "https://github.com/LeoTechPro/intData-CMS.git"
     assert repositories["lms"] == "https://github.com/LeoTechPro/intData-LMS.git"
     assert repositories == family.EXPECTED_RESOURCE_REPOSITORIES
+
+
+def test_resource_licenses_match_current_owning_repository_licenses() -> None:
+    manifest, _ = load_inputs()
+    licenses = {
+        entry["id"]: entry["provenance"]["license"]
+        for entry in manifest["mcp_resources"]
+    }
+
+    assert licenses["agent"] == "MIT"
+    assert licenses["platform"] == "Apache-2.0"
 
 
 def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path: Path) -> None:

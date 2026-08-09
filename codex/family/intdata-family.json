@@ -44,7 +44,7 @@
         "commit": null,
         "tree_sha256": null,
         "manifest_sha256": null,
-        "license": "Proprietary",
+        "license": "MIT",
         "license_path": "LICENSE",
         "license_sha256": null
       }
@@ -140,7 +140,7 @@
         "commit": null,
         "tree_sha256": null,
         "manifest_sha256": null,
-        "license": "Proprietary",
+        "license": "Apache-2.0",
         "license_path": "LICENSE",
         "license_sha256": null
       }
