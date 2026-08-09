@@ -611,6 +611,13 @@ def validate_manifest(
                 raise FamilyManifestError(
                     f"released plugin {plugin['id']} must be installable and beyond planned maturity"
                 )
+            if (
+                plugin["install_access"] == "public"
+                and plugin["provenance"]["license"] == "Proprietary"
+            ):
+                raise FamilyManifestError(
+                    f"public-install plugin {plugin['id']} requires a redistribution-permitting license"
+                )
         for entry in [*manifest["mcp_resources"], *manifest["plugins"]]:
             missing = [
                 field for field in (*PROVENANCE_FIELDS, "license_sha256")

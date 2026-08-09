@@ -45,6 +45,8 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
     for plugin in release["plugins"]:
         plugin["maturity"] = "dev"
         plugin["availability"] = "available"
+        if plugin["id"] == "intdev":
+            plugin["provenance"]["license"] = "MIT"
     entries = [*release["mcp_resources"], *release["plugins"]]
     repositories = sorted({entry["provenance"]["repository"] for entry in entries})
     source_roots: dict[str, Path] = {}
@@ -675,6 +677,18 @@ def test_released_plugins_must_be_installable_and_beyond_planned_maturity() -> N
     release["release_state"] = "released"
 
     with pytest.raises(family.FamilyManifestError, match="must be installable"):
+        family.validate_manifest(release, schema, require_release=True)
+
+
+def test_public_install_plugin_requires_redistribution_permitting_license() -> None:
+    manifest, schema = load_inputs()
+    release = copy.deepcopy(manifest)
+    release["release_state"] = "released"
+    for plugin in release["plugins"]:
+        plugin["maturity"] = "dev"
+        plugin["availability"] = "available"
+
+    with pytest.raises(family.FamilyManifestError, match="redistribution-permitting"):
         family.validate_manifest(release, schema, require_release=True)
 
 
