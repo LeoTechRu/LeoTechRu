@@ -137,6 +137,18 @@ def test_checked_in_candidate_is_schema_valid_but_not_releasable() -> None:
         family.build_outputs(manifest)
 
 
+def test_resource_repository_identities_match_current_owning_repositories() -> None:
+    manifest, _ = load_inputs()
+    repositories = {
+        entry["id"]: entry["provenance"]["repository"]
+        for entry in manifest["mcp_resources"]
+    }
+
+    assert repositories["brain"] == "https://github.com/LeoTechPro/intData-brain.git"
+    assert repositories["crm"] == "https://github.com/LeoTechPro/intData-CRM.git"
+    assert repositories == family.EXPECTED_RESOURCE_REPOSITORIES
+
+
 def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path: Path) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
     alternate_schema = copy.deepcopy(schema)

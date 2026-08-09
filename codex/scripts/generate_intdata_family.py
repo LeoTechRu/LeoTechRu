@@ -104,11 +104,11 @@ EXPECTED_PLUGIN_LICENSE_PATHS = {
 }
 EXPECTED_RESOURCE_REPOSITORIES = {
     "agent": "https://github.com/LeoTechPro/intData-agent.git",
-    "brain": "https://github.com/LeoTechPro/intBrain-server.git",
+    "brain": "https://github.com/LeoTechPro/intData-brain.git",
     "probe": "https://github.com/LeoTechPro/intData-bridge.git",
     "platform": "https://github.com/LeoTechPro/intData-backend.git",
     "punkt-b": "https://github.com/LeoTechPro/punkt-b.git",
-    "crm": "https://github.com/LeoTechPro/intCRM-backend.git",
+    "crm": "https://github.com/LeoTechPro/intData-CRM.git",
     "cms": "https://github.com/LeoTechPro/intData-backend.git",
     "lms": "https://github.com/LeoTechPro/intData-backend.git",
 }

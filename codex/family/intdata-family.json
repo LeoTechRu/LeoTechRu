@@ -70,7 +70,7 @@
         "downstream_credential": "none"
       },
       "provenance": {
-        "repository": "https://github.com/LeoTechPro/intBrain-server.git",
+        "repository": "https://github.com/LeoTechPro/intData-brain.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/brain.json",
         "commit": null,
@@ -198,7 +198,7 @@
         "downstream_credential": "none"
       },
       "provenance": {
-        "repository": "https://github.com/LeoTechPro/intCRM-backend.git",
+        "repository": "https://github.com/LeoTechPro/intData-CRM.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/crm.json",
         "commit": null,
