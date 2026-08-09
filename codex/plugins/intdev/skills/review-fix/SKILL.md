@@ -9,4 +9,4 @@ description: Перепроверяй imported findings по текущему gr
 
 После исправления выполни focused verification, перечитай source/diff и повтори исходный reproduction/falsifier. Сообщи resolved/partial/rejected findings, exact range, evidence и unverified boundaries.
 
-Не превращай архитектурные предпочтения в fixes и не расширяй работу до cleanup, publication или production. OpenSpec/Issue/coordctl/approval gates остаются отдельными.
+Не превращай архитектурные предпочтения в fixes и не расширяй работу до cleanup, publication или production. Specification, work-item, coordination и approval gates остаются отдельными и берутся из configured policy.

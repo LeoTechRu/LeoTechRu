@@ -1,26 +1,26 @@
 {
   "name": "intdev",
   "version": "1.0.0-dev.1",
-  "description": "Десять приватных workflow-навыков intData для Issues, OpenSpec, coordination, review, routing и delivery acceptance.",
+  "description": "Публичный набор из десяти fail-closed workflow-навыков для issues, specifications, coordination, review, routing и delivery acceptance.",
   "author": {
     "name": "intData",
     "email": "owner@intdata.pro"
   },
-  "license": "Proprietary",
+  "license": "MIT",
   "skills": "./skills",
   "interface": {
     "displayName": "intDev",
-    "shortDescription": "intData governance и delivery workflows",
-    "longDescription": "Приватный distributable routing-пакет семейства intData. Канонические требования остаются в root AGENTS/OpenSpec; skills маршрутизируют к ним, не присваивают полномочия adapters и не делают отказ одного adapter глобальным запретом.",
+    "shortDescription": "Fail-closed development workflows",
+    "longDescription": "Самодостаточный routing-пакет для внешних агентов. Навыки используют policy и adapters, настроенные потребителем, не встраивают локальную governance и не присваивают полномочия внешним системам.",
     "developerName": "intData",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write"],
     "brandColor": "#2563EB",
     "websiteURL": "https://intdata.pro/mcp",
     "defaultPrompt": [
-      "Определить Issue и OpenSpec уровень текущей работы.",
+      "Определить work item и требуемый уровень specification.",
       "Проверить coordination scope перед изменениями.",
-      "Провести evidence-based acceptance или review."
+      "Провести evidence-based acceptance или review по настроенной policy."
     ]
   }
 }

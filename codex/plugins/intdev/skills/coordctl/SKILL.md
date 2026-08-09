@@ -1,17 +1,14 @@
 ---
 name: coordctl
-description: Координируй repository work через Probe-owned coordctl sessions, intents, leases и pre-commit scope checks.
+description: Координируй repository work через настроенный session/intent/lease adapter и pre-commit scope checks.
 ---
 
-# coordctl
+# Coordination routing
 
-Перед нетривиальной tracked mutation выбери наблюдаемый маршрут:
+Перед нетривиальной tracked mutation найди coordination policy текущего workspace и выбери поддерживаемый adapter. Он должен уметь наблюдаемо фиксировать task session, file/region intents, leases, base revision и pre-commit scope result.
 
-- `local-direct` — локальный Probe-owned `coordctl` в owning repository;
-- `cloud-relay` — target-bound typed capability enrolled client с опубликованными `repo_id` и `path_id`.
+Прочитай status, active sessions/intents и scope; начни или переиспользуй точную task session, зарегистрируй минимальные intents и поддерживай heartbeat. Intent координирует, но не разрешает запись. Перед commit выполни whole-file scope check; останови mutation при реальном overlap, stale base, ambiguous caller или изменившемся base.
 
-Прочитай status/sessions/intents/neighbors/scope, начни или переиспользуй точную task session, зарегистрируй file/hunk intents и поддерживай heartbeat. Intent координирует, но не разрешает запись. Перед commit выполни whole-file `commit-scope-check`; stop на реальном overlap, `STALE_BASE`, ambiguous caller или изменившемся base.
+Cleanup и garbage collection потенциально destructive: сначала покажи exact preview и получи требуемое policy approval. Remote adapter должен принимать стабильный target identifier, а не произвольный host path. Release связывай с exact session.
 
-`cleanup` и `gc` destructive и требуют exact preview/approval. Remote route не принимает arbitrary path. Release должен быть связан с exact session; не подменяй его owner-wide `release --mine`.
-
-Ошибка выбранного coordctl adapter блокирует только coordination-dependent mutation через этот route. Она не запрещает другой отдельно разрешённый coordctl adapter или read-only работу. Если действующая workspace policy требует coordctl evidence, shell сам по себе не заменяет это доказательство и не даёт authority обходить overlap.
+Ошибка выбранного adapter блокирует coordination-dependent mutation через этот route, но не read-only работу. Другой отдельно настроенный adapter допустим только после повторной проверки policy, base и overlaps; shell сам по себе не заменяет требуемое coordination evidence.

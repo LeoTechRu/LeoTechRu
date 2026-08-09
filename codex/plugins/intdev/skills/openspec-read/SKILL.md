@@ -8,7 +8,7 @@ description: Находи, читай и валидируй OpenSpec source of t
 Используй для list, show, status, instructions и validation существующего package.
 
 1. Определи repository root и ближайшие instructions.
-2. Подтверди наличие OpenSpec source of truth.
+2. Подтверди configured OpenSpec source of truth и active package/profile.
 3. Выбери наименее привилегированный совместимый read route: dedicated tool, repository adapter или отдельно разрешённый native shell.
 4. Сообщи exact package/spec, validation result и drift.
 

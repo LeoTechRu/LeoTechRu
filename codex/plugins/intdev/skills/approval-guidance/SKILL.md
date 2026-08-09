@@ -1,6 +1,6 @@
 ---
 name: approval-guidance
-description: Сохраняй отдельные effect-specific approvals для repository writes, publication, privileged runtime и destructive действий.
+description: Сохраняй отдельные effect-specific approvals для writes, publication, privileged runtime и destructive действий.
 ---
 
 # Approval guidance
@@ -9,4 +9,4 @@ description: Сохраняй отдельные effect-specific approvals дл�
 
 Перед consequential action зафиксируй target, точный эффект и arguments/digest, риск, ожидаемый результат, verification, rollback и срок действия. Используй native approval выбранного adapter. Не переноси confirmation между изменившимися arguments, targets, channels или истёкшим контекстом.
 
-Issue, план, review, привилегированная сессия и прежнее разрешение не дают authority для другого outward, destructive или production effect. Если нужного approval-механизма нет, подготовь bounded proposal и останови только этот effect.
+Work item, план, review, привилегированная сессия и прежнее разрешение не дают authority для другого outward, destructive или production effect. Если policy или нужный approval-механизм не настроены, подготовь bounded proposal и останови только этот effect.
