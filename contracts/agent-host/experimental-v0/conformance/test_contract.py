@@ -29,7 +29,7 @@ class ContractTests(unittest.TestCase):
         self.receipt = load_json(fixtures / "receipt-terminal.json")
 
     def test_declared_fixtures(self) -> None:
-        self.assertEqual(run_fixture_suite(), {"valid": 3, "invalid": 4})
+        self.assertEqual(run_fixture_suite(), {"valid": 5, "invalid": 5})
 
     def test_schema_rejects_unknown_protocol_operation_bad_task_and_missing_fence(self) -> None:
         cases = []
@@ -124,6 +124,27 @@ class ContractTests(unittest.TestCase):
             validate_document(indeterminate)
         indeterminate["outcome"] = "indeterminate"
         validate_document(indeterminate)
+
+    def test_process_identity_is_required_only_for_proven_process_outcomes(self) -> None:
+        completed_without_process = copy.deepcopy(self.receipt)
+        completed_without_process["process_identity"] = None
+        with self.assertRaises(ConformanceError):
+            validate_document(completed_without_process)
+
+        cancelled_without_process = copy.deepcopy(completed_without_process)
+        cancelled_without_process["outcome"] = "cancelled"
+        with self.assertRaises(ConformanceError):
+            validate_document(cancelled_without_process)
+
+        failed_without_process = copy.deepcopy(completed_without_process)
+        failed_without_process["outcome"] = "failed"
+        validate_document(failed_without_process)
+
+        indeterminate_without_process = copy.deepcopy(completed_without_process)
+        indeterminate_without_process["status"] = "indeterminate"
+        indeterminate_without_process["outcome"] = "indeterminate"
+        indeterminate_without_process["ended_at"] = None
+        validate_document(indeterminate_without_process)
 
     def test_artifact_digest_and_size(self) -> None:
         content = b'{"fixture":"agent-host"}\n'

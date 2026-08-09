@@ -1,0 +1,16 @@
+{
+  "message_type": "receipt",
+  "protocol_version": "experimental-v0",
+  "request_id": "request-003",
+  "run_id": "run-003",
+  "attempt_id": "attempt-003",
+  "fence_token": "fence-003",
+  "idempotency_key": "issue9-run003-attempt003",
+  "request_digest": "8888888888888888888888888888888888888888888888888888888888888888",
+  "process_identity": null,
+  "started_at": "2026-08-09T09:02:01Z",
+  "ended_at": null,
+  "status": "indeterminate",
+  "outcome": "indeterminate",
+  "artifacts": []
+}

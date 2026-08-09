@@ -117,7 +117,16 @@ def assert_redacted(document: Any, trail: tuple[str, ...] = ()) -> None:
 
 
 def run_fixture_suite() -> dict[str, int]:
-    valid = [FIXTURES_DIR / name for name in ("request-start.json", "event-terminal.json", "receipt-terminal.json")]
+    valid = [
+        FIXTURES_DIR / name
+        for name in (
+            "request-start.json",
+            "event-terminal.json",
+            "receipt-terminal.json",
+            "receipt-failed-no-process.json",
+            "receipt-indeterminate-no-process.json",
+        )
+    ]
     invalid = sorted(FIXTURES_DIR.glob("invalid-*.json"))
     for path in valid:
         document = load_json(path)

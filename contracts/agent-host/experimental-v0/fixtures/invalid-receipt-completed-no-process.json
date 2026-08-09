@@ -1,0 +1,16 @@
+{
+  "message_type": "receipt",
+  "protocol_version": "experimental-v0",
+  "request_id": "request-004",
+  "run_id": "run-004",
+  "attempt_id": "attempt-004",
+  "fence_token": "fence-004",
+  "idempotency_key": "issue9-run004-attempt004",
+  "request_digest": "9999999999999999999999999999999999999999999999999999999999999999",
+  "process_identity": null,
+  "started_at": "2026-08-09T09:03:01Z",
+  "ended_at": "2026-08-09T09:03:02Z",
+  "status": "terminal",
+  "outcome": "completed",
+  "artifacts": []
+}

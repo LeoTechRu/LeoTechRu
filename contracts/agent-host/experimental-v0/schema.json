@@ -109,13 +109,18 @@
           "description": "SHA-256 of the exact UTF-8 request JSON line bytes received, excluding the CR/LF delimiter."
         },
         "process_identity": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["pid", "start_token"],
-          "properties": {
-            "pid": { "type": "integer", "minimum": 1 },
-            "start_token": { "type": "string", "minLength": 1, "maxLength": 128 }
-          }
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pid", "start_token"],
+              "properties": {
+                "pid": { "type": "integer", "minimum": 1 },
+                "start_token": { "type": "string", "minLength": 1, "maxLength": 128 }
+              }
+            },
+            { "type": "null" }
+          ]
         },
         "started_at": { "type": "string", "format": "date-time" },
         "ended_at": { "type": ["string", "null"], "format": "date-time" },
@@ -131,6 +136,10 @@
         {
           "if": { "properties": { "status": { "const": "terminal" } } },
           "then": { "properties": { "ended_at": { "type": "string", "format": "date-time" } } }
+        },
+        {
+          "if": { "properties": { "outcome": { "enum": ["completed", "cancelled"] } } },
+          "then": { "properties": { "process_identity": { "type": "object" } } }
         }
       ]
     }
