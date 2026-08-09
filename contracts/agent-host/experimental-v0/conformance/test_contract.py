@@ -78,6 +78,40 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(ConformanceError):
             validate_completed_response(events, mismatched_receipt)
 
+    def test_terminal_event_and_receipt_outcome_must_match(self) -> None:
+        event = copy.deepcopy(self.event)
+        event["sequence"] = 1
+
+        completed = copy.deepcopy(self.receipt)
+        validate_completed_response([event], completed)
+
+        failed = copy.deepcopy(self.receipt)
+        failed["outcome"] = "failed"
+        validate_completed_response([event], failed)
+
+        cancelled_event = copy.deepcopy(event)
+        cancelled_event["event"] = "cancelled"
+        cancelled_receipt = copy.deepcopy(self.receipt)
+        cancelled_receipt["outcome"] = "cancelled"
+        validate_completed_response([cancelled_event], cancelled_receipt)
+        with self.assertRaises(ConformanceError):
+            validate_completed_response([cancelled_event], completed)
+
+        terminal_with_cancelled = copy.deepcopy(self.receipt)
+        terminal_with_cancelled["outcome"] = "cancelled"
+        with self.assertRaises(ConformanceError):
+            validate_completed_response([event], terminal_with_cancelled)
+
+        indeterminate_event = copy.deepcopy(event)
+        indeterminate_event["event"] = "indeterminate"
+        indeterminate_receipt = copy.deepcopy(self.receipt)
+        indeterminate_receipt["status"] = "indeterminate"
+        indeterminate_receipt["outcome"] = "indeterminate"
+        indeterminate_receipt["ended_at"] = None
+        validate_completed_response([indeterminate_event], indeterminate_receipt)
+        with self.assertRaises(ConformanceError):
+            validate_completed_response([indeterminate_event], completed)
+
     def test_receipt_replay_is_immutable_and_indeterminate_is_fail_closed(self) -> None:
         validate_replay_receipt(self.receipt, copy.deepcopy(self.receipt))
         changed = copy.deepcopy(self.receipt)

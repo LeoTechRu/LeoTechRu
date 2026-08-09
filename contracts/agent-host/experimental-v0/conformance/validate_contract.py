@@ -79,9 +79,14 @@ def validate_completed_response(events: Sequence[Mapping[str, Any]], receipt: Ma
     fields = ("request_id", "run_id", "attempt_id", "fence_token")
     if tuple(final[field] for field in fields) != tuple(receipt[field] for field in fields):
         raise ConformanceError("receipt identity or fence does not match terminal event")
-    expected_status = "indeterminate" if final["event"] == "indeterminate" else "terminal"
-    if receipt["status"] != expected_status:
-        raise ConformanceError("receipt status does not match terminal event")
+    expected = {
+        "terminal": ("terminal", {"completed", "failed"}),
+        "cancelled": ("terminal", {"cancelled"}),
+        "indeterminate": ("indeterminate", {"indeterminate"}),
+    }
+    expected_status, allowed_outcomes = expected[final["event"]]
+    if receipt["status"] != expected_status or receipt["outcome"] not in allowed_outcomes:
+        raise ConformanceError("receipt status or outcome does not match terminal event")
 
 
 def validate_replay_receipt(original: Mapping[str, Any], replay: Mapping[str, Any]) -> None:
