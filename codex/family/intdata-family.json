@@ -73,12 +73,12 @@
         "repository": "https://github.com/LeoTechPro/intData-brain.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/brain.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "ce77690e9838d43ac95f845e7cae58ca1d1be835",
+        "tree_sha256": "0f2910fd0cdb1c28b50492f5fd5e499244299c71159ea0a3723911238c3a6390",
+        "manifest_sha256": "54dc84b29e58376c07cd8ee9caedcd041631dda964a704bc5c95e94614c40bda",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     },
     {
@@ -105,12 +105,12 @@
         "repository": "https://github.com/LeoTechPro/intData-bridge.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/probe.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "4a55c790b8f21ccc37475357555a5e7e4762f5e5",
+        "tree_sha256": "4c7ef498255b245c014198503e2b5302341e02df40bad6c0541099863af8db92",
+        "manifest_sha256": "e424fe0a80a3b74246d219d1acb8ec860769a885ed6edaef6f9206ae9b3c0804",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     },
     {
@@ -169,12 +169,12 @@
         "repository": "https://github.com/LeoTechPro/punkt-b.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/punkt-b.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "811b1311d3f2811676af9aac449e1a1b34394c84",
+        "tree_sha256": "6e3a95695683fdd1957bcbdeb5e10723f97052070e4a212bdfd2fdbd43ca5bfe",
+        "manifest_sha256": "f82ad25c04692901d15e2c4ae9d87f5e2267339c1de9eccf1089f394cfb21b63",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     },
     {
@@ -201,12 +201,12 @@
         "repository": "https://github.com/LeoTechPro/intData-CRM.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/crm.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "aff5770848d5fd8fa8bfdacee00e318d33ce4b21",
+        "tree_sha256": "942dcd1d4a3903c3454ab325f83b45ed5969fb891e22660543cb0a4fd9a58a62",
+        "manifest_sha256": "d68753592848829650042ca774428e26bec61550645753c712e77b59faa951dc",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     },
     {
@@ -265,12 +265,12 @@
         "repository": "https://github.com/LeoTechPro/intData-LMS.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/lms.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "37fe03e021066dcb3a71d6a76e09e71f597aaef6",
+        "tree_sha256": "e367015845896702a85d46aa4d20a936d310449042371aae4c9b1d0e51aad1ed",
+        "manifest_sha256": "626657b63efab95420d4de73a9a547bf4c3a10ed019d5d86fdd8b35dd77bf3f4",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     }
   ],
