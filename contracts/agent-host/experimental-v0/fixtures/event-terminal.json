@@ -1,0 +1,12 @@
+{
+  "message_type": "event",
+  "protocol_version": "experimental-v0",
+  "request_id": "request-001",
+  "run_id": "run-001",
+  "attempt_id": "attempt-001",
+  "fence_token": "fence-001",
+  "sequence": 4,
+  "event": "terminal",
+  "timestamp": "2026-08-09T09:00:04Z",
+  "payload": { "outcome": "completed" }
+}

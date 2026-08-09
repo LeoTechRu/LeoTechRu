@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.intdata.pro/agent-host/experimental-v0/schema.json",
+  "title": "Experimental Agent Host JSON Lines message",
+  "description": "Release-neutral experiment without semver or compatibility guarantees.",
+  "$comment": "For the v0 start slice, responses are accepted(seq=1), started, zero or more output/artifact events, exactly one terminal/cancelled/indeterminate event, then the durable receipt. Watch replays stored events and the same immutable receipt.",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/event" },
+    { "$ref": "#/$defs/receipt" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "task_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue", "goal", "openspec"],
+      "properties": {
+        "issue": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["number", "url", "digest"],
+          "properties": {
+            "number": { "type": "integer", "minimum": 1 },
+            "url": { "type": "string", "pattern": "^https://github\\.com/LeoTechPro/int/issues/[1-9][0-9]*$" },
+            "digest": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "goal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "digest"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "digest": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "openspec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "digest"],
+          "properties": {
+            "path": { "type": "string", "pattern": "^openspec/changes/issue-[1-9][0-9]*-[A-Za-z0-9._/-]+$" },
+            "digest": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message_type", "protocol_version", "request_id", "operation", "task_ref", "run_id", "attempt_id", "fence_token", "idempotency_key", "payload"],
+      "properties": {
+        "message_type": { "const": "request" },
+        "protocol_version": { "const": "experimental-v0" },
+        "request_id": { "$ref": "#/$defs/id" },
+        "operation": { "enum": ["describe", "start", "watch", "cancel"] },
+        "task_ref": { "$ref": "#/$defs/task_ref" },
+        "run_id": { "$ref": "#/$defs/id" },
+        "attempt_id": { "$ref": "#/$defs/id" },
+        "fence_token": { "$ref": "#/$defs/id" },
+        "idempotency_key": { "$ref": "#/$defs/id" },
+        "payload": { "type": "object" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "media_type", "sha256", "size_bytes"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 127 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message_type", "protocol_version", "request_id", "run_id", "attempt_id", "fence_token", "sequence", "event", "timestamp", "payload"],
+      "properties": {
+        "message_type": { "const": "event" },
+        "protocol_version": { "const": "experimental-v0" },
+        "request_id": { "$ref": "#/$defs/id" },
+        "run_id": { "$ref": "#/$defs/id" },
+        "attempt_id": { "$ref": "#/$defs/id" },
+        "fence_token": { "$ref": "#/$defs/id" },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "event": { "enum": ["accepted", "started", "output", "artifact", "cancelled", "terminal", "indeterminate"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "payload": { "type": "object" }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message_type", "protocol_version", "request_id", "run_id", "attempt_id", "fence_token", "idempotency_key", "request_digest", "process_identity", "started_at", "ended_at", "status", "outcome", "artifacts"],
+      "properties": {
+        "message_type": { "const": "receipt" },
+        "protocol_version": { "const": "experimental-v0" },
+        "request_id": { "$ref": "#/$defs/id" },
+        "run_id": { "$ref": "#/$defs/id" },
+        "attempt_id": { "$ref": "#/$defs/id" },
+        "fence_token": { "$ref": "#/$defs/id" },
+        "idempotency_key": { "$ref": "#/$defs/id" },
+        "request_digest": {
+          "allOf": [{ "$ref": "#/$defs/sha256" }],
+          "description": "SHA-256 of the exact UTF-8 request JSON line bytes received, excluding the CR/LF delimiter."
+        },
+        "process_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pid", "start_token"],
+          "properties": {
+            "pid": { "type": "integer", "minimum": 1 },
+            "start_token": { "type": "string", "minLength": 1, "maxLength": 128 }
+          }
+        },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": ["string", "null"], "format": "date-time" },
+        "status": { "enum": ["terminal", "indeterminate"] },
+        "outcome": { "enum": ["completed", "cancelled", "failed", "indeterminate"] },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" }, "maxItems": 32 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "indeterminate" } } },
+          "then": { "properties": { "outcome": { "const": "indeterminate" }, "ended_at": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "terminal" } } },
+          "then": { "properties": { "ended_at": { "type": "string", "format": "date-time" } } }
+        }
+      ]
+    }
+  }
+}

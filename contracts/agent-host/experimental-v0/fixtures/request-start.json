@@ -1,0 +1,16 @@
+{
+  "message_type": "request",
+  "protocol_version": "experimental-v0",
+  "request_id": "request-001",
+  "operation": "start",
+  "task_ref": {
+    "issue": { "number": 9, "url": "https://github.com/LeoTechPro/int/issues/9", "digest": "1111111111111111111111111111111111111111111111111111111111111111" },
+    "goal": { "id": "goal-issue-9", "digest": "2222222222222222222222222222222222222222222222222222222222222222" },
+    "openspec": { "path": "openspec/changes/issue-9-agent-node-vertical-slice", "digest": "3333333333333333333333333333333333333333333333333333333333333333" }
+  },
+  "run_id": "run-001",
+  "attempt_id": "attempt-001",
+  "fence_token": "fence-001",
+  "idempotency_key": "issue9-run001-attempt001",
+  "payload": { "provider": "fixture", "input_sha256": "4444444444444444444444444444444444444444444444444444444444444444" }
+}

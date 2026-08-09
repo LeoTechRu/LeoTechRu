@@ -1,0 +1,18 @@
+{
+  "message_type": "receipt",
+  "protocol_version": "experimental-v0",
+  "request_id": "request-001",
+  "run_id": "run-001",
+  "attempt_id": "attempt-001",
+  "fence_token": "fence-001",
+  "idempotency_key": "issue9-run001-attempt001",
+  "request_digest": "5555555555555555555555555555555555555555555555555555555555555555",
+  "process_identity": { "pid": 4242, "start_token": "linux-proc-start-001" },
+  "started_at": "2026-08-09T09:00:01Z",
+  "ended_at": "2026-08-09T09:00:04Z",
+  "status": "terminal",
+  "outcome": "completed",
+  "artifacts": [
+    { "name": "fixture-result.json", "media_type": "application/json", "sha256": "6666666666666666666666666666666666666666666666666666666666666666", "size_bytes": 96 }
+  ]
+}
