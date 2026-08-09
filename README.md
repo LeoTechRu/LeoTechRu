@@ -135,7 +135,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `D:\int\tools\codex\bin\openspec.cmd` — tracked Windows CMD operator/adapter entrypoint для локального OpenSpec CLI; agents with MCP tools use `intdata-control` OpenSpec tools first;
 - Native git sync/publish path: `git status --short --branch`, `git fetch --prune origin`, `git pull --ff-only` only on a clean checkout when behind, and owner-approved `ALLOW_MAIN_PUSH=1 git push origin main:main` for `main`;
 - `python /int/tools/codex/bin/agent_tool_routing.py validate --strict --json` — validate registry и blocker-rules для V1 high-risk tooling;
-- `bash /int/tools/codex/bin/register-intdata-mcp.sh` или `pwsh -File D:\int\tools\codex\bin\register-intdata-mcp.ps1` — read-only проверка трёх host-native регистраций `intdata-control`, `intdata-runtime`, `dba`;
+- `bash /int/tools/codex/bin/register-intdata-mcp.sh` или `pwsh -File D:\int\tools\codex\bin\register-intdata-mcp.ps1` — read-only проверка двух host-native регистраций `intdata-control` и `intdata-runtime`;
 - те же команды с `--apply` создают отсутствующие регистрации через `codex mcp add`; замена drift требует `--replace`, а восстановление выполняется как `--rollback <backup.json> --apply`;
 - `python -m unittest discover -s agent_plane/tests -p test_*.py -v` — unit/integration smoke neutral Agent Tool Plane;
 - `pwsh -File /int/tools/codex/bin/mcp-firefox-devtools.ps1 -ProfileKey firefox-default -StartUrl http://127.0.0.1:8080/ -DryRun` — dry-run канонического Firefox DevTools MCP launcher-а;
@@ -183,9 +183,9 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 - Public marketplace family is defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
 - `coordctl` is the canonical coordination runtime/tool family, now owned by `/int/node`; intData-tools no longer exposes coordctl MCP tools or a standalone plugin.
 - Active plugin category: `Developer Tools`.
-- Removed active plugin IDs: `coordctl`, `agent-plane`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
+- Removed active plugin IDs: `coordctl`, `agent-plane`, `dba`, `intprobe`, `intdba`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
 - Cabinet-related inventory/import tooling is outside public intData-tools; old standalone local product directories are not deleted without count-check and owner acceptance.
-- `intdata-control` и `intdata-runtime` являются только host-native MCP-профилями, а не plugin-пакетами; `dba` остаётся registry-neutral plugin-пакетом. Каждая ОС отдельно регистрирует все три MCP-профиля через native `codex mcp add` с абсолютными путями к проверенному Python и `codex/bin/mcp-intdata-cli.py`.
+- `intdata-control` и `intdata-runtime` являются только host-native MCP-профилями, а не plugin-пакетами. Каждая ОС отдельно регистрирует эти два MCP-профиля через native `codex mcp add` с абсолютными путями к проверенному Python и `codex/bin/mcp-intdata-cli.py`; standalone plugin ID `dba` удалён.
 - Установка или переустановка plugin-пакета сама по себе не создаёт и не заменяет MCP-регистрации. Default registration mode только сравнивает inventory; apply всегда оставляет rollback backup и не переносит env/cwd из существующих записей.
 - CLI-backed MCP profiles принимают только structured command args; arbitrary shell strings не поддерживаются.
 - Mutating commands require `confirm_mutation: true` and `issue_context` in `INT-*` format.
@@ -395,7 +395,7 @@ bash /int/tools/codex/tools/obsidian-desktop/install.sh
 
 - mutating-команды требуют `--approve-target <profile>`;
 - для `WRITE_CLASS=prod` дополнительно обязателен `--force-prod-write`;
-- `dba` is exposed through `/int/tools/dba` and the `dba` MCP profile; `intDBA` remains the preferred human-facing utility name, while `codex/bin/intdb.*` compatibility wrappers are not active surfaces.
+- `intDBA` доступен как самостоятельный CLI через `/int/tools/dba`; совместимый adapter `dba` в `mcp-intdata-cli.py` не регистрируется и не является устанавливаемым plugin ID. `codex/bin/intdb.*` compatibility wrappers не считаются активными поверхностями.
 
 ### `delivery/`
 

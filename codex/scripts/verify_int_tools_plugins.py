@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import subprocess
@@ -17,7 +18,8 @@ MARKETPLACE_NAME = "intdata"
 MARKETPLACE_DISPLAY_NAME = "intData"
 PUBLIC_PLUGIN_NAMES = ("intagent", "intbridge", "intdev")
 COMPATIBILITY_PROFILE_NAMES: tuple[str, ...] = ()
-FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane"}
+RETIRED_STANDALONE_PLUGIN_NAMES = {"dba", "intprobe", "intdba"}
+FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane", *RETIRED_STANDALONE_PLUGIN_NAMES}
 EXPECTED_COUNTS = {
     "intdata-control": 12,
     "intdata-runtime": 9,
@@ -25,7 +27,6 @@ EXPECTED_COUNTS = {
 
 PLUGIN_DIRS = {
     "intbrain": ROOT / "codex" / "plugins" / "intbrain",
-    "dba": ROOT / "codex" / "plugins" / "dba",
 }
 
 TOOL_SKILLS = {
@@ -62,9 +63,6 @@ TOOL_SKILLS = {
         "intbrain_import_vault_pm": "external-imports",
         "intbrain_memory_import_mempalace": "external-imports",
     },
-    "dba": {
-        "intdata_cli": "doctor-status",
-    },
 }
 
 REQUIRED_CARD_MARKERS = [
@@ -88,7 +86,7 @@ GUARDED_TOOLS = {
     "intbrain_context_store", "intbrain_graph_link", "intbrain_group_policy_upsert", "intbrain_jobs_sync_runtime",
     "intbrain_job_policy_upsert", "intbrain_pm_task_create", "intbrain_pm_task_patch", "intbrain_import_vault_pm",
     "intbrain_memory_sync_sessions", "intbrain_memory_import_mempalace", "intbrain_source_upsert",
-    "intbrain_source_evaluate", "intdata_cli",
+    "intbrain_source_evaluate",
 }
 
 ADVISORY_TOOLS: set[str] = set()
@@ -235,6 +233,69 @@ def verify_manifests(report: dict[str, Any]) -> None:
         report["manifest_errors"].append({"forbidden_public_plugins": forbidden})
 
 
+def verify_retired_standalone_plugin_surfaces(report: dict[str, Any]) -> None:
+    for name in sorted(RETIRED_STANDALONE_PLUGIN_NAMES):
+        plugin_dir = ROOT / "codex" / "plugins" / name
+        if plugin_dir.exists():
+            report["retired_surface_errors"].append(
+                {"standalone_plugin_directory": display_path(plugin_dir)}
+            )
+
+    plugin_root = ROOT / "codex" / "plugins"
+    for manifest_path in sorted(plugin_root.glob("*/.codex-plugin/plugin.json")):
+        try:
+            plugin_name = json.loads(manifest_path.read_text(encoding="utf-8")).get("name")
+        except (OSError, json.JSONDecodeError, AttributeError) as exc:
+            report["retired_surface_errors"].append(
+                {"plugin_manifest": display_path(manifest_path), "error": str(exc)}
+            )
+            continue
+        if plugin_name in RETIRED_STANDALONE_PLUGIN_NAMES:
+            report["retired_surface_errors"].append(
+                {
+                    "retired_plugin_manifest": display_path(manifest_path),
+                    "name": plugin_name,
+                }
+            )
+
+    registration_path = ROOT / "codex" / "bin" / "intdata_mcp_registration.py"
+    try:
+        tree = ast.parse(registration_path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError) as exc:
+        report["retired_surface_errors"].append(
+            {"registration_manager": display_path(registration_path), "error": str(exc)}
+        )
+        return
+
+    managed_profiles: tuple[str, ...] | None = None
+    for node in tree.body:
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        if not any(isinstance(target, ast.Name) and target.id == "PROFILES" for target in targets):
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except (ValueError, TypeError):
+            break
+        if isinstance(value, tuple) and all(isinstance(item, str) for item in value):
+            managed_profiles = value
+        break
+
+    expected_profiles = ("intdata-control", "intdata-runtime")
+    if managed_profiles != expected_profiles:
+        report["retired_surface_errors"].append(
+            {
+                "registration_profiles": list(managed_profiles or ()),
+                "expected": list(expected_profiles),
+            }
+        )
+    elif set(managed_profiles) & RETIRED_STANDALONE_PLUGIN_NAMES:
+        report["retired_surface_errors"].append(
+            {"retired_registration_profiles": sorted(set(managed_profiles) & RETIRED_STANDALONE_PLUGIN_NAMES)}
+        )
+
+
 def extract_card(body: str, tool_name: str) -> str | None:
     marker = f"### {tool_name}"
     start = body.find(marker)
@@ -373,7 +434,6 @@ def verify_guard_cases(profile: str) -> None:
         ],
         "intdata-runtime": [("host_bootstrap", {}), ("recovery_bundle", {}), ("ssh_execute", {"host": "dev-agents", "argv": ["true"], "execution_mode": "mutation"}), ("browser_profile_launch", {"profile": "firefox-default"}), ("intdata_vault_sanitize", {"dry_run": False})],
         "intbrain": [("intbrain_context_store", {"owner_id": 1, "kind": "note", "title": "guard", "text_content": "guard"}), ("intbrain_pm_task_create", {"owner_id": 1, "title": "guard"}), ("intbrain_jobs_sync_runtime", {"owner_id": 1})],
-        "dba": [("intdata_cli", {"command": "dba", "args": ["migrate", "apply"]})],
     }
     requests = [{"id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05"}}]
     for idx, (tool, args) in enumerate(guard_cases.get(profile, []), start=2):
@@ -402,9 +462,11 @@ def build_report(skip_guards: bool) -> dict[str, Any]:
         "skill_frontmatter_errors": [],
         "doc_guard_errors": [],
         "doc_guard_warnings": [],
+        "retired_surface_errors": [],
         "matrix": [],
     }
     verify_manifests(report)
+    verify_retired_standalone_plugin_surfaces(report)
     for profile, expected in EXPECTED_COUNTS.items():
         tools = tools_for(profile)
         names = {tool["name"] for tool in tools}
@@ -434,6 +496,7 @@ def build_report(skip_guards: bool) -> dict[str, Any]:
         or report["cabinet_errors"]
         or report["skill_frontmatter_errors"]
         or report["doc_guard_errors"]
+        or report["retired_surface_errors"]
         or missing_count
     )
     return report

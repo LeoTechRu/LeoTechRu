@@ -79,9 +79,13 @@ class RegistrationTests(unittest.TestCase):
 
     def test_classifies_exact_missing_and_drift(self):
         current = {name: value.copy() for name, value in self.wanted.items()}
-        current.pop("dba")
-        current["intdata-runtime"]["args"] = ["wrong"]
-        self.assertEqual(registration.classify(current, self.wanted), {"intdata-control": "exact", "intdata-runtime": "drift", "dba": "missing"})
+        current.pop("intdata-runtime")
+        current["intdata-control"]["args"] = ["wrong"]
+        self.assertEqual(registration.classify(current, self.wanted), {"intdata-control": "drift", "intdata-runtime": "missing"})
+
+    def test_managed_profiles_exclude_retired_standalone_plugins(self):
+        self.assertEqual(registration.PROFILES, ("intdata-control", "intdata-runtime"))
+        self.assertTrue({"dba", "intprobe", "intdba"}.isdisjoint(registration.PROFILES))
 
     def test_check_never_mutates(self):
         fake = FakeCodex([])
@@ -118,7 +122,7 @@ class RegistrationTests(unittest.TestCase):
         self.assertEqual(fake.calls, [])
 
     def test_secret_bearing_drift_is_refused(self):
-        fake = FakeCodex([row("dba", "/wrong", [], env={"TOKEN": "secret"})])
+        fake = FakeCodex([row("intdata-control", "/wrong", [], env={"TOKEN": "secret"})])
         with tempfile.TemporaryDirectory() as directory:
             rc = registration.main(["--python", str(self.python), "--apply", "--replace", "--backup-dir", directory], runner=fake)
             self.assertEqual(list(Path(directory).glob("*.json")), [])
@@ -127,20 +131,20 @@ class RegistrationTests(unittest.TestCase):
     def test_secret_bearing_argv_forms_are_refused(self):
         for args in (["--access-token", "value"], ["--api-key=value"], ["password:secret"]):
             with self.subTest(args=args), tempfile.TemporaryDirectory() as directory:
-                fake = FakeCodex([row("dba", "/wrong", list(args))])
+                fake = FakeCodex([row("intdata-control", "/wrong", list(args))])
                 rc = registration.main(["--python", str(self.python), "--apply", "--replace", "--backup-dir", directory], runner=fake)
                 self.assertEqual(rc, 1)
                 self.assertEqual(list(Path(directory).glob("*.json")), [])
 
     def test_non_stdio_drift_is_refused_before_mutation(self):
-        fake = FakeCodex([{"name": "dba", "enabled": True, "startup_timeout_sec": None, "tool_timeout_sec": None, "transport": {"type": "streamable_http", "url": "https://example.invalid/mcp"}}])
+        fake = FakeCodex([{"name": "intdata-control", "enabled": True, "startup_timeout_sec": None, "tool_timeout_sec": None, "transport": {"type": "streamable_http", "url": "https://example.invalid/mcp"}}])
         with tempfile.TemporaryDirectory() as directory:
             rc = registration.main(["--python", str(self.python), "--apply", "--replace", "--backup-dir", directory], runner=fake)
         self.assertEqual(rc, 1)
         self.assertFalse(any(call[1:3] == ["mcp", "remove"] for call in fake.calls))
 
     def test_plugin_cache_origin_is_refused(self):
-        fake = FakeCodex([row("dba", "/usr/bin/python3", ["/home/agents/.codex/plugins/cache/intprobe/runtime.py"])])
+        fake = FakeCodex([row("intdata-control", "/usr/bin/python3", ["/home/agents/.codex/plugins/cache/retired-plugin/runtime.py"])])
         with tempfile.TemporaryDirectory() as directory:
             rc = registration.main(["--python", str(self.python), "--apply", "--replace", "--backup-dir", directory], runner=fake)
         self.assertEqual(rc, 1)

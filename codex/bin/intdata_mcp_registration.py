@@ -13,9 +13,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-PROFILES = ("intdata-control", "intdata-runtime", "dba")
+PROFILES = ("intdata-control", "intdata-runtime")
 SECRET_OPTION_NAMES = {"password", "passwd", "secret", "bearer", "api-key", "apikey", "access-token", "token"}
-EXPECTED_COUNTS = {"intdata-control": 12, "intdata-runtime": 9, "dba": 1}
+EXPECTED_COUNTS = {"intdata-control": 12, "intdata-runtime": 9}
 ROOT = Path(__file__).resolve().parents[2]
 ADAPTER = (ROOT / "codex" / "bin" / "mcp-intdata-cli.py").resolve()
 DEFAULT_BACKUP_DIR = ROOT / ".runtime" / "intdata-mcp-registration" / "backups"
