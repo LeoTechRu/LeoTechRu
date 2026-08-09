@@ -62,7 +62,7 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
             license_path = repo / provenance["license_path"]
             license_path.parent.mkdir(parents=True, exist_ok=True)
             license_fixtures = {
-                "Proprietary": "Proprietary test fixture. All rights reserved.\n",
+                "Proprietary": family.APPROVED_PROPRIETARY_RESOURCE_LICENSE.decode("utf-8"),
                 "MIT": "MIT License\nPermission is hereby granted, free of charge.\n",
                 "Apache-2.0": "Apache License\nVersion 2.0\n",
             }
@@ -676,6 +676,27 @@ def test_released_plugins_must_be_installable_and_beyond_planned_maturity() -> N
 
     with pytest.raises(family.FamilyManifestError, match="must be installable"):
         family.validate_manifest(release, schema, require_release=True)
+
+
+def test_scoped_proprietary_resource_requires_exact_owner_approved_carrier(
+    tmp_path: Path,
+) -> None:
+    release, schema, source_roots = materialized_release(tmp_path)
+    brain = next(entry for entry in release["mcp_resources"] if entry["id"] == "brain")
+    repo = source_roots[brain["provenance"]["repository"]]
+    (repo / brain["provenance"]["license_path"]).write_text(
+        "Different proprietary terms. All rights reserved.\n",
+        encoding="utf-8",
+    )
+    commit_and_rebind(brain, repo)
+
+    with pytest.raises(family.FamilyManifestError, match="exact owner-approved carrier"):
+        family.validate_manifest(
+            release,
+            schema,
+            require_release=True,
+            source_roots=source_roots,
+        )
 
 
 def test_activation_record_has_exact_projection_paths_and_hashes(tmp_path: Path) -> None:

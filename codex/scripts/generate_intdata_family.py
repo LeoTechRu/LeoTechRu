@@ -132,6 +132,16 @@ EXPECTED_RESOURCE_LICENSE_PATHS = {
     )
     for resource_id in EXPECTED_RESOURCE_IDS
 }
+SCOPED_PROPRIETARY_RESOURCE_IDS = {"brain", "probe", "punkt-b", "crm", "cms", "lms"}
+APPROVED_PROPRIETARY_RESOURCE_LICENSE = (
+    b"Copyright (c) 2026 intData. All rights reserved.\n\n"
+    b"This software and its accompanying documentation are proprietary to intData.\n"
+    b"No permission is granted to use, copy, modify, distribute, sublicense, or sell\n"
+    b"them without prior written permission from intData.\n"
+)
+APPROVED_PROPRIETARY_RESOURCE_LICENSE_SHA256 = (
+    "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
+)
 CATALOG_FILENAME = "intdata.family-catalog.v1.json"
 CATALOG_SCHEMA_FILENAME = "intdata.family-catalog.v1.schema.json"
 LOCK_FILENAME = "intdata.family-release-lock.v1.json"
@@ -354,8 +364,9 @@ def validate_source_manifest(
                 f"{entry['id']} source resource has unsupported fields: {extra_fields}"
             )
 
+    license_bytes = blob_bytes(repo, commit, license_path)
     try:
-        license_blob = blob_bytes(repo, commit, license_path).decode("utf-8", errors="strict")
+        license_blob = license_bytes.decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
         raise FamilyManifestError(f"{entry['id']} license file must be UTF-8 text") from exc
     license_markers = {
@@ -371,6 +382,13 @@ def validate_source_manifest(
     if not all(marker in normalized_license for marker in markers):
         raise FamilyManifestError(
             f"{entry['id']} license file does not match the {license_id} contract"
+        )
+    if (
+        entry["id"] in SCOPED_PROPRIETARY_RESOURCE_IDS
+        and sha256_bytes(license_bytes) != APPROVED_PROPRIETARY_RESOURCE_LICENSE_SHA256
+    ):
+        raise FamilyManifestError(
+            f"{entry['id']} license file differs from the exact owner-approved carrier"
         )
 
 
