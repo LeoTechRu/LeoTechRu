@@ -83,7 +83,7 @@ PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intdev": ("public", "authenticated", "authenticated", None),
+    "intdev": ("public", "public", "authenticated", None),
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
@@ -628,7 +628,9 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                 },
                 "policy": {
                     "installation": "INSTALLED_BY_DEFAULT",
-                    "authentication": "ON_INSTALL",
+                    "authentication": (
+                        "ON_USE" if plugin["install_access"] == "public" else "ON_INSTALL"
+                    ),
                 },
                 "category": plugin["category"],
             }

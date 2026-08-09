@@ -195,12 +195,12 @@ def test_resource_license_paths_are_scoped_without_relicensing_repositories() ->
     }
 
 
-def test_intdev_source_is_public_but_install_and_runtime_stay_authenticated() -> None:
+def test_intdev_source_and_install_are_public_but_runtime_stays_authenticated() -> None:
     manifest, _ = load_inputs()
     intdev = next(entry for entry in manifest["plugins"] if entry["id"] == "intdev")
 
     assert intdev["source_access"] == "public"
-    assert intdev["install_access"] == "authenticated"
+    assert intdev["install_access"] == "public"
     assert intdev["runtime_access"] == "authenticated"
 
 
@@ -376,6 +376,15 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge", "intdev"]
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
+    authentication = {
+        entry["name"]: entry["policy"]["authentication"]
+        for entry in marketplace["plugins"]
+    }
+    assert authentication == {
+        "intagent": "ON_INSTALL",
+        "intbridge": "ON_INSTALL",
+        "intdev": "ON_USE",
+    }
 
 
 def test_generated_at_is_an_immutable_hash_input(tmp_path: Path) -> None:

@@ -364,7 +364,7 @@
       "category": "Developer Tools",
       "visibility": "public",
       "source_access": "public",
-      "install_access": "authenticated",
+      "install_access": "public",
       "runtime_access": "authenticated",
       "oauth_resource": null,
       "maturity": "planned",
