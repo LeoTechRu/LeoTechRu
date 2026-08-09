@@ -146,6 +146,8 @@ def test_resource_repository_identities_match_current_owning_repositories() -> N
 
     assert repositories["brain"] == "https://github.com/LeoTechPro/intData-brain.git"
     assert repositories["crm"] == "https://github.com/LeoTechPro/intData-CRM.git"
+    assert repositories["cms"] == "https://github.com/LeoTechPro/intData-CMS.git"
+    assert repositories["lms"] == "https://github.com/LeoTechPro/intData-LMS.git"
     assert repositories == family.EXPECTED_RESOURCE_REPOSITORIES
 
 

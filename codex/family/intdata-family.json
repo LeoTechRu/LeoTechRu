@@ -230,7 +230,7 @@
         "downstream_credential": "none"
       },
       "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-backend.git",
+        "repository": "https://github.com/LeoTechPro/intData-CMS.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/cms.json",
         "commit": null,
@@ -262,7 +262,7 @@
         "downstream_credential": "none"
       },
       "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-backend.git",
+        "repository": "https://github.com/LeoTechPro/intData-LMS.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/lms.json",
         "commit": null,

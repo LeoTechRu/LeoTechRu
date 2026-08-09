@@ -109,8 +109,8 @@ EXPECTED_RESOURCE_REPOSITORIES = {
     "platform": "https://github.com/LeoTechPro/intData-backend.git",
     "punkt-b": "https://github.com/LeoTechPro/punkt-b.git",
     "crm": "https://github.com/LeoTechPro/intData-CRM.git",
-    "cms": "https://github.com/LeoTechPro/intData-backend.git",
-    "lms": "https://github.com/LeoTechPro/intData-backend.git",
+    "cms": "https://github.com/LeoTechPro/intData-CMS.git",
+    "lms": "https://github.com/LeoTechPro/intData-LMS.git",
 }
 EXPECTED_RESOURCE_RUNTIME_ACCESS = {
     "agent": "owner-only",
