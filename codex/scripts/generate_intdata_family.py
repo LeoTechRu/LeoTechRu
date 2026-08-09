@@ -338,19 +338,16 @@ def validate_source_manifest(
         if actual_skills != tuple(sorted(EXPECTED_SKILLS[entry["id"]])):
             raise FamilyManifestError(f"{entry['id']} source plugin skills differ from the canonical map")
     else:
-        expected = {
-            "id": entry["id"],
-            "release_version": entry["release_version"],
-            "endpoint": entry["endpoint"],
-            "metadata_uri": entry["metadata_uri"],
-            "runtime_access": entry["runtime_access"],
-            "oauth_resource": entry["oauth_resource"],
-            "scopes": entry["scopes"],
-            "license": entry["provenance"]["license"],
-        }
+        expected = {key: value for key, value in entry.items() if key != "provenance"}
+        expected["license"] = entry["provenance"]["license"]
         for field, value in expected.items():
             if source.get(field) != value:
                 raise FamilyManifestError(f"{entry['id']} source resource {field} differs from family manifest")
+        extra_fields = sorted(set(source) - set(expected))
+        if extra_fields:
+            raise FamilyManifestError(
+                f"{entry['id']} source resource has unsupported fields: {extra_fields}"
+            )
 
     try:
         license_blob = blob_bytes(repo, commit, license_path).decode("utf-8", errors="strict")

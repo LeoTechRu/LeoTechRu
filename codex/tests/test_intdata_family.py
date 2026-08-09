@@ -87,15 +87,11 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
                     )
             else:
                 source_manifest = {
-                    "id": entry["id"],
-                    "release_version": entry["release_version"],
-                    "endpoint": entry["endpoint"],
-                    "metadata_uri": entry["metadata_uri"],
-                    "runtime_access": entry["runtime_access"],
-                    "oauth_resource": entry["oauth_resource"],
-                    "scopes": entry["scopes"],
-                    "license": provenance["license"],
+                    key: copy.deepcopy(value)
+                    for key, value in entry.items()
+                    if key != "provenance"
                 }
+                source_manifest["license"] = provenance["license"]
             manifest_path.write_text(json.dumps(source_manifest) + "\n", encoding="utf-8")
         run_git(repo, "add", ".")
         run_git(repo, "commit", "-q", "-m", "test fixture")
@@ -419,6 +415,25 @@ def test_schema_rejects_duplicate_plugin_ids_and_nonempty_agent_components() -> 
     assert any(
         list(error.absolute_path) == ["plugins", 1, "components"]
         for error in nonempty_errors
+    )
+
+
+def test_schema_requires_exact_canonical_resource_ids() -> None:
+    manifest, schema = load_inputs()
+    validator = family.jsonschema.Draft202012Validator(schema)
+
+    missing = copy.deepcopy(manifest)
+    missing["mcp_resources"].pop()
+    assert any(
+        list(error.absolute_path) == ["mcp_resources"]
+        for error in validator.iter_errors(missing)
+    )
+
+    duplicate = copy.deepcopy(manifest)
+    duplicate["mcp_resources"][-1] = copy.deepcopy(duplicate["mcp_resources"][0])
+    assert any(
+        list(error.absolute_path) == ["mcp_resources"]
+        for error in validator.iter_errors(duplicate)
     )
 
 
@@ -746,6 +761,22 @@ def test_commit_bound_resource_contract_must_match_family(tmp_path: Path) -> Non
     path.write_text(json.dumps(source) + "\n", encoding="utf-8")
     commit_and_rebind(crm, repo)
     with pytest.raises(family.FamilyManifestError, match="source resource oauth_resource"):
+        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
+
+
+@pytest.mark.parametrize("field", ["display_name", "owner", "visibility", "maturity", "availability", "authorization"])
+def test_commit_bound_resource_full_contract_must_match_family(
+    tmp_path: Path, field: str
+) -> None:
+    release, schema, source_roots = materialized_release(tmp_path)
+    crm = next(item for item in release["mcp_resources"] if item["id"] == "crm")
+    repo = source_roots[crm["provenance"]["repository"]]
+    path = repo / crm["provenance"]["manifest_path"]
+    source = json.loads(path.read_text(encoding="utf-8"))
+    source[field] = "tampered" if field != "authorization" else {"state": "tampered"}
+    path.write_text(json.dumps(source) + "\n", encoding="utf-8")
+    commit_and_rebind(crm, repo)
+    with pytest.raises(family.FamilyManifestError, match=f"source resource {field}"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
 
 

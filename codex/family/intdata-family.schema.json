@@ -46,11 +46,7 @@
         "os_aware": {"const": true}
       }
     },
-    "mcp_resources": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/mcp_resource"},
-      "minItems": 1
-    },
+    "mcp_resources": {"$ref": "#/$defs/mcp_resource_collection"},
     "plugins": {
       "$ref": "#/$defs/plugin_collection"
     }
@@ -155,6 +151,54 @@
         "license_path": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
         "license_sha256": {"$ref": "#/$defs/sha256_or_null"}
       }
+    },
+    "mcp_resource_collection": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/mcp_resource"},
+      "allOf": [
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "agent"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "brain"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "probe"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "platform"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "punkt-b"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "crm"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "cms"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "lms"}}},
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
     },
     "mcp_resource": {
       "type": "object",
