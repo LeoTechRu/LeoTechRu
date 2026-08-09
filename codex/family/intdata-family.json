@@ -233,12 +233,12 @@
         "repository": "https://github.com/LeoTechPro/intData-CMS.git",
         "subdir": ".",
         "manifest_path": "mcp/resources/cms.json",
-        "commit": null,
-        "tree_sha256": null,
-        "manifest_sha256": null,
+        "commit": "083e4725fb0b72518d75da03ef83e198d928893d",
+        "tree_sha256": "cd73dc48bbb9c5b09b408fc0bb6bf796ac9ab7776b2d4a5507743adef2926bfd",
+        "manifest_sha256": "0294f2fbdb7f3a338ac416c8aad07b9e95bf7febfe24c772399c4aad10fae4b4",
         "license": "Proprietary",
         "license_path": "mcp/resources/LICENSE",
-        "license_sha256": null
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     },
     {
