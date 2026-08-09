@@ -1,4 +1,4 @@
-# Runtime dependencies for intTools shared/root code
+# Runtime dependencies for intData-tools shared/root code
 # (delivery/, agent_plane/, dba/, roistat/).
 #
 # Derived from the third-party imports actually used by this code. The previous

@@ -17,4 +17,4 @@ try {
 
 Write-Output "Готово. Используйте локальную команду:"
 Write-Output "  $repoRoot/codex/bin/openspec --version"
-Write-Output "coordctl теперь поставляется intProbe client: /int/probe/client/coordctl"
+Write-Output "coordctl теперь поставляется intData Node: /int/node/coordctl"

@@ -8,10 +8,10 @@
     "public_submission": false
   },
   "source": {
-    "repository": "https://github.com/LeoTechPro/intBrain-client.git",
+    "repository": "https://github.com/LeoTechPro/intData-client.git",
     "path": "codex/plugins/intbrain",
     "ref": "main",
-    "owner": "intBrain-client",
+    "owner": "intData-client",
     "copied_business_logic": false
   },
   "mcp": {

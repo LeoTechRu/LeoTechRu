@@ -1,7 +1,7 @@
-# intTools
+# intData-tools
 
-`/int/tools` is the public open-source catalog of first-party intData tools and
-recommended external tools.
+`/int/tools` is the public `intData-tools` marketplace/catalog of first-party
+open-source tools and MCP servers from intData, plus recommended external tools.
 
 This repository is not a machine-wide ops/runtime warehouse. Public source here
 must be reusable, installable or reviewable as a tool, adapter, sanitized
@@ -34,7 +34,7 @@ machine-readable registry remains `tools.catalog.v1.json`.
 - `getcourse-mcp/` - agent-agnostic manifest-backed MCP connector for the documented GetCourse Import/Export API with guarded writes and bounded exports.
 - `vakas-mcp/` - agent-agnostic manifest-backed MCP connector for guarded Vakas ingress webhooks; cabinet management remains browser-only.
 - `dba/` - `intDBA`, a public first-party CLI for guarded Postgres/Supabase operator workflows.
-- `lockctl/` - removed; fully retired, historical coordination state was migrated before coordctl moved to intProbe client.
+- `lockctl/` - removed; fully retired, historical coordination state was migrated before coordctl moved to intData Node.
 - `connectors/` - reusable connector SDK and cookbook examples salvaged from retired `intNexus`.
 - `agent_plane/` - reusable tool-plane runtime, policy-aware dispatch, and local harness.
 - `repo-ops/` - reusable repository operations helpers.
@@ -46,11 +46,11 @@ machine-readable registry remains `tools.catalog.v1.json`.
 - `delivery/` - sanitized delivery templates and reusable helpers. Live host configs, credentials, logs, and environment-specific deploy machinery must live outside public tools.
 - `openclaw/` - generalized integration helpers and templates only.
 - `roistat/` - audit-pending domain adapter; it remains public only if no private client coupling is present.
-- `chatgpt-apps/` - legacy mixed bridge. IntBrain is outside intTools and must not be preserved here as search/fetch MCP.
+- `chatgpt-apps/` - legacy mixed bridge. IntBrain is outside intData-tools and must not be preserved here as search/fetch MCP.
 - `gemini-openai-proxy/` - vendor/reference copy; target is a master read-only reference submodule or a catalog link.
 - `web/` - legacy copy of site files; public site source belongs under master `web/tools`.
 - `misc/` - no top-level miscellaneous bucket; each file must move to an owning tool or be removed.
-- `probe/` - belongs to the `D:/int/probe` contour unless generalized.
+- `probe/` - belongs to the `D:/int/bridge` contour unless generalized.
 
 Legacy Codex-home overlays, project overlays, vendored `node_modules`, private OpenSpec/governance content, live `.env`, logs, SQLite/db runtime, and `.runtime` content must not be added as public source.
 
@@ -72,7 +72,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ## OpenSpec governance
 
-- Для любых tracked-мутаций repo-owned tooling в `/int/tools/**` канонический process source-of-truth живёт в master/manifest репозитории `/int`, вне публичного `intTools`.
+- Для любых tracked-мутаций repo-owned tooling в `/int/tools/**` канонический process source-of-truth живёт в master/manifest репозитории `/int`, вне публичного `intData-tools`.
 - Agents in MCP-enabled Codex/OpenClaw runtimes use `intdata-control` OpenSpec tools for OpenSpec discovery, validation, status, and lifecycle operations; repo-local `codex/bin/openspec*` entrypoints are operator/adapter fallback paths, not a PATH fallback.
 - Agents resolve `INT-*` through authenticated `gh` against `LeoTechPro/int`; legacy numbers use the tracked workspace mapping and all API/auth/mapping failures fail closed for outward gates.
 - Перед первой правкой обязателен owner-approved change package в master-level `openspec/changes/<change-id>/`:
@@ -102,7 +102,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ### Firefox browser testing
 
-- Canonical local browser-proof workflow: `codex/plugins/intdata-runtime/skills/firefox-devtools-testing/SKILL.md`.
+- Canonical local browser-proof workflow: `intbridge:firefox-devtools-testing`; tracked source `/int/bridge/plugins/intbridge/skills/firefox-devtools-testing/SKILL.md`.
 - Use configured `firefox-devtools` MCP for local persistent/authenticated Firefox sessions, screenshots, console/network checks, privileged scripts, prefs, and extension diagnostics.
 - Legacy dedicated Firefox MCP wrappers and profile overlays remain source-controlled compatibility/remote fallback tooling; do not introduce new raw `npx` browser-proof wrappers.
 - Remote, VDS, CI, headless, and reproducible E2E checks may continue to use Playwright or existing remote browser tools.
@@ -171,21 +171,21 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ## IntBrain Boundary
 
-IntBrain lives in its own contour and is not a public intTools tool.
+IntBrain lives in its own contour and is not a public intData-tools tool.
 
-Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to an intTools-wide MCP. Tool-specific intTools MCP surfaces must stay scoped to their owning public tool, and any future catalog MCP must be read-only over catalog metadata only.
+Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to an intData-tools-wide MCP. Tool-specific intData-tools MCP surfaces must stay scoped to their owning public tool, and any future catalog MCP must be read-only over catalog metadata only.
 
 ## intData Codex Plugins
 
 - Marketplace source-of-truth: `.codex/plugins/marketplace.json`.
 - Packaged plugins live in `codex/plugins/<plugin>/` and use `INSTALLED_BY_DEFAULT` + `ON_INSTALL`.
 - Local marketplace identity: `intdata` / `intData`.
-- Public marketplace plugins: `intdata-control`, `intdata-runtime`, `intbrain`, `dba`.
-- `coordctl` is the canonical coordination runtime/tool family, now owned by `/int/probe/client`; intTools no longer exposes coordctl MCP tools or a standalone plugin.
+- Public marketplace family is defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
+- `coordctl` is the canonical coordination runtime/tool family, now owned by `/int/node`; intData-tools no longer exposes coordctl MCP tools or a standalone plugin.
 - Active plugin category: `Developer Tools`.
 - Removed active plugin IDs: `coordctl`, `agent-plane`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
-- Cabinet-related inventory/import tooling is outside public intTools; old standalone local product directories are not deleted without count-check and owner acceptance.
-- `intdata-control`, `intdata-runtime` и `dba` являются registry-neutral plugin-пакетами без bundled `.mcp.json`; каждая ОС отдельно регистрирует их через native `codex mcp add` с абсолютными путями к проверенному Python и `codex/bin/mcp-intdata-cli.py`.
+- Cabinet-related inventory/import tooling is outside public intData-tools; old standalone local product directories are not deleted without count-check and owner acceptance.
+- `intdata-control` и `intdata-runtime` являются только host-native MCP-профилями, а не plugin-пакетами; `dba` остаётся registry-neutral plugin-пакетом. Каждая ОС отдельно регистрирует все три MCP-профиля через native `codex mcp add` с абсолютными путями к проверенному Python и `codex/bin/mcp-intdata-cli.py`.
 - Установка или переустановка plugin-пакета сама по себе не создаёт и не заменяет MCP-регистрации. Default registration mode только сравнивает inventory; apply всегда оставляет rollback backup и не переносит env/cwd из существующих записей.
 - CLI-backed MCP profiles принимают только structured command args; arbitrary shell strings не поддерживаются.
 - Mutating commands require `confirm_mutation: true` and `issue_context` in `INT-*` format.
@@ -766,7 +766,7 @@ delivery/devops/run-openbao.sh
 - upstream reference фиксируется в этом README, а не через `origin` в отдельном checkout;
 - в `tools` храним только versioned исходники и документацию;
 - `.git`, `node_modules/`, `dist/` и прочий runtime/build слой сюда не переносим;
-- все локальные доработки дальше ведём уже как часть `LeoTechPro/intTools`.
+- все локальные доработки дальше ведём уже как часть `LeoTechPro/intData-tools`.
 
 Локальный OpenAI-compatible proxy для Gemini с опорой на current
 `@google/gemini-cli`/`@google/gemini-cli-core` и существующую OAuth-сессию в
@@ -940,16 +940,16 @@ curl -X POST http://127.0.0.1:11434/v1/chat/completions \
 ### `lockctl/` (removed)
 
 `lockctl` has been fully retired and removed from this repository. Its runtime
-history was imported into the probe-owned `coordctl` runtime before the tool
+history was imported into the Node-owned `coordctl` runtime before the tool
 moved out of this repository. Active coordination is `coordctl` only. Do not
 reintroduce lockctl wrappers, MCP tools or runtime surfaces.
 
-### `coordctl` (moved to intProbe client)
+### `coordctl` (moved to intData Node)
 
 #### coordctl
 
 `coordctl` is the Git-aware coordination runtime for parallel Codex/OpenClaw
-agent edits. It is now owned by `/int/probe/client` and exposed as a system CLI
+agent edits. It is now owned by `/int/node` and exposed as a system CLI
 compatibility command.
 
 ##### Shell UX
@@ -962,11 +962,11 @@ coordctl --help
 coordctl help intent-acquire
 ```
 
-Implementation/core lives in `/int/probe/client/internal/coordctl`.
+Implementation/core lives in `/int/node/internal/coordctl`.
 CLI entrypoints on this host:
 
 - Public compatibility command: `coordctl`
-- Canonical probe command: `/int/probe/client/probe coord`
+- Canonical Node command: `/int/node/probe coord`
 
 `/int/tools` no longer owns coordctl source, installers, standalone plugin, or
 MCP tools.
@@ -984,7 +984,7 @@ MCP tools.
 Runtime files:
 
 - `COORDCTL_STATE_DIR` (если явно задан)
-- иначе probe-owned state: `$XDG_STATE_HOME/intprobe-client/coordctl` или `~/.local/state/intprobe-client/coordctl` на Linux/VDS, `%LOCALAPPDATA%\intProbe\coordctl` на Windows
+- иначе compatibility state: `$XDG_STATE_HOME/intprobe-client/coordctl` или `~/.local/state/intprobe-client/coordctl` на Linux/VDS, `%LOCALAPPDATA%\intProbe\coordctl` на Windows
 - SQLite: `<state_dir>/coord.sqlite`
 - Event log: `<state_dir>/events.jsonl`
 
@@ -1043,19 +1043,19 @@ bash /int/tools/openclaw/ops/verify.sh
 
 ### `probe/`
 
-#### Probe Scripts
+#### Bridge Probe Scripts
 
-`probe/` хранит versioned maintenance и audit-утилиты для `Probe Monitor`, которые не входят в prod-core репозиторий `/int/probe`.
+`probe/` хранит versioned maintenance и audit-утилиты для мониторинга intData Bridge Probe, которые не входят в prod-core репозиторий `/int/bridge`.
 
 ##### Контракт
 
-- `/int/probe` содержит только код, deploy-конфиг и проверки.
-- Versioned maintenance scripts и исторические audit snapshots для `Probe Monitor` живут здесь.
-- Mutable state и runtime-data самого `Probe Monitor` живут вне git: `~/.local/state/probe-monitor` и `~/.local/share/probe-monitor`.
-- Migration/cutover идёт через `/int/probe/ops/migrate_runtime.sh`, затем `ops/cutover.sh --install-units --restart-services` и `ops/verify.sh --runtime`.
+- `/int/bridge` содержит только код, deploy-конфиг и проверки.
+- Versioned maintenance scripts и исторические audit snapshots мониторинга intData Bridge Probe живут здесь.
+- Mutable state и runtime-data мониторинга живут вне git: `~/.local/state/probe-monitor` и `~/.local/share/probe-monitor`.
+- Migration/cutover идёт через `/int/bridge/ops/migrate_runtime.sh`, затем `ops/cutover.sh --install-units --restart-services` и `ops/verify.sh --runtime`.
 
 ##### Состав
 
-- `collect_audit.sh` — сбор audit snapshot по текущему checkout `/int/probe`
+- `collect_audit.sh` — сбор audit snapshot по текущему checkout `/int/bridge`
 - `docs/critical_assets.txt` — список must-survive assets и внешних runtime-path
 - `docs/machine-audit-2026-03-02.md` — исторический audit snapshot, перенесённый из `probe`

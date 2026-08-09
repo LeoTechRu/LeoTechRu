@@ -41,7 +41,7 @@ Create or update project documentation with minimal duplication and clear tracea
    - List updated files and required follow-ups.
 
 ## Routing
-- If documentation work depends on issue tracking or ledger updates, use agent-issues.
+- If documentation work depends on issue tracking or ledger updates, use `intbridge:issues`.
 - If the doc update is driven by a code review, use code-review to produce the review report.
 
 ## References

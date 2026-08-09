@@ -1,4 +1,4 @@
-# intTools Connectors
+# intData-tools Connectors
 
 `connectors/` contains public reusable connector tooling salvaged from the
 retired `intNexus` product contour.

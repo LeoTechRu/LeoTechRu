@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MCP_SERVER = ROOT / "codex" / "bin" / "mcp-intdata-cli.py"
 MARKETPLACE_NAME = "intdata"
 MARKETPLACE_DISPLAY_NAME = "intData"
-PUBLIC_PLUGIN_NAMES = ("intdata-control", "intdata-runtime", "intbrain", "dba")
+PUBLIC_PLUGIN_NAMES = ("intbrain", "dba")
 COMPATIBILITY_PROFILE_NAMES: tuple[str, ...] = ()
 FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane"}
 EXPECTED_COUNTS = {
@@ -25,37 +25,10 @@ EXPECTED_COUNTS = {
 
 PLUGIN_DIRS = {
     "intbrain": ROOT / "codex" / "plugins" / "intbrain",
-    "intdata-control": ROOT / "codex" / "plugins" / "intdata-control",
-    "intdata-runtime": ROOT / "codex" / "plugins" / "intdata-runtime",
     "dba": ROOT / "codex" / "plugins" / "dba",
 }
 
 TOOL_SKILLS = {
-    "intdata-control": {
-        "openspec_list": "openspec-read",
-        "openspec_show": "openspec-read",
-        "openspec_validate": "openspec-read",
-        "openspec_status": "openspec-read",
-        "openspec_instructions": "openspec-read",
-        "openspec_archive": "openspec-mutation",
-        "openspec_change_mutate": "openspec-mutation",
-        "openspec_spec_mutate": "openspec-mutation",
-        "openspec_new": "openspec-mutation",
-        "openspec_exec_mutate": "openspec-mutation",
-        "routing_validate": "routing",
-        "routing_resolve": "routing",
-    },
-    "intdata-runtime": {
-        "host_preflight": "host-diagnostics",
-        "host_verify": "host-diagnostics",
-        "host_bootstrap": "host-diagnostics",
-        "recovery_bundle": "host-diagnostics",
-        "ssh_resolve": "ssh",
-        "ssh_execute": "ssh",
-        "browser_profile_launch": "firefox-devtools-testing",
-        "intdata_vault_sanitize": "vault-maintenance",
-        "intdata_runtime_vault_gc": "vault-maintenance",
-    },
     "intbrain": {
         "intbrain_context_pack": "context-memory",
         "intbrain_memory_search": "context-memory",
@@ -291,8 +264,8 @@ def verify_manifests(report: dict[str, Any]) -> None:
         if name == "intbrain":
             mcp_config = json.loads((plugin_dir / ".mcp.json").read_text(encoding="utf-8"))
             args = (((mcp_config.get("mcpServers") or {}).get("intbrain") or {}).get("args") or [])
-            if "D:\\int\\brain\\client\\mcp\\intbrain\\bin\\mcp-intbrain.py" not in args:
-                report["manifest_errors"].append("intbrain .mcp.json must point to /int/brain/client canonical entrypoint")
+            if "D:\\int\\client\\mcp\\intbrain\\bin\\mcp-intbrain.py" not in args:
+                report["manifest_errors"].append("intbrain .mcp.json must point to /int/client canonical entrypoint")
 
 
 def extract_card(body: str, tool_name: str) -> str | None:
@@ -478,7 +451,8 @@ def build_report(skip_guards: bool) -> dict[str, Any]:
             removed = sorted(name for name in names if name.startswith("multica_") or name in REMOVED_INTDATA_CONTROL_TOOLS)
             if removed:
                 report["mapping_errors"].append({"profile": profile, "removed_tools_present": removed})
-        verify_skill_coverage(profile, tools, report)
+        if profile in TOOL_SKILLS:
+            verify_skill_coverage(profile, tools, report)
         if not skip_guards:
             verify_guard_cases(profile)
     verify_cabinet_absent(report)

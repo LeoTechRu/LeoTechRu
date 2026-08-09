@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROBE_REPO_PATH="${PROBE_REPO_PATH:-/int/probe}"
+PROBE_REPO_PATH="${PROBE_REPO_PATH:-/int/bridge}"
 PROBE_STATE_DIR="${PROBE_STATE_DIR:-$HOME/.local/state/probe-monitor}"
 PROBE_RUNTIME_ROOT="${PROBE_RUNTIME_ROOT:-$HOME/.local/share/probe-monitor}"
 DEFAULT_OUT="$PROBE_STATE_DIR/audit/machine-audit-latest.md"

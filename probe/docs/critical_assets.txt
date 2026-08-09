@@ -1,5 +1,5 @@
 # Probe tooling mirror: must-survive assets
-# canonical prod-core repo: /int/probe
+# canonical prod-core repo: /int/bridge
 
 # Files that реально versioned in /int/tools/probe
 /int/tools/probe/README.md
@@ -7,12 +7,12 @@
 /int/tools/probe/docs/critical_assets.txt
 /int/tools/probe/docs/machine-audit-2026-03-02.md
 
-# Shared tooling outside /int/probe
+# Shared tooling outside /int/bridge
 /int/tools/codex/cleanup_agent_orphans.sh
 /int/tools/codex/install_orphan_cleaner_cron.sh
 
 # Canonical prod-core and host runtime/state outside this tooling mirror
-/int/probe
+/int/bridge
 $HOME/.local/state/probe-monitor
 $HOME/.local/share/probe-monitor
 $HOME/.codex/tools/openclaw

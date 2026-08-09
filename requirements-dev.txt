@@ -1,4 +1,4 @@
-# Development / test dependencies for intTools.
+# Development / test dependencies for intData-tools.
 # Install with: pip install -r requirements.txt -r requirements-dev.txt
 -r requirements.txt
 

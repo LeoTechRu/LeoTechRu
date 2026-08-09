@@ -124,7 +124,7 @@ Operator entrypoints in current workspace:
 - tailnet-first + fallback (`INT_SSH_MODE=auto`):
   - explicit native SSH/git operations that call `/int/tools/codex/bin/int_ssh_resolve.py` or configured SSH aliases
   - `/int/brain/deploy/scripts/publish_dev_vds_intbrain.sh`
-  - `/int/probe/probes/roistat_import_probe.py` (ordered hosts: tailnet first, public fallback)
+  - `/int/bridge/probes/roistat_import_probe.py` (ordered hosts: tailnet first, public fallback)
 - public-only (unchanged in v1):
   - GitHub-hosted workflows using `appleboy/ssh-action` (without self-hosted runner + Tailscale auth flow)
   - external SLO checks for `api.*` / `lk.*`

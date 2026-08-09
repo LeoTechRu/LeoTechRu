@@ -128,7 +128,7 @@ def validate(root: Path, *, skip_forbidden: bool = False) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate intTools public catalog manifest.")
+    parser = argparse.ArgumentParser(description="Validate intData-tools public catalog manifest.")
     parser.add_argument("--root", default=Path(__file__).resolve().parents[2], type=Path)
     parser.add_argument("--skip-forbidden", action="store_true", help="Check manifest coverage only.")
     args = parser.parse_args()

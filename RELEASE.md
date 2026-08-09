@@ -179,10 +179,10 @@
 ## 2026-03-29
 ### ngt-memory moved to external reference mode
 - `ngt-memory` удалён из индекса `/int/tools` как gitlink и больше не участвует в репозиторных change-цепочках этого контура.
-- В `.gitignore` добавлен `ngt-memory/`, чтобы локальный reference clone не загрязнял статус `intTools`.
+- В `.gitignore` добавлен `ngt-memory/`, чтобы локальный reference clone не загрязнял статус `intData-tools`.
 - В `README.md` добавлен явный external-reference статус с upstream-ссылкой `https://github.com/ngt-memory/ngt-memory`.
 
-### ngt-memory gitlink updated in intTools
+### ngt-memory gitlink updated in intData-tools
 - В `ngt-memory` зафиксирован новый gitlink commit `34aa4e2cb6c8b57441549dd2c32748f0de4260ad` в составе дерева `/int/tools`.
 - Обновление включает прокидку `OPENAI_BASE_URL` в API/session flow и поддержку `base_url` в `NGTMemoryLLMWrapper` для OpenAI-compatible провайдеров.
 

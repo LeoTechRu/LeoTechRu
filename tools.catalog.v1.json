@@ -107,7 +107,7 @@
       "root": "gemini-openai-proxy",
       "status": "legacy-remove",
       "owner": "intData",
-      "public_surface": "Reference/vendor copy only; not an owned public intTools tool in current form.",
+      "public_surface": "Reference/vendor copy only; not an owned public intData-tools tool in current form.",
       "runtime_state": "Local OAuth/session material stays in user/runtime homes, never tracked.",
       "target_home": "D:/int/references/gemini-openai-proxy as read-only master reference submodule.",
       "migration_action": "Move to master reference after approval, or replace with catalog link."
@@ -139,7 +139,7 @@
       "owner": "intData",
       "public_surface": "No generic public tool surface in current form.",
       "runtime_state": "Probe runtime state belongs to the probe contour.",
-      "target_home": "D:/int/probe unless generalized into a public helper.",
+      "target_home": "D:/int/bridge unless generalized into a public helper.",
       "migration_action": "Move to probe contour or productize separately after audit."
     },
     {
@@ -188,7 +188,7 @@
       "status": "catalog-link",
       "owner": "external",
       "public_surface": "Recommended external reference link only.",
-      "runtime_state": "Not stored in intTools.",
+      "runtime_state": "Not stored in intData-tools.",
       "target_home": "External upstream or master read-only reference submodule if actively studied.",
       "migration_action": "Keep as website/catalog metadata only; do not import copied source into tools."
     },
@@ -197,8 +197,8 @@
       "root": "AutoResearchClaw",
       "status": "catalog-link",
       "owner": "external",
-      "public_surface": "Recommended external research-agent project; intTools lists why it is useful and where to get it, but does not vendor or maintain its source.",
-      "runtime_state": "No runtime state or source checkout is stored in intTools.",
+      "public_surface": "Recommended external research-agent project; intData-tools lists why it is useful and where to get it, but does not vendor or maintain its source.",
+      "runtime_state": "No runtime state or source checkout is stored in intData-tools.",
       "target_home": "External upstream: https://github.com/aiming-lab/AutoResearchClaw",
       "migration_action": "Converted from master read-only submodule to catalog link; use upstream directly unless a future owned fork is explicitly approved."
     },
@@ -207,8 +207,8 @@
       "root": "agent",
       "status": "catalog-link",
       "owner": "external",
-      "public_surface": "Recommended external agent/code-parity reference; intTools records the upstream and evaluation notes without vendoring source.",
-      "runtime_state": "No runtime state or source checkout is stored in intTools.",
+      "public_surface": "Recommended external agent/code-parity reference; intData-tools records the upstream and evaluation notes without vendoring source.",
+      "runtime_state": "No runtime state or source checkout is stored in intData-tools.",
       "target_home": "External upstream: https://github.com/ultraworkers/claw-code-parity",
       "migration_action": "Converted from master read-only submodule to catalog link; use upstream directly unless a future owned fork is explicitly approved."
     },
@@ -217,8 +217,8 @@
       "root": "cabinet",
       "status": "catalog-link",
       "owner": "external",
-      "public_surface": "Recommended external Cabinet reference; intTools keeps the pointer and notes, not a vendored checkout.",
-      "runtime_state": "No runtime state or source checkout is stored in intTools.",
+      "public_surface": "Recommended external Cabinet reference; intData-tools keeps the pointer and notes, not a vendored checkout.",
+      "runtime_state": "No runtime state or source checkout is stored in intData-tools.",
       "target_home": "External upstream: https://github.com/hilash/cabinet",
       "migration_action": "Converted from master read-only submodule to catalog link; use upstream directly unless a future owned fork is explicitly approved."
     }

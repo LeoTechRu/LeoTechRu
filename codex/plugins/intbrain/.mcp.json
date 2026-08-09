@@ -2,7 +2,7 @@
   "mcpServers": {
     "intbrain": {
       "command": "python",
-      "args": ["D:\\int\\brain\\client\\mcp\\intbrain\\bin\\mcp-intbrain.py"]
+      "args": ["D:\\int\\client\\mcp\\intbrain\\bin\\mcp-intbrain.py"]
     }
   }
 }

@@ -13,7 +13,7 @@ __pycache__/
 !*.env.example
 !**/*.env.example
 
-# local intTools runtime/state/secrets
+# local intData-tools runtime/state/secrets
 .runtime/
 # IDE
 .vscode/
@@ -34,10 +34,10 @@ config/runtime/*.env
 !*.example
 !**/*.example
 
-# external local reference clone (not tracked in intTools)
+# external local reference clone (not tracked in intData-tools)
 ngt-memory/
 
-# local unpacked memory-bank artifacts (not tracked in intTools)
+# local unpacked memory-bank artifacts (not tracked in intData-tools)
 mcp-memory-bank/
 
 # local dependency/build artifacts

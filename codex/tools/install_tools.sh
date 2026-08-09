@@ -7,4 +7,4 @@ npm ci
 
 echo "Готово. Используйте локальную команду:"
 echo "  $ROOT_DIR/bin/openspec --version"
-echo "coordctl теперь поставляется intProbe client: /int/probe/client/coordctl"
+echo "coordctl теперь поставляется intData Node: /int/node/coordctl"

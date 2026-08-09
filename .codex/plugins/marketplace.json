@@ -5,34 +5,10 @@
   },
   "plugins": [
     {
-      "name": "intdata-control",
-      "source": {
-        "source": "local",
-        "path": "./codex/plugins/intdata-control"
-      },
-      "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Developer Tools"
-    },
-    {
-      "name": "intdata-runtime",
-      "source": {
-        "source": "local",
-        "path": "./codex/plugins/intdata-runtime"
-      },
-      "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Developer Tools"
-    },
-    {
       "name": "intbrain",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/LeoTechPro/intBrain-client.git",
+        "url": "https://github.com/LeoTechPro/intData-client.git",
         "path": "./codex/plugins/intbrain",
         "ref": "main"
       },
