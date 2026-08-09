@@ -588,6 +588,11 @@ def validate_manifest(
     if require_release or manifest["release_state"] == "released":
         if manifest["release_state"] != "released":
             raise FamilyManifestError("release projections require release_state=released")
+        for plugin in manifest["plugins"]:
+            if plugin["availability"] != "available" or plugin["maturity"] == "planned":
+                raise FamilyManifestError(
+                    f"released plugin {plugin['id']} must be installable and beyond planned maturity"
+                )
         for entry in [*manifest["mcp_resources"], *manifest["plugins"]]:
             missing = [
                 field for field in (*PROVENANCE_FIELDS, "license_sha256")

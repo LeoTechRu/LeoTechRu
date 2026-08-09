@@ -42,6 +42,9 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
     release = copy.deepcopy(manifest)
     release["release_state"] = "released"
     release["release_id"] = "intdata-family-2026.08.05.1"
+    for plugin in release["plugins"]:
+        plugin["maturity"] = "dev"
+        plugin["availability"] = "available"
     entries = [*release["mcp_resources"], *release["plugins"]]
     repositories = sorted({entry["provenance"]["repository"] for entry in entries})
     source_roots: dict[str, Path] = {}
@@ -664,6 +667,15 @@ def test_unconfigured_authorization_is_dark_and_never_forwards_bearer() -> None:
     changed["mcp_resources"][0]["availability"] = "available"
     with pytest.raises(family.FamilyManifestError, match="unconfigured authorization"):
         family.validate_manifest(changed, schema, require_release=False)
+
+
+def test_released_plugins_must_be_installable_and_beyond_planned_maturity() -> None:
+    manifest, schema = load_inputs()
+    release = copy.deepcopy(manifest)
+    release["release_state"] = "released"
+
+    with pytest.raises(family.FamilyManifestError, match="must be installable"):
+        family.validate_manifest(release, schema, require_release=True)
 
 
 def test_activation_record_has_exact_projection_paths_and_hashes(tmp_path: Path) -> None:
