@@ -1,0 +1,14 @@
+{
+  "message_type": "connector_error",
+  "contract_version": "connectors-experimental-v0",
+  "error_version": "ConnectorErrorV1",
+  "error_id": "error.fixture.0001",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "connector_id": "fixture.crm",
+  "operation": "contact.tag.add",
+  "code": "indeterminate",
+  "retry_class": "reconcile",
+  "occurred_at": "2026-08-09T10:01:02Z",
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

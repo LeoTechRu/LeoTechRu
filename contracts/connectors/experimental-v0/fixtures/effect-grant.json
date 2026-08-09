@@ -1,0 +1,46 @@
+{
+  "message_type": "effect_grant",
+  "contract_version": "connectors-experimental-v0",
+  "grant_version": "EffectGrantV1",
+  "grant_id": "grant.fixture.0001",
+  "issuer": "agent.grant.issuer",
+  "audience": "intdata-bridge",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "subject": {
+    "id": "agent.fixture",
+    "kind": "agent"
+  },
+  "approving_principal": {
+    "id": "user.fixture.operator",
+    "kind": "user"
+  },
+  "approving_role": "role.integration.operator",
+  "authorization_decision_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "policy_revision": 7,
+  "plan_digest": "f7663cca8d9fe50777bd81010db7aaa55862abfdbf6785c5164769cf905daa31",
+  "connection_id": "connection.fixture.crm",
+  "operation": "contact.tag.add",
+  "target_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "grant_class": "one_time",
+  "constraints": {
+    "max_effects": 1,
+    "max_batch": 1,
+    "target_set_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "not_before_epoch": 1786269600,
+  "expires_epoch": 1786273200,
+  "nonce": "nonce.fixture.0001",
+  "revision": 1,
+  "revocation_snapshot_digest": "1212121212121212121212121212121212121212121212121212121212121212",
+  "revocation_snapshot_issued_epoch": 1786270800,
+  "revocation_snapshot_expires_epoch": 1786272600,
+  "claims_digest": "a7402e141823417635b95ce57636d4eb56d155cee497e6522de8386395637c63",
+  "signature": {
+    "alg": "EdDSA",
+    "kid": "key.fixture.2026",
+    "protected": "eyJhbGciOiJFZERTQSIsImtpZCI6ImtleS5maXh0dXJlLjIwMjYifQ",
+    "payload": "ZXhwZXJpbWVudGFsLWZpeHR1cmUtcGF5bG9hZA",
+    "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}

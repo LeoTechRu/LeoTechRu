@@ -1,0 +1,53 @@
+{
+  "message_type": "action_plan",
+  "contract_version": "connectors-experimental-v0",
+  "plan_id": "plan.effect.fixture.0001",
+  "plan_version": "ActionPlanV1",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "workflow": {
+    "id": "workflow.contact.tag",
+    "version": "1.0.0",
+    "digest": "9999999999999999999999999999999999999999999999999999999999999999"
+  },
+  "policy": {
+    "id": "policy.contact.tag",
+    "version": "2.0.0",
+    "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "connector": {
+    "id": "fixture.crm",
+    "version": "0.1.0",
+    "digest": "5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "connection_id": "connection.fixture.crm",
+  "requesting_principal": {
+    "id": "agent.fixture",
+    "kind": "agent"
+  },
+  "approving_principal": {
+    "id": "user.fixture.operator",
+    "kind": "user"
+  },
+  "approving_role": "role.integration.operator",
+  "authorization_decision_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "policy_revision": 7,
+  "effect_class": "provider_effect",
+  "operation": "contact.tag.add",
+  "target_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "arguments_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "preconditions": [
+    {
+      "kind": "resource_snapshot",
+      "digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  ],
+  "verification_assertions": [
+    {
+      "kind": "provider_read_after_write",
+      "digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  ],
+  "grant_required": true,
+  "created_at": "2026-08-09T10:00:03Z"
+}

@@ -1,0 +1,38 @@
+{
+  "message_type": "action_plan",
+  "contract_version": "connectors-experimental-v0",
+  "plan_id": "plan.read.fixture.0001",
+  "plan_version": "ActionPlanV1",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "workflow": {
+    "id": "workflow.contact.snapshot",
+    "version": "1.0.0",
+    "digest": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "policy": {
+    "id": "policy.contact.read",
+    "version": "1.0.0",
+    "digest": "4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "connector": {
+    "id": "fixture.crm",
+    "version": "0.1.0",
+    "digest": "5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "connection_id": "connection.fixture.crm",
+  "requesting_principal": {
+    "id": "service.bridge",
+    "kind": "service"
+  },
+  "authorization_decision_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+  "policy_revision": 3,
+  "effect_class": "read_snapshot",
+  "operation": "contact.snapshot",
+  "target_digest": "7777777777777777777777777777777777777777777777777777777777777777",
+  "arguments_digest": "8888888888888888888888888888888888888888888888888888888888888888",
+  "preconditions": [],
+  "verification_assertions": [],
+  "grant_required": false,
+  "created_at": "2026-08-09T10:00:02Z"
+}

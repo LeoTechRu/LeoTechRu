@@ -1,0 +1,27 @@
+{
+  "message_type": "effect_receipt",
+  "contract_version": "connectors-experimental-v0",
+  "receipt_version": "EffectReceiptV1",
+  "receipt_id": "receipt.fixture.0001",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "connection_id": "connection.fixture.crm",
+  "operation": "contact.tag.add",
+  "plan_digest": "f7663cca8d9fe50777bd81010db7aaa55862abfdbf6785c5164769cf905daa31",
+  "grant_digest": "a072eca193e186b606f08c6c53b9aad15e9662ef7328b378482c904f2c19ec5b",
+  "request_digest": "1313131313131313131313131313131313131313131313131313131313131313",
+  "provider_operation_ref": "fixture.operation.0001",
+  "fence": 4,
+  "started_at": "2026-08-09T10:01:00Z",
+  "ended_at": "2026-08-09T10:01:01Z",
+  "outcome": "succeeded",
+  "verification_state": "verified",
+  "artifacts": [
+    {
+      "media_type": "application/json",
+      "sha256": "1414141414141414141414141414141414141414141414141414141414141414",
+      "size_bytes": 128
+    }
+  ],
+  "terminal_state": "terminal"
+}

@@ -1,0 +1,34 @@
+{
+  "message_type": "connector_capability",
+  "contract_version": "connectors-experimental-v0",
+  "capability_version": "ConnectorCapabilityV1",
+  "connector_id": "fixture.crm",
+  "connector_version": "0.1.0",
+  "supported_contract_versions": ["connectors-experimental-v0"],
+  "operations": [
+    {
+      "operation": "contact.snapshot",
+      "effect_class": "read_snapshot",
+      "grant_required": false,
+      "network_methods": ["GET"],
+      "max_batch": 250
+    },
+    {
+      "operation": "contact.tag.add",
+      "effect_class": "provider_effect",
+      "grant_required": true,
+      "network_methods": ["POST"],
+      "max_batch": 25
+    }
+  ],
+  "error_codes": [
+    "auth_unavailable",
+    "rate_limited",
+    "timeout",
+    "validation_failed",
+    "provider_conflict",
+    "capability_unsupported",
+    "network_unavailable",
+    "indeterminate"
+  ]
+}

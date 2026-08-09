@@ -1,0 +1,29 @@
+{
+  "message_type": "event_envelope",
+  "contract_version": "connectors-experimental-v0",
+  "event_id": "event.fixture.0001",
+  "bridge_id": "bridge.primary",
+  "tenant_id": "tenant.fixture",
+  "contour": "dev",
+  "source": {
+    "kind": "webhook",
+    "provider": "fixture.crm",
+    "connection_id": "connection.fixture.crm"
+  },
+  "event_type": "contact.updated",
+  "subject": "contact.fixture.42",
+  "occurred_at": "2026-08-09T10:00:00Z",
+  "received_at": "2026-08-09T10:00:01Z",
+  "schema_version": 1,
+  "compiler_version": "0.1.0",
+  "trace": {
+    "trace_id": "0123456789abcdef0123456789abcdef",
+    "span_id": "0123456789abcdef"
+  },
+  "idempotency_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+  "payload_ref": {
+    "kind": "encrypted_blob",
+    "ref": "payload.fixture.0001",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  }
+}
