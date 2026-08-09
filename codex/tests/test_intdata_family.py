@@ -176,6 +176,34 @@ def test_resource_licenses_match_current_owning_repository_licenses() -> None:
     assert licenses["platform"] == "Apache-2.0"
 
 
+def test_resource_license_paths_are_scoped_without_relicensing_repositories() -> None:
+    manifest, _ = load_inputs()
+    license_paths = {
+        entry["id"]: entry["provenance"]["license_path"]
+        for entry in manifest["mcp_resources"]
+    }
+
+    assert license_paths["agent"] == "LICENSE"
+    assert license_paths["platform"] == "LICENSE"
+    assert {
+        resource_id: path
+        for resource_id, path in license_paths.items()
+        if resource_id not in {"agent", "platform"}
+    } == {
+        resource_id: "mcp/resources/LICENSE"
+        for resource_id in {"brain", "probe", "punkt-b", "crm", "cms", "lms"}
+    }
+
+
+def test_intdev_source_is_public_but_install_and_runtime_stay_authenticated() -> None:
+    manifest, _ = load_inputs()
+    intdev = next(entry for entry in manifest["plugins"] if entry["id"] == "intdev")
+
+    assert intdev["source_access"] == "public"
+    assert intdev["install_access"] == "authenticated"
+    assert intdev["runtime_access"] == "authenticated"
+
+
 def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path: Path) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
     alternate_schema = copy.deepcopy(schema)

@@ -83,7 +83,7 @@ PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intdev": ("private", "authenticated", "authenticated", None),
+    "intdev": ("public", "authenticated", "authenticated", None),
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
@@ -126,7 +126,12 @@ EXPECTED_RESOURCE_MANIFEST_PATHS = {
     resource_id: f"mcp/resources/{resource_id}.json"
     for resource_id in EXPECTED_RESOURCE_IDS
 }
-EXPECTED_RESOURCE_LICENSE_PATHS = {resource_id: "LICENSE" for resource_id in EXPECTED_RESOURCE_IDS}
+EXPECTED_RESOURCE_LICENSE_PATHS = {
+    resource_id: (
+        "LICENSE" if resource_id in {"agent", "platform"} else "mcp/resources/LICENSE"
+    )
+    for resource_id in EXPECTED_RESOURCE_IDS
+}
 CATALOG_FILENAME = "intdata.family-catalog.v1.json"
 CATALOG_SCHEMA_FILENAME = "intdata.family-catalog.v1.schema.json"
 LOCK_FILENAME = "intdata.family-release-lock.v1.json"
