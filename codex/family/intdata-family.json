@@ -375,12 +375,12 @@
         "repository": "https://github.com/LeoTechPro/intData-tools.git",
         "subdir": "codex/plugins/intdev",
         "manifest_path": "codex/plugins/intdev/.codex-plugin/plugin.json",
-        "commit": "60417600f97e8feaa67bdf5a009c2c2fbe44b72e",
-        "tree_sha256": "b86d1ca9333de9f2a9b15983d096adfc9ed18c8879536cfc1555a9dcc191644d",
-        "manifest_sha256": "a2e8eab51d329eac93b7e0005f379e3221fff0da96ff6ef8e33df1ead80c3ee2",
-        "license": "Proprietary",
+        "commit": "e57a862785ae43a9b1b5c461fcfab24c233a2b85",
+        "tree_sha256": "3eb9bd8dea5a159857f29954589e00139fb466e5bbb9e3471c29e0eb5be397ff",
+        "manifest_sha256": "c1d69a244acec49bf5db48f1e01e8df904195804f6c41538efd2906cf3f71abe",
+        "license": "MIT",
         "license_path": "codex/plugins/intdev/LICENSE",
-        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
+        "license_sha256": "695ec7ab63de97b6205e8c41be4e6009088e9b3050286d6b3e1d62bf500169a1"
       }
     }
   ]

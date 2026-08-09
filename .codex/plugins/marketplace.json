@@ -13,7 +13,7 @@
         "ref": "e2aa07ed8373e19cf6d5e875734fc887b53b6ecd"
       },
       "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
+        "installation": "NOT_AVAILABLE",
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
@@ -27,7 +27,7 @@
         "ref": "8ef3a2cf5f5460ad85556a65fbb6bb1f9e39401c"
       },
       "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
+        "installation": "NOT_AVAILABLE",
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
@@ -38,10 +38,10 @@
         "source": "git-subdir",
         "url": "https://github.com/LeoTechPro/intData-tools.git",
         "path": "./codex/plugins/intdev",
-        "ref": "60417600f97e8feaa67bdf5a009c2c2fbe44b72e"
+        "ref": "e57a862785ae43a9b1b5c461fcfab24c233a2b85"
       },
       "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
+        "installation": "NOT_AVAILABLE",
         "authentication": "ON_USE"
       },
       "category": "Developer Tools"

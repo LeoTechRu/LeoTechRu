@@ -212,7 +212,13 @@ def verify_manifests(report: dict[str, Any]) -> None:
     if not marketplace_path.exists():
         report["manifest_errors"].append(f"missing required marketplace catalog: {display_path(marketplace_path)}")
         return
-    marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+    try:
+        marketplace = family.load_json(marketplace_path)
+    except (family.FamilyManifestError, json.JSONDecodeError, UnicodeDecodeError, OSError) as exc:
+        report["manifest_errors"].append(
+            f"invalid marketplace catalog {display_path(marketplace_path)}: {exc}"
+        )
+        return
     manifest = family.load_json(family.DEFAULT_MANIFEST)
     expected = family.build_marketplace(manifest)
     if marketplace != expected:

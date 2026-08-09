@@ -7,6 +7,8 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -23,6 +25,12 @@ except ImportError as exc:  # pragma: no cover - packaging failure
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = ROOT / "codex" / "family" / "intdata-family.json"
 DEFAULT_SCHEMA = ROOT / "codex" / "family" / "intdata-family.schema.json"
+GIT_TIMEOUT_SECONDS = 30
+GIT_SSH_COMMAND = (
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "
+    "-o PasswordAuthentication=no -o KbdInteractiveAuthentication=no "
+    "-o ConnectTimeout=10 -o ConnectionAttempts=1"
+)
 EXPECTED_SKILLS = {
     "intbridge": (
         "probe-operator", "fleet-diagnostics", "client-control",
@@ -239,17 +247,71 @@ def validate_projection(value: dict[str, Any], schema: dict[str, Any], definitio
         raise FamilyManifestError(f"generated {definition} is invalid: {formatted}")
 
 
+def git_environment() -> dict[str, str]:
+    environment = os.environ.copy()
+    environment["GIT_TERMINAL_PROMPT"] = "0"
+    environment["GCM_INTERACTIVE"] = "Never"
+    environment["GIT_SSH_COMMAND"] = GIT_SSH_COMMAND
+    environment["SSH_ASKPASS_REQUIRE"] = "never"
+    environment.pop("GIT_ASKPASS", None)
+    environment.pop("SSH_ASKPASS", None)
+    return environment
+
+
+def terminate_process_tree(process: subprocess.Popen[bytes]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "nt":
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=5,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            process.kill()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
 def run_git(repo: Path, *args: str) -> bytes:
-    result = subprocess.run(
-        ["git", "-C", str(repo), *args],
-        check=False,
+    command = [
+        "git",
+        "-c",
+        "credential.interactive=never",
+        "-c",
+        "core.askPass=",
+        "-C",
+        str(repo),
+        *args,
+    ]
+    popen_options: dict[str, Any] = {"start_new_session": True}
+    if os.name == "nt":
+        popen_options = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+    process = subprocess.Popen(
+        command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=git_environment(),
+        **popen_options,
     )
-    if result.returncode:
-        message = result.stderr.decode("utf-8", errors="replace").strip()
+    try:
+        stdout, stderr = process.communicate(timeout=GIT_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired as exc:
+        terminate_process_tree(process)
+        process.communicate()
+        raise FamilyManifestError(
+            f"git {' '.join(args)} timed out in {repo}"
+        ) from exc
+    if process.returncode:
+        message = stderr.decode("utf-8", errors="replace").strip()
         raise FamilyManifestError(f"git {' '.join(args)} failed in {repo}: {message}")
-    return result.stdout
+    return stdout
 
 
 def tree_digest(repo: Path, commit: str, subdir: str) -> str:
@@ -283,6 +345,53 @@ def canonical_remote(value: str) -> tuple[str, str, str]:
     if len(parts) != 2 or not all(parts):
         raise FamilyManifestError(f"invalid canonical GitHub repository identity: {value}")
     return host.lower(), parts[0], parts[1]
+
+
+def advertised_remote_refs(repo: Path) -> tuple[tuple[str, str], ...]:
+    refs: list[tuple[str, str]] = []
+    for raw_line in run_git(repo, "ls-remote", "--refs", "origin").decode(
+        "utf-8", errors="replace"
+    ).splitlines():
+        fields = raw_line.split("\t")
+        if len(fields) != 2:
+            raise FamilyManifestError(f"{repo} origin advertised a malformed Git ref")
+        commit, ref = fields
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise FamilyManifestError(f"{repo} origin advertised a malformed Git commit")
+        if ref.startswith(("refs/heads/", "refs/tags/")):
+            refs.append((commit, ref))
+    if not refs:
+        raise FamilyManifestError(f"{repo} origin advertised no branch or tag refs")
+    return tuple(refs)
+
+
+def verify_remote_reachability(repo: Path, commit: str, *, entry_id: str) -> None:
+    for remote_commit, _ref in advertised_remote_refs(repo):
+        try:
+            result = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "merge-base",
+                    "--is-ancestor",
+                    commit,
+                    remote_commit,
+                ],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=30,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise FamilyManifestError(
+                f"{entry_id} remote reachability check timed out"
+            ) from exc
+        if result.returncode == 0:
+            return
+    raise FamilyManifestError(
+        f"{entry_id} commit is not reachable from any advertised origin branch or tag"
+    )
 
 
 def load_json_blob(repo: Path, commit: str, path: str) -> dict[str, Any]:
@@ -414,6 +523,7 @@ def verify_provenance(
 
     commit = provenance["commit"]
     run_git(repo, "cat-file", "-e", f"{commit}^{{commit}}")
+    verify_remote_reachability(repo, commit, entry_id=entry["id"])
     subdir = safe_repo_path(provenance["subdir"], field=f"{entry['id']} provenance.subdir")
     manifest_path = safe_repo_path(
         provenance["manifest_path"], field=f"{entry['id']} provenance.manifest_path", allow_dot=False
@@ -657,7 +767,11 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                     "ref": provenance["commit"],
                 },
                 "policy": {
-                    "installation": "INSTALLED_BY_DEFAULT",
+                    "installation": (
+                        "INSTALLED_BY_DEFAULT"
+                        if manifest["release_state"] == "released"
+                        else "NOT_AVAILABLE"
+                    ),
                     "authentication": (
                         "ON_USE" if plugin["install_access"] == "public" else "ON_INSTALL"
                     ),

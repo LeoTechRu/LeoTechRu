@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -19,6 +20,15 @@ SPEC = importlib.util.spec_from_file_location("generate_intdata_family", SCRIPT)
 assert SPEC and SPEC.loader
 family = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(family)
+sys.modules["generate_intdata_family"] = family
+
+VERIFIER_SCRIPT = ROOT / "codex" / "scripts" / "verify_int_tools_plugins.py"
+VERIFIER_SPEC = importlib.util.spec_from_file_location(
+    "verify_int_tools_plugins", VERIFIER_SCRIPT
+)
+assert VERIFIER_SPEC and VERIFIER_SPEC.loader
+plugin_verifier = importlib.util.module_from_spec(VERIFIER_SPEC)
+VERIFIER_SPEC.loader.exec_module(plugin_verifier)
 
 
 def load_inputs() -> tuple[dict, dict]:
@@ -34,6 +44,101 @@ def run_git(repo: Path, *args: str) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+@pytest.fixture(autouse=True)
+def advertise_test_repository_heads(monkeypatch: pytest.MonkeyPatch) -> None:
+    def advertised_refs(repo: Path) -> tuple[tuple[str, str], ...]:
+        return ((run_git(repo, "rev-parse", "HEAD"), "refs/heads/main"),)
+
+    monkeypatch.setattr(family, "advertised_remote_refs", advertised_refs)
+
+
+def test_run_git_forces_noninteractive_auth_and_isolated_process_group(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: dict = {}
+
+    class FakeProcess:
+        returncode = 0
+        pid = 12345
+
+        def __init__(self, command: list[str], **kwargs: object) -> None:
+            captured["command"] = command
+            captured["kwargs"] = kwargs
+
+        def communicate(self, timeout: float | None = None) -> tuple[bytes, bytes]:
+            captured["timeout"] = timeout
+            return b"ok", b""
+
+        def poll(self) -> int | None:
+            return self.returncode
+
+    monkeypatch.setenv("GIT_ASKPASS", "malicious-git-askpass")
+    monkeypatch.setenv("SSH_ASKPASS", "malicious-ssh-askpass")
+    monkeypatch.setenv("GCM_INTERACTIVE", "Always")
+    monkeypatch.setenv("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no")
+    monkeypatch.setattr(family.subprocess, "Popen", FakeProcess)
+
+    assert family.run_git(tmp_path, "status") == b"ok"
+
+    command = captured["command"]
+    assert command[:5] == [
+        "git",
+        "-c",
+        "credential.interactive=never",
+        "-c",
+        "core.askPass=",
+    ]
+    environment = captured["kwargs"]["env"]
+    assert environment["GIT_TERMINAL_PROMPT"] == "0"
+    assert environment["GCM_INTERACTIVE"] == "Never"
+    assert environment["SSH_ASKPASS_REQUIRE"] == "never"
+    assert "GIT_ASKPASS" not in environment
+    assert "SSH_ASKPASS" not in environment
+    assert "BatchMode=yes" in environment["GIT_SSH_COMMAND"]
+    assert "StrictHostKeyChecking=yes" in environment["GIT_SSH_COMMAND"]
+    if family.os.name == "nt":
+        assert captured["kwargs"]["creationflags"] == family.subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        assert captured["kwargs"]["start_new_session"] is True
+    assert captured["timeout"] == family.GIT_TIMEOUT_SECONDS
+
+
+def test_run_git_timeout_terminates_the_process_tree(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    terminated: list[int] = []
+
+    class TimedOutProcess:
+        returncode = None
+        pid = 54321
+        calls = 0
+
+        def __init__(self, _command: list[str], **_kwargs: object) -> None:
+            pass
+
+        def communicate(self, timeout: float | None = None) -> tuple[bytes, bytes]:
+            self.calls += 1
+            if self.calls == 1:
+                raise subprocess.TimeoutExpired("git", timeout)
+            self.returncode = -1
+            return b"", b""
+
+        def poll(self) -> int | None:
+            return self.returncode
+
+    monkeypatch.setattr(family.subprocess, "Popen", TimedOutProcess)
+    monkeypatch.setattr(
+        family,
+        "terminate_process_tree",
+        lambda process: terminated.append(process.pid),
+    )
+
+    with pytest.raises(family.FamilyManifestError, match="timed out"):
+        family.run_git(tmp_path, "ls-remote", "origin")
+
+    assert terminated == [54321]
 
 
 def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
@@ -154,6 +259,10 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
         "intbridge",
         "intdev",
     ]
+    assert all(
+        entry["policy"]["installation"] == "NOT_AVAILABLE"
+        for entry in marketplace["plugins"]
+    )
 
 
 def test_resource_repository_identities_match_current_owning_repositories() -> None:
@@ -381,6 +490,10 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge", "intdev"]
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
+    assert all(
+        entry["policy"]["installation"] == "INSTALLED_BY_DEFAULT"
+        for entry in marketplace["plugins"]
+    )
     authentication = {
         entry["name"]: entry["policy"]["authentication"]
         for entry in marketplace["plugins"]
@@ -411,6 +524,49 @@ def test_wrong_skill_owner_and_missing_provenance_fail_closed(tmp_path: Path) ->
     release["plugins"][0]["provenance"]["commit"] = None
     with pytest.raises(family.FamilyManifestError, match="immutable provenance"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
+
+
+def test_release_rejects_commit_absent_from_advertised_refs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    release, schema, source_roots = materialized_release(tmp_path)
+    entry = next(item for item in release["plugins"] if item["id"] == "intbridge")
+    repo = source_roots[entry["provenance"]["repository"]]
+    advertised_commit = entry["provenance"]["commit"]
+    manifest_path = repo / entry["provenance"]["manifest_path"]
+    manifest_path.write_text(
+        manifest_path.read_text(encoding="utf-8") + "\n", encoding="utf-8"
+    )
+    commit_and_rebind(entry, repo)
+
+    def advertised_refs(candidate: Path) -> tuple[tuple[str, str], ...]:
+        commit = (
+            advertised_commit
+            if candidate.resolve() == repo.resolve()
+            else run_git(candidate, "rev-parse", "HEAD")
+        )
+        return ((commit, "refs/heads/main"),)
+
+    monkeypatch.setattr(family, "advertised_remote_refs", advertised_refs)
+    with pytest.raises(family.FamilyManifestError, match="not reachable"):
+        family.validate_manifest(
+            release, schema, require_release=True, source_roots=source_roots
+        )
+
+
+def test_release_accepts_commit_reachable_from_advertised_descendant(
+    tmp_path: Path,
+) -> None:
+    release, schema, source_roots = materialized_release(tmp_path)
+    entry = next(item for item in release["plugins"] if item["id"] == "intdev")
+    repo = source_roots[entry["provenance"]["repository"]]
+    (repo / "published-after-source.txt").write_text("descendant\n", encoding="utf-8")
+    run_git(repo, "add", "published-after-source.txt")
+    run_git(repo, "commit", "-q", "-m", "advertised descendant")
+
+    family.validate_manifest(
+        release, schema, require_release=True, source_roots=source_roots
+    )
 
 
 def test_check_detects_projection_drift(tmp_path: Path) -> None:
@@ -455,6 +611,28 @@ def test_duplicate_json_keys_fail_closed(tmp_path: Path) -> None:
     manifest.write_text('{"schema_version":"one","schema_version":"two"}\n', encoding="utf-8")
     with pytest.raises(family.FamilyManifestError, match="duplicate JSON object key"):
         family.load_json(manifest)
+
+
+def test_plugin_verifier_strictly_rejects_duplicate_marketplace_keys(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    marketplace_path = tmp_path / ".codex" / "plugins" / "marketplace.json"
+    marketplace_path.parent.mkdir(parents=True)
+    duplicate = CHECKED_MARKETPLACE.read_text(encoding="utf-8").replace(
+        '  "name": "intdata",',
+        '  "name": "intdata",\n  "name": "intdata",',
+        1,
+    )
+    marketplace_path.write_text(duplicate, encoding="utf-8")
+    monkeypatch.setattr(plugin_verifier, "ROOT", tmp_path)
+    report: dict = {"manifest_errors": []}
+
+    plugin_verifier.verify_manifests(report)
+
+    assert any(
+        "duplicate JSON object key" in str(error)
+        for error in report["manifest_errors"]
+    )
 
 
 def test_schema_rejects_duplicate_plugin_ids_and_nonempty_agent_components() -> None:
@@ -523,6 +701,28 @@ def test_catalog_schema_rejects_duplicate_intagent_plugin() -> None:
         ).iter_errors(catalog)
     )
     assert errors
+
+
+def test_catalog_schema_requires_exact_canonical_resource_ids() -> None:
+    manifest, schema = load_inputs()
+    catalog = family.build_catalog(manifest, "0" * 64)
+    missing = copy.deepcopy(catalog)
+    missing["mcp_resources"].pop()
+    duplicate = copy.deepcopy(catalog)
+    duplicate["mcp_resources"][-1] = copy.deepcopy(duplicate["mcp_resources"][0])
+    wrong = copy.deepcopy(catalog)
+    wrong["mcp_resources"][0]["id"] = "unknown"
+    validator = family.jsonschema.Draft202012Validator(
+        family.projection_schema(
+            schema,
+            "family_catalog",
+            schema_id="https://intdata.pro/schemas/test-catalog-resources.json",
+            title="test",
+        )
+    )
+
+    for candidate in (missing, duplicate, wrong):
+        assert list(validator.iter_errors(candidate))
 
 
 def test_activation_schema_rejects_projection_path_permutation() -> None:
@@ -687,6 +887,9 @@ def test_public_install_plugin_requires_redistribution_permitting_license() -> N
     for plugin in release["plugins"]:
         plugin["maturity"] = "dev"
         plugin["availability"] = "available"
+    next(
+        plugin for plugin in release["plugins"] if plugin["id"] == "intdev"
+    )["provenance"]["license"] = "Proprietary"
 
     with pytest.raises(family.FamilyManifestError, match="redistribution-permitting"):
         family.validate_manifest(release, schema, require_release=True)
