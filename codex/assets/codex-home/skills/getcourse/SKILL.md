@@ -20,7 +20,7 @@ description: "Безопасная работа с API GetCourse для punkt-b.
 
 ## Где лежат данные проекта punkt-b.pro
 
-- Локальные ключи интеграций хранятся в: `/int/assess/backend/.env`.
+- Локальные ключи интеграций хранятся в: `/int/backend/.env`.
 - Переменная Bitrix24: `BITRIX_WEBHOOK_BASE_URL`.
 - Переменная GetCourse LMS: `GETCOURSE_LMS_PUNKTB_PRO_API_KEY`.
 - Значения секретов не коммитить и не дублировать в markdown/репозиторий.
