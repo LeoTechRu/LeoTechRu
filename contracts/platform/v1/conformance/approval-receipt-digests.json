@@ -1,0 +1,41 @@
+{
+  "digest_set_id": "urn:intdata:digest-set:bridge-oauth-registration-approval-receipt:v1",
+  "version": "v1",
+  "algorithm": "sha256",
+  "canonical_encoding": "raw-file-bytes",
+  "aggregate_encoding": "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, path, LF; SHA-256 the concatenated UTF-8 bytes.",
+  "artifacts": [
+    {
+      "artifact_id": "bridge-oauth-registration-uri/v1",
+      "artifact_kind": "uri-profile",
+      "path": "conformance/bridge-oauth-registration-uri-v1.profile.json",
+      "sha256": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070"
+    },
+    {
+      "artifact_id": "bridge-oauth-registration-uri/v1",
+      "artifact_kind": "uri-vectors",
+      "path": "conformance/bridge-oauth-registration-uri-v1.vectors.json",
+      "sha256": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89"
+    },
+    {
+      "artifact_id": "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
+      "artifact_kind": "receipt-vectors",
+      "path": "conformance/bridge-oauth-registration-approval-receipt-v1.vectors.json",
+      "sha256": "477284f0d5f9254fc7413e5aeade5c0c6abde933c185b2105aa46a5cb9073727"
+    },
+    {
+      "artifact_id": "urn:intdata:conformance-validator:bridge-oauth-registration-approval-receipt:v1",
+      "artifact_kind": "validator",
+      "path": "conformance/validate-approval-receipt.py",
+      "sha256": "85c49654b993be36187ed5d162222c7d221587dc0f902524955fe5a38740e91c"
+    },
+    {
+      "artifact_id": "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+      "artifact_kind": "schema",
+      "path": "schemas/bridge-oauth-registration-approval-receipt.schema.json",
+      "sha256": "7ae1781716c9b6a8bd981fb7c9c0e0998c4703d25ea329df283e555ec6ffc368"
+    }
+  ],
+  "aggregate_manifest_utf8_hex": "323463653630386534663030303230366539376436653530626366623136303535303634303439363735343334363239626138653835353630663766653037302020636f6e666f726d616e63652f6272696467652d6f617574682d726567697374726174696f6e2d7572692d76312e70726f66696c652e6a736f6e0a323731326136343266663835616266376537636161633432313233616665303136333934313339363362623563613932633636376463633733356333376338392020636f6e666f726d616e63652f6272696467652d6f617574682d726567697374726174696f6e2d7572692d76312e766563746f72732e6a736f6e0a343737323834663064356639323534666337343133653561656164653563306336616264653933336331383562323130356161343661356362393037333732372020636f6e666f726d616e63652f6272696467652d6f617574682d726567697374726174696f6e2d617070726f76616c2d726563656970742d76312e766563746f72732e6a736f6e0a383563343936353462393933626533363138376564356431363232323263376432323135383764633066393032353234393535666535613338373430653931632020636f6e666f726d616e63652f76616c69646174652d617070726f76616c2d726563656970742e70790a376165313738313731366339623661386264393831666237633963306530393938633437303364323565613332396466323833653535356563366666633336382020736368656d61732f6272696467652d6f617574682d726567697374726174696f6e2d617070726f76616c2d726563656970742e736368656d612e6a736f6e0a",
+  "aggregate_sha256": "9cc8f48c638a3f358a761f482e4c7ed73375d12a86c33641618ad40a28a5c8db"
+}

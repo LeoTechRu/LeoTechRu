@@ -1,0 +1,240 @@
+{
+  "vector_set_id": "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
+  "version": "v1",
+  "schema_id": "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+  "canonical_encoding": "RFC8785-JCS-UTF-8-no-BOM-no-trailing-bytes",
+  "dependencies": {
+    "uri_profile_id": "bridge-oauth-registration-uri/v1",
+    "uri_profile_path": "conformance/bridge-oauth-registration-uri-v1.profile.json",
+    "uri_profile_sha256": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070",
+    "uri_vector_path": "conformance/bridge-oauth-registration-uri-v1.vectors.json",
+    "uri_vector_sha256": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89"
+  },
+  "contracts": {
+    "protected_header": {
+      "typ": "bridge-oauth-registration-approval+jwt",
+      "alg": "ES256",
+      "kid_trust_role": "bridge.oauth.registration-approval"
+    },
+    "central": {
+      "issuer": "https://bridge.intdata.pro/oauth",
+      "audience": "https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements"
+    },
+    "lite": {
+      "authority_source": "active-InstallationLockV1",
+      "substitutes": ["issuer", "audience"],
+      "central_fallback": false
+    },
+    "trusted_time": {
+      "numeric_date": "integer-non-boolean",
+      "max_clock_skew_seconds": 30,
+      "predicate": "iat <= nbf < exp <= iat + 60; iat <= now + skew; nbf <= now + skew; exp > now - skew"
+    },
+    "registration_metadata": {
+      "max_canonical_utf8_bytes": 16384,
+      "software_id_pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "client_name_utf8_bytes": [1, 256],
+      "redirect_uris_count": [1, 16],
+      "grant_types_count": [1, 2],
+      "grant_types": ["authorization_code", "urn:ietf:params:oauth:grant-type:device_code"],
+      "token_endpoint_auth_method": "none",
+      "scopes_count": [1, 64],
+      "scope_ascii_bytes": [1, 128],
+      "array_order": "unsigned-utf8-ascending-after-canonicalize-deduplicate"
+    },
+    "request_jti": {
+      "format": "uuidv7",
+      "max_age_seconds": 300,
+      "max_future_skew_seconds": 30,
+      "replay_binding": ["request_jti", "receipt_jti", "workload_identity", "organization_id", "registration_metadata_digest"],
+      "retention": "max(receipt_exp+30,request_uuid_timestamp+360)"
+    },
+    "single_use": ["receipt_jti", "request_jti"]
+  },
+  "base": {
+    "receipt": {
+      "schema_version": "BridgeOAuthRegistrationApprovalReceiptV1",
+      "protected_header": {
+        "typ": "bridge-oauth-registration-approval+jwt",
+        "alg": "ES256",
+        "kid": "bridge-approval-2026-08"
+      },
+      "claims": {
+        "iss": "https://bridge.intdata.pro/oauth",
+        "aud": "https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements",
+        "sub": "123e4567-e89b-42d3-a456-426614174001",
+        "principal_type": "user",
+        "organization_id": "123e4567-e89b-42d3-a456-426614174002",
+        "session_id": "session-0001",
+        "membership_revision": 11,
+        "entitlement_revision": 7,
+        "registration_metadata_digest": "sha256:9400c26bb8d00db8a2c09c52445e194683db607f7a3482ff7003d600cd3b455d",
+        "jti": "approval-jti-0001",
+        "iat": 1786461600,
+        "nbf": 1786461600,
+        "exp": 1786461660
+      }
+    },
+    "registration_metadata_input": {
+      "software_id": "bridge-desktop",
+      "client_name": "Bridge Desktop",
+      "redirect_uris": [
+        "https://client.example/callback?b=2&a=1",
+        "http://127.0.0.1:49152/callback",
+        "https://client.example/callback?b=2&a=1"
+      ],
+      "grant_types": ["urn:ietf:params:oauth:grant-type:device_code", "authorization_code"],
+      "token_endpoint_auth_method": "none",
+      "scopes": ["bridge.write", "bridge.read", "bridge.read"],
+      "organization_id": "123e4567-e89b-42d3-a456-426614174002"
+    },
+    "verification_context": {
+      "mode": "central",
+      "authority_source": "central-profile",
+      "expected_issuer": "https://bridge.intdata.pro/oauth",
+      "expected_audience": "https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements",
+      "verifier_now": 1786461600,
+      "clock_skew_seconds": 30,
+      "admitted_keys": [
+        {
+          "kid": "bridge-approval-2026-08",
+          "role": "bridge.oauth.registration-approval",
+          "state": "active"
+        }
+      ],
+      "expected_projection": {
+        "sub": "123e4567-e89b-42d3-a456-426614174001",
+        "organization_id": "123e4567-e89b-42d3-a456-426614174002",
+        "session_id": "session-0001",
+        "membership_revision": 11,
+        "entitlement_revision": 7
+      },
+      "request_jti": "019ff168-b900-7e5f-8abc-0123456789ab",
+      "workload_identity": "intdata-bridge",
+      "replay_rows": [],
+      "admit_nondefault_redirect_port": false
+    },
+    "canonical_registration_metadata": {
+      "software_id": "bridge-desktop",
+      "client_name": "Bridge Desktop",
+      "redirect_uris": [
+        "http://127.0.0.1:49152/callback",
+        "https://client.example/callback?b=2&a=1"
+      ],
+      "grant_types": ["authorization_code", "urn:ietf:params:oauth:grant-type:device_code"],
+      "token_endpoint_auth_method": "none",
+      "scopes": ["bridge.read", "bridge.write"],
+      "organization_id": "123e4567-e89b-42d3-a456-426614174002"
+    },
+    "canonical_registration_metadata_utf8_hex": "7b22636c69656e745f6e616d65223a22427269646765204465736b746f70222c226772616e745f7479706573223a5b22617574686f72697a6174696f6e5f636f6465222c2275726e3a696574663a706172616d733a6f617574683a6772616e742d747970653a6465766963655f636f6465225d2c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d343264332d613435362d343236363134313734303032222c2272656469726563745f75726973223a5b22687474703a2f2f3132372e302e302e313a34393135322f63616c6c6261636b222c2268747470733a2f2f636c69656e742e6578616d706c652f63616c6c6261636b3f623d3226613d31225d2c2273636f706573223a5b226272696467652e72656164222c226272696467652e7772697465225d2c22736f6674776172655f6964223a226272696467652d6465736b746f70222c22746f6b656e5f656e64706f696e745f617574685f6d6574686f64223a226e6f6e65227d",
+    "canonical_registration_metadata_sha256": "9400c26bb8d00db8a2c09c52445e194683db607f7a3482ff7003d600cd3b455d"
+  },
+  "positive_cases": [
+    {
+      "name": "central-base-canonicalizes-and-deduplicates",
+      "mutations": [],
+      "expected": {"valid": true}
+    },
+    {
+      "name": "lite-substitutes-both-installation-lock-authorities",
+      "mutations": [
+        {"op": "replace", "pointer": "/receipt/claims/iss", "value": "https://bridge.customer.example"},
+        {"op": "replace", "pointer": "/receipt/claims/aud", "value": "https://api.customer.example"},
+        {"op": "replace", "pointer": "/verification_context/mode", "value": "lite"},
+        {"op": "replace", "pointer": "/verification_context/authority_source", "value": "active-InstallationLockV1"},
+        {"op": "replace", "pointer": "/verification_context/expected_issuer", "value": "https://bridge.customer.example"},
+        {"op": "replace", "pointer": "/verification_context/expected_audience", "value": "https://api.customer.example"}
+      ],
+      "expected": {"valid": true}
+    },
+    {
+      "name": "zero-revisions-are-valid-projections",
+      "mutations": [
+        {"op": "replace", "pointer": "/receipt/claims/membership_revision", "value": 0},
+        {"op": "replace", "pointer": "/receipt/claims/entitlement_revision", "value": 0},
+        {"op": "replace", "pointer": "/verification_context/expected_projection/membership_revision", "value": 0},
+        {"op": "replace", "pointer": "/verification_context/expected_projection/entitlement_revision", "value": 0}
+      ],
+      "expected": {"valid": true}
+    },
+    {
+      "name": "safe-integer-revision-boundary",
+      "mutations": [
+        {"op": "replace", "pointer": "/receipt/claims/membership_revision", "value": 9007199254740991},
+        {"op": "replace", "pointer": "/receipt/claims/entitlement_revision", "value": 9007199254740991},
+        {"op": "replace", "pointer": "/verification_context/expected_projection/membership_revision", "value": 9007199254740991},
+        {"op": "replace", "pointer": "/verification_context/expected_projection/entitlement_revision", "value": 9007199254740991}
+      ],
+      "expected": {"valid": true}
+    }
+  ],
+  "adverse_cases": [
+    {"name": "alternate-typ", "mutations": [{"op": "replace", "pointer": "/receipt/protected_header/typ", "value": "JWT"}], "expected": {"valid": false, "stage": "header", "reason": "typ"}},
+    {"name": "alternate-alg", "mutations": [{"op": "replace", "pointer": "/receipt/protected_header/alg", "value": "EdDSA"}], "expected": {"valid": false, "stage": "header", "reason": "alg"}},
+    {"name": "malformed-kid", "mutations": [{"op": "replace", "pointer": "/receipt/protected_header/kid", "value": "bad kid!"}], "expected": {"valid": false, "stage": "header", "reason": "kid-not-admitted"}},
+    {"name": "unknown-kid", "mutations": [{"op": "replace", "pointer": "/receipt/protected_header/kid", "value": "bridge-approval-unknown"}], "expected": {"valid": false, "stage": "header", "reason": "kid-not-admitted"}},
+    {"name": "wrong-key-role", "mutations": [{"op": "replace", "pointer": "/verification_context/admitted_keys/0/role", "value": "release.artifact.signing"}], "expected": {"valid": false, "stage": "context", "reason": "admitted-key-record"}},
+    {"name": "retired-key", "mutations": [{"op": "replace", "pointer": "/verification_context/admitted_keys/0/state", "value": "retired"}], "expected": {"valid": false, "stage": "header", "reason": "kid-state"}},
+    {"name": "revoked-key", "mutations": [{"op": "replace", "pointer": "/verification_context/admitted_keys/0/state", "value": "revoked"}], "expected": {"valid": false, "stage": "header", "reason": "kid-state"}},
+    {"name": "extra-header-field", "mutations": [{"op": "add", "pointer": "/receipt/protected_header/cty", "value": "JWT"}], "expected": {"valid": false, "stage": "header", "reason": "closed-shape"}},
+    {"name": "extra-claim", "mutations": [{"op": "add", "pointer": "/receipt/claims/role", "value": "owner"}], "expected": {"valid": false, "stage": "schema", "reason": "/claims#additionalProperties"}},
+    {"name": "missing-claim", "mutations": [{"op": "remove", "pointer": "/receipt/claims/session_id"}], "expected": {"valid": false, "stage": "schema", "reason": "/claims#required"}},
+    {"name": "array-audience", "mutations": [{"op": "replace", "pointer": "/receipt/claims/aud", "value": ["https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements"]}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/aud#type"}},
+    {"name": "alternate-principal-type", "mutations": [{"op": "replace", "pointer": "/receipt/claims/principal_type", "value": "service_account"}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/principal_type#const"}},
+    {"name": "boolean-iat", "mutations": [{"op": "replace", "pointer": "/receipt/claims/iat", "value": true}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/iat#type"}},
+    {"name": "boolean-revision", "mutations": [{"op": "replace", "pointer": "/receipt/claims/membership_revision", "value": true}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/membership_revision#type"}},
+    {"name": "noncanonical-organization-uuid", "mutations": [{"op": "replace", "pointer": "/receipt/claims/organization_id", "value": "019ff168-b900-7e5f-8abc-0123456789aa"}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/organization_id#pattern"}},
+    {"name": "short-receipt-jti", "mutations": [{"op": "replace", "pointer": "/receipt/claims/jti", "value": "short"}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/jti#pattern"}},
+    {"name": "negative-revision", "mutations": [{"op": "replace", "pointer": "/receipt/claims/entitlement_revision", "value": -1}], "expected": {"valid": false, "stage": "schema", "reason": "/claims/entitlement_revision#minimum"}},
+    {"name": "extra-receipt-field", "mutations": [{"op": "add", "pointer": "/receipt/uri_normalization_profile", "value": "bridge-oauth-registration-uri/v1"}], "expected": {"valid": false, "stage": "schema", "reason": "/#additionalProperties"}},
+    {"name": "alternate-schema-version", "mutations": [{"op": "replace", "pointer": "/receipt/schema_version", "value": "1"}], "expected": {"valid": false, "stage": "schema", "reason": "/schema_version#const"}},
+    {"name": "central-wrong-issuer", "mutations": [{"op": "replace", "pointer": "/receipt/claims/iss", "value": "https://bridge.attacker.example"}], "expected": {"valid": false, "stage": "semantic", "reason": "issuer"}},
+    {"name": "central-wrong-audience", "mutations": [{"op": "replace", "pointer": "/receipt/claims/aud", "value": "https://api.attacker.example"}], "expected": {"valid": false, "stage": "semantic", "reason": "audience"}},
+    {"name": "central-context-cannot-drift", "mutations": [{"op": "replace", "pointer": "/verification_context/expected_issuer", "value": "https://bridge.attacker.example"}], "expected": {"valid": false, "stage": "context", "reason": "central-authority-context"}},
+    {"name": "lite-central-issuer-fallback", "mutations": [{"op": "replace", "pointer": "/verification_context/mode", "value": "lite"}, {"op": "replace", "pointer": "/verification_context/authority_source", "value": "active-InstallationLockV1"}, {"op": "replace", "pointer": "/verification_context/expected_audience", "value": "https://api.customer.example"}], "expected": {"valid": false, "stage": "context", "reason": "lite-central-fallback"}},
+    {"name": "lite-central-audience-fallback", "mutations": [{"op": "replace", "pointer": "/verification_context/mode", "value": "lite"}, {"op": "replace", "pointer": "/verification_context/authority_source", "value": "active-InstallationLockV1"}, {"op": "replace", "pointer": "/verification_context/expected_issuer", "value": "https://bridge.customer.example"}], "expected": {"valid": false, "stage": "context", "reason": "lite-central-fallback"}},
+    {"name": "lite-authority-not-from-lock", "mutations": [{"op": "replace", "pointer": "/verification_context/mode", "value": "lite"}, {"op": "replace", "pointer": "/verification_context/expected_issuer", "value": "https://bridge.customer.example"}, {"op": "replace", "pointer": "/verification_context/expected_audience", "value": "https://api.customer.example"}], "expected": {"valid": false, "stage": "context", "reason": "lite-authority-source"}},
+    {"name": "iat-after-nbf", "mutations": [{"op": "replace", "pointer": "/receipt/claims/iat", "value": 1786461601}], "expected": {"valid": false, "stage": "semantic", "reason": "chronology"}},
+    {"name": "nbf-equals-exp", "mutations": [{"op": "replace", "pointer": "/receipt/claims/nbf", "value": 1786461660}], "expected": {"valid": false, "stage": "semantic", "reason": "chronology"}},
+    {"name": "ttl-sixty-one", "mutations": [{"op": "replace", "pointer": "/receipt/claims/exp", "value": 1786461661}], "expected": {"valid": false, "stage": "semantic", "reason": "ttl"}},
+    {"name": "expired-at-skew-boundary", "mutations": [{"op": "replace", "pointer": "/verification_context/verifier_now", "value": 1786461690}], "expected": {"valid": false, "stage": "semantic", "reason": "expired"}},
+    {"name": "future-iat-beyond-skew", "mutations": [{"op": "replace", "pointer": "/receipt/claims/iat", "value": 1786461631}, {"op": "replace", "pointer": "/receipt/claims/nbf", "value": 1786461631}, {"op": "replace", "pointer": "/receipt/claims/exp", "value": 1786461660}], "expected": {"valid": false, "stage": "semantic", "reason": "future-iat"}},
+    {"name": "future-nbf-beyond-skew", "mutations": [{"op": "replace", "pointer": "/receipt/claims/nbf", "value": 1786461631}], "expected": {"valid": false, "stage": "semantic", "reason": "future-nbf"}},
+    {"name": "clock-skew-over-limit", "mutations": [{"op": "replace", "pointer": "/verification_context/clock_skew_seconds", "value": 31}], "expected": {"valid": false, "stage": "context", "reason": "clock-skew"}},
+    {"name": "boolean-verifier-now", "mutations": [{"op": "replace", "pointer": "/verification_context/verifier_now", "value": true}], "expected": {"valid": false, "stage": "context", "reason": "verifier-now"}},
+    {"name": "sub-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/sub", "value": "123e4567-e89b-42d3-a456-426614174099"}], "expected": {"valid": false, "stage": "semantic", "reason": "projection-sub"}},
+    {"name": "organization-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/organization_id", "value": "123e4567-e89b-42d3-a456-426614174099"}], "expected": {"valid": false, "stage": "semantic", "reason": "projection-organization-id"}},
+    {"name": "session-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/session_id", "value": "session-9999"}], "expected": {"valid": false, "stage": "semantic", "reason": "projection-session-id"}},
+    {"name": "membership-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/membership_revision", "value": 12}], "expected": {"valid": false, "stage": "semantic", "reason": "projection-membership-revision"}},
+    {"name": "entitlement-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/entitlement_revision", "value": 8}], "expected": {"valid": false, "stage": "semantic", "reason": "projection-entitlement-revision"}},
+    {"name": "registration-metadata-digest-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/registration_metadata_digest", "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"}], "expected": {"valid": false, "stage": "semantic", "reason": "registration-metadata-digest"}},
+    {"name": "metadata-extra-field", "mutations": [{"op": "add", "pointer": "/registration_metadata_input/logo_uri", "value": "https://client.example/logo"}], "expected": {"valid": false, "stage": "semantic", "reason": "closed-shape"}},
+    {"name": "metadata-missing-field", "mutations": [{"op": "remove", "pointer": "/registration_metadata_input/software_id"}], "expected": {"valid": false, "stage": "semantic", "reason": "closed-shape"}},
+    {"name": "redirect-uri-empty-array", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/redirect_uris", "value": []}], "expected": {"valid": false, "stage": "semantic", "reason": "redirect_uris-cardinality"}},
+    {"name": "redirect-uri-over-cardinality", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/redirect_uris", "value": ["https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback", "https://client.example/callback"]}], "expected": {"valid": false, "stage": "semantic", "reason": "redirect_uris-cardinality"}},
+    {"name": "grant-type-empty-array", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/grant_types", "value": []}], "expected": {"valid": false, "stage": "semantic", "reason": "grant_types-cardinality"}},
+    {"name": "grant-type-over-cardinality", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/grant_types", "value": ["authorization_code", "authorization_code", "authorization_code"]}], "expected": {"valid": false, "stage": "semantic", "reason": "grant_types-cardinality"}},
+    {"name": "scope-empty-array", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/scopes", "value": []}], "expected": {"valid": false, "stage": "semantic", "reason": "scopes-cardinality"}},
+    {"name": "scope-over-cardinality", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/scopes", "value": ["bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read", "bridge.read"]}], "expected": {"valid": false, "stage": "semantic", "reason": "scopes-cardinality"}},
+    {"name": "redirect-uri-normalization-collision", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/redirect_uris", "value": ["https://client.example", "https://client.example/"]}], "expected": {"valid": false, "stage": "semantic", "reason": "normalized_collision"}},
+    {"name": "redirect-uri-uppercase-host", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/redirect_uris", "value": ["https://CLIENT.example/callback"]}], "expected": {"valid": false, "stage": "semantic", "reason": "invalid_host"}},
+    {"name": "redirect-uri-nondefault-port-not-admitted", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/redirect_uris", "value": ["https://client.example:8443/callback"]}], "expected": {"valid": false, "stage": "semantic", "reason": "policy_admission_required"}},
+    {"name": "invalid-grant-type", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/grant_types", "value": ["refresh_token"]}], "expected": {"valid": false, "stage": "semantic", "reason": "token_grammar"}},
+    {"name": "invalid-scope", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/scopes", "value": ["bridge read"]}], "expected": {"valid": false, "stage": "semantic", "reason": "token_grammar"}},
+    {"name": "metadata-organization-projection-mismatch", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/organization_id", "value": "123e4567-e89b-42d3-a456-426614174099"}], "expected": {"valid": false, "stage": "semantic", "reason": "metadata-organization-projection"}},
+    {"name": "empty-client-name", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/client_name", "value": ""}], "expected": {"valid": false, "stage": "semantic", "reason": "client-name"}},
+    {"name": "integral-float-iat", "mutations": [{"op": "replace", "pointer": "/receipt/claims/iat", "value": 1786461600.0}], "expected": {"valid": false, "stage": "number-policy", "reason": "number-policy"}},
+    {"name": "integral-float-nbf", "mutations": [{"op": "replace", "pointer": "/receipt/claims/nbf", "value": 1786461600.0}], "expected": {"valid": false, "stage": "number-policy", "reason": "number-policy"}},
+    {"name": "integral-float-exp", "mutations": [{"op": "replace", "pointer": "/receipt/claims/exp", "value": 1786461660.0}], "expected": {"valid": false, "stage": "number-policy", "reason": "number-policy"}},
+    {"name": "integral-float-membership-revision", "mutations": [{"op": "replace", "pointer": "/receipt/claims/membership_revision", "value": 11.0}], "expected": {"valid": false, "stage": "number-policy", "reason": "number-policy"}},
+    {"name": "integral-float-entitlement-revision", "mutations": [{"op": "replace", "pointer": "/receipt/claims/entitlement_revision", "value": 7.0}], "expected": {"valid": false, "stage": "number-policy", "reason": "number-policy"}},
+    {"name": "private-key-jwt-not-v1", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/token_endpoint_auth_method", "value": "private_key_jwt"}], "expected": {"valid": false, "stage": "semantic", "reason": "token-endpoint-auth-method"}},
+    {"name": "software-id-leading-punctuation", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/software_id", "value": ".bridge"}], "expected": {"valid": false, "stage": "semantic", "reason": "software-id"}},
+    {"name": "client-name-over-256-utf8-bytes", "mutations": [{"op": "replace", "pointer": "/registration_metadata_input/client_name", "value": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"}], "expected": {"valid": false, "stage": "semantic", "reason": "client-name"}},
+    {"name": "request-jti-not-uuidv7", "mutations": [{"op": "replace", "pointer": "/verification_context/request_jti", "value": "123e4567-e89b-42d3-a456-426614174000"}], "expected": {"valid": false, "stage": "context", "reason": "request-jti"}},
+    {"name": "request-jti-stale", "mutations": [{"op": "replace", "pointer": "/verification_context/request_jti", "value": "019ff164-2138-7e5f-8abc-0123456789aa"}], "expected": {"valid": false, "stage": "semantic", "reason": "request-jti-stale"}},
+    {"name": "request-jti-future", "mutations": [{"op": "replace", "pointer": "/verification_context/request_jti", "value": "019ff169-3218-7e5f-8abc-0123456789aa"}], "expected": {"valid": false, "stage": "semantic", "reason": "request-jti-future"}},
+    {"name": "receipt-and-request-jti-replay", "mutations": [{"op": "replace", "pointer": "/verification_context/replay_rows", "value": [{"request_jti": "019ff168-b900-7e5f-8abc-0123456789ab", "receipt_jti": "approval-jti-0001", "workload_identity": "intdata-bridge", "organization_id": "123e4567-e89b-42d3-a456-426614174002", "registration_metadata_digest": "sha256:9400c26bb8d00db8a2c09c52445e194683db607f7a3482ff7003d600cd3b455d", "retention_until": 1786461960}]}], "expected": {"valid": false, "stage": "semantic", "reason": "replayed-jti"}},
+    {"name": "request-jti-replay-binding-mismatch", "mutations": [{"op": "replace", "pointer": "/receipt/claims/jti", "value": "approval-jti-0002"}, {"op": "replace", "pointer": "/verification_context/replay_rows", "value": [{"request_jti": "019ff168-b900-7e5f-8abc-0123456789ab", "receipt_jti": "approval-jti-0001", "workload_identity": "intdata-bridge", "organization_id": "123e4567-e89b-42d3-a456-426614174002", "registration_metadata_digest": "sha256:9400c26bb8d00db8a2c09c52445e194683db607f7a3482ff7003d600cd3b455d", "retention_until": 1786461960}]}], "expected": {"valid": false, "stage": "semantic", "reason": "replay-binding-mismatch"}}
+  ]
+}
