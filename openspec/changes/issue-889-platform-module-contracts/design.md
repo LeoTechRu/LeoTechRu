@@ -55,18 +55,94 @@ capabilities/dependencies/artifacts/migrations/routes/web modules/runtime units 
 configuration requirements. Installation — owner-authored desired state без
 secrets/internal unit list. Lock содержит exact resolved graph/bindings/artifacts.
 
-`TrustBundleV1` является единственным источником public key material, roles,
-validity и revocation. Он имеет pinned root, monotonic revision, explicit trusted
-time policy и anti-rollback. `RegistrySnapshotV1` хранит только допустимые
-role/key IDs и exact trust-bundle ID/version/digest, но не дублирует key material.
-DSSE `keyid` — hint, а не authority. Роли как минимум разделяют registry,
-module/release и installation-actor.
+`TrustBundleV1` является единственным источником non-release public key material,
+roles, validity и revocation для registry, module, installation actor и JWT.
+Он хранит только pinned `ReleaseVerificationKeySetV1` ID/revision/digest и
+bootstrap-root-set digest, но не дублирует `release.artifact.signing` keys или их
+lifecycle. `RegistrySnapshotV1` хранит допустимые role/key IDs и exact trust
+references без duplicated key material. DSSE `keyid` — hint, а не authority.
+TrustBundle и KeySet имеют непересекающиеся роли; release verification обязана
+проверить обе применимые authorities.
+
+`ReleaseVerificationKeySetV1` specializes release-artifact verification trust.
+Its RFC 8785 payload is wrapped in standard DSSE v1 with payload type
+`application/vnd.intdata.release-keyset.v1+json` and requires at least two
+cryptographically verified signatures from pairwise-distinct Ed25519 public-key
+fingerprints in an immutable three-key offline root set whose role is
+`release.trust.root`; `keyid` is only a hint and aliases never count. The exact
+bootstrap root public-set digest is pinned out of band by installer/bootstrap
+trust and repeated, but never bootstrapped, by `InstallationLockV1`.
+
+The closed payload binds schema version, monotonic revision, previous digest,
+generated time, bootstrap root-set digest and the complete active/retired/revoked
+lifecycle of online keys. Online role `release.artifact.signing` can sign only
+artifacts and cannot advance trust. Consumers verify canonical bytes/digest,
+2-of-3 quorum, roles, root pin, previous digest, revision+1 and lifecycle before
+atomic persistence. Root-set replacement and emergency recovery are outside v1
+and require a separate full owner ceremony and new bootstrap/lock anchor. Offline
+root signers receive public standard DSSE PAE of at most 262144 bytes plus opaque key ref;
+production root private material never enters Tools or Backend runtime. For
+release keys this KeySet is authoritative over the generic TrustBundle lifecycle.
+
+Bootstrap revision is exactly `1` with null `previous_digest`; every later
+revision increments by one and references `sha256:<lowercase-hex>` of the exact
+previous RFC 8785 payload. The out-of-band root digest covers one canonical
+descriptor `{schema_version,role,threshold,keys}` with role
+`release.trust.root`, threshold `2` and exactly three pairwise-distinct Ed25519
+public-key byte strings sorted by unsigned UTF-8 `key_id`. Release key IDs and
+public-key material are never deleted or reused under aliases. Retired keys
+verify only their admitted historical signing interval; revoked keys remain listed
+and invalidate every release they signed.
 
 `ResolverInputV1` связывает Installation revision/digest, RegistrySnapshot digest,
 resolver version, solver-policy version и policy-input digest. Accepted
 `InstallationLockV1` требует detached acceptance signature роли
 `installation-actor`; Registry/Module/Release signatures проверяются до
 plan/apply/recovery.
+`PlatformProductAssertionV1` is the Tools-owned closed schema/vector projection
+of root #887. Its schema ID is
+`urn:intdata:schema:platform-product-assertion:v1`. It validates decoded exact
+JWT header and claims, while vector files use strict UTF-8 JSON and RFC 8785 JCS
+for `expected_canonical_claims`; it does not invent an alternate JWT signing
+serialization. Header, closed claim set, scalar audience, identifier/scope
+grammars, safe-integer revisions and verifier-time predicates remain byte-for-byte
+aligned with #887. Positive/adverse vectors bind explicit `verifier_now` and cover
+expired/future assertions, duplicate/unknown/null fields and keys, alternate
+header/audience forms, regex and length boundaries, unsorted/duplicate scopes,
+unsafe revisions and NumericDate/skew/TTL boundaries. Backend and every product
+consumer pin the exact schema/vector set digests; Tools owns no assertion issuer
+or verifier runtime.
+
+`BridgeOAuthRegistrationApprovalReceiptV1` является закрытым ES256 JWT
+consumer-contract для Backend registration handler. Header имеет только
+`typ=bridge-oauth-registration-approval+jwt`, `alg=ES256` и exact admitted `kid`
+роли `bridge.oauth.registration-approval`. Central issuer/audience равны
+`https://bridge.intdata.pro/oauth` и
+`https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements`;
+Lite подставляет exact customer Bridge issuer и private Platform API audience из
+signed active `InstallationLockV1` без central fallback. Claims закрыты exact набором
+`iss,aud,sub,principal_type,organization_id,session_id,membership_revision,
+entitlement_revision,registration_metadata_digest,jti,iat,nbf,exp`,
+`principal_type=user`, TTL не превышает 60 секунд. Metadata digest имеет вид
+`sha256:<lowercase-hex>` над RFC 8785/JCS bytes объекта с exact полями
+`software_id,client_name,redirect_uris,grant_types,token_endpoint_auth_method,
+scopes,organization_id`; массивы canonicalized, deduplicated и sorted до JCS,
+а URI normalization collision fail closed. Tools владеет schema/vectors;
+Backend повторно вычисляет digest, проверяет workload/receipt/time/jti, durable
+membership/owner/entitlement и exact revisions, затем атомарно consume receipt
+`jti` и request `jti` single-use. Alternate profile или dual acceptance запрещены.
+Public software statement remains only in the private Bridge/Backend control plane;
+Tools publishes schema/vectors and never stores statement bytes or runtime.
+Receipt times are integer non-boolean NumericDate and require
+`iat <= nbf < exp <= iat+60`; identity, session, organization and revisions are
+projections of the verified Platform assertion plus durable owner approval and
+are rechecked by Backend before atomic use.
+Bridge owns exact URI semantics under `bridge-oauth-registration-uri/v1`; Tools
+owns its language-neutral positive/adverse/collision vectors and profile/vector
+digests. All parties pin both digests. Redirect URIs are normalized by that
+profile, collision of distinct inputs fails the whole request, and surviving
+strings are sorted ascending by unsigned UTF-8 bytes. `grant_types` and `scopes`
+use their own ASCII grammar and the same collision/unique/sort rule.
 
 ### 4. CLI and packaging
 

@@ -62,25 +62,107 @@ and available only through an explicitly named development path.
   signs another PAE or returns malformed/multiple/non-canonical envelope data
 - **THEN** signing fails closed and no trusted envelope is written
 
-### Requirement: TrustBundle MUST be pinned and anti-rollback
+### Requirement: Trust authorities MUST be pinned, anti-rollback and non-overlapping
 
-`TrustBundleV1` MUST be the only source of key material, roles, validity and
-revocation. Verification MUST start from a separately pinned trusted root/bundle,
-MUST bind bundle ID/version/digest, MUST reject decreasing revision and MUST apply
-an exact trusted-time policy. RegistrySnapshot MUST contain only accepted
-role/key IDs and trust-bundle reference; DSSE `keyid` MUST be only a hint. Registry,
-module/release and installation-actor roles MUST be distinct.
+`TrustBundleV1` MUST be the only source of non-release registry, module,
+installation-actor and JWT key material, roles, validity and revocation. It MUST
+carry only a pinned `ReleaseVerificationKeySetV1` ID/revision/digest and bootstrap
+root-set digest reference and MUST NOT duplicate `release.artifact.signing` public
+keys or lifecycle. The KeySet MUST exclusively own online release artifact keys.
+Verification MUST start from separately pinned trust, bind every applicable
+ID/version/revision/digest, reject rollback and apply exact trusted time.
+RegistrySnapshot MUST contain only accepted IDs/references; DSSE `keyid` is only a
+hint. Registry, module, installation-actor, JWT, release root and release artifact
+roles MUST remain non-overlapping.
 
 #### Scenario: Release supplies its own or older trust bundle
 
 - **WHEN** a release replaces the pinned bundle or rolls revision/revocation back
 - **THEN** offline verification fails before trusting any release signature
 
+### Requirement: Release verification key lifecycle MUST require offline root quorum
+
+Tools MUST define closed `ReleaseVerificationKeySetV1` schema plus canonical and
+adverse vectors and MUST NOT contain production keys. Its RFC 8785 canonical
+payload MUST be wrapped in standard DSSE v1 with payload type
+`application/vnd.intdata.release-keyset.v1+json`. Acceptance MUST require valid
+Ed25519 signatures from at least two cryptographically verified pairwise-distinct
+root public-key fingerprints in one immutable three-key offline root set with
+role `release.trust.root`; `keyid` MUST be only a hint and duplicate IDs or public
+key aliases MUST NOT count toward quorum.
+
+The exact bootstrap root public-set digest MUST be pinned out of band in
+installer/bootstrap trust and repeated in accepted `InstallationLockV1`; a lock
+MUST NOT bootstrap a different root set by itself. The pinned digest MUST be
+`sha256:` plus lowercase SHA-256 of RFC 8785 bytes for a closed
+`ReleaseBootstrapRootSetV1` descriptor containing exactly `schema_version=1`,
+`role=release.trust.root`, `threshold=2` and `keys`. `keys` MUST contain exactly
+three entries with pairwise-unique `key_id` and pairwise-unique decoded Ed25519
+public-key bytes, sorted ascending by unsigned UTF-8 `key_id`; each entry MUST
+contain exactly `key_id` matching `[A-Za-z0-9._-]{1,128}`,
+`algorithm=Ed25519` and standard padded RFC 4648 `public_key_base64` decoding to
+exactly 32 bytes. No other root-set serialization may establish the pin.
+
+Bootstrap KeySet MUST have `revision=1` and null `previous_digest`. Every later
+KeySet MUST have `revision = previous revision + 1` and `previous_digest` equal to
+`sha256:` plus lowercase SHA-256 of the exact previous RFC 8785 payload bytes.
+`generated_at` and lifecycle times MUST use UTC `YYYY-MM-DDTHH:MM:SSZ`. The closed payload MUST bind
+exact `schema_version`, monotonic `revision`, `previous_digest` (null only at
+bootstrap), `generated_at`, `bootstrap_root_set_digest` and the complete canonical
+active/retired/revoked lifecycle of every online key. Each key entry MUST bind
+`key_id`, `role`, public key, state, validity window and retirement or revocation
+time and reason and MUST contain no private material.
+
+Online keys with role `release.artifact.signing` MUST sign artifacts only. They
+MUST NOT advance or revoke trust, sign key sets or change root quorum. A consumer
+MUST verify canonical payload/digest, 2-of-3 distinct root quorum, root roles,
+bootstrap pin, prior digest, exact revision increment by one and every lifecycle
+transition before atomic persistence. Fork, rollback, skipped revision, key
+resurrection, unknown role/field and insufficient quorum MUST fail closed without
+fallback.
+
+An online key's `key_id`, role, public key and initial validity start MUST remain
+immutable across revisions. Keys MUST never be deleted, reused or aliased: the
+same decoded public-key bytes MUST NOT appear under another `key_id`. State MAY move
+from active to retired or revoked and from retired to revoked, never backward.
+A retired key MUST remain published indefinitely and verify only manifests whose
+trusted signed time is within its admitted validity interval and no later than
+`retired_at`. A revoked key MUST remain listed indefinitely and invalidate every
+release signed by that key regardless of signing time. Retirement/revocation times
+and non-empty reasons MUST match state; ambiguous or contradictory lifecycle
+fields MUST fail closed.
+
+Root-set replacement and emergency recovery MUST NOT be v1 rotation. They require
+a separate full owner-approved ceremony and new installer/bootstrap and
+InstallationLock trust anchor. Offline external root signers MUST receive only
+public standard DSSE PAE bytes no larger than 262144 bytes plus an opaque key
+reference and MUST independently verify payload type, schema, previous digest,
+revision and root-set pin before signing. Oversize PAE MUST fail before signer
+invocation. Root private material MUST NOT enter Tools or Backend runtime.
+
+#### Scenario: Two distinct offline roots advance the key set
+
+- **WHEN** revision N+1 has the exact prior digest and two valid signatures from
+  distinct admitted `release.trust.root` keys
+- **THEN** the consumer accepts one atomic new online-key lifecycle snapshot
+- **AND** the accepted bootstrap root-set digest remains the out-of-band pin
+
+#### Scenario: Trust history or quorum is invalid
+
+- **WHEN** a key set has one signer repeated or aliased by another `key_id`, fewer than two valid roots, wrong
+  role, another root-set digest, a fork, rollback, skipped revision, resurrection,
+  unknown field, deleted/reused/aliased key material, invalid root descriptor/digest or invalid
+  retired/revoked lifecycle transition
+- **THEN** verification fails before persistent trust state changes
+
+
 ### Requirement: Offline verification MUST bind all release evidence
 
 `release verify` MUST operate without network and bind ReleaseManifest source,
 artifacts, sizes, SBOM, ScanAttestation, compatibility, rollback predecessor,
-signature role, pinned TrustBundle revision/digest and trusted-time decision.
+signature role, pinned TrustBundle revision/digest, pinned
+ReleaseVerificationKeySet ID/revision/digest/bootstrap-root reference and
+trusted-time decision, without duplicated release key material.
 
 #### Scenario: A release artifact is altered
 

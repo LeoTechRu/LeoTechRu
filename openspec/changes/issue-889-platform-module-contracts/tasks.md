@@ -13,6 +13,10 @@
 - [ ] 1.3 Add public CLI validation commands and Windows/Linux exact vectors.
 - [ ] 1.4 Prove safe-integer, UTF-16 key ordering and lone-surrogate vectors.
 - [ ] 1.5 Pass architecture/security review of canonicalization and schema authority.
+- [ ] 1.6 Add Bridge OAuth registration approval receipt schema, digest vectors and
+  Backend consumer conformance fixtures.
+- [ ] 1.7 Add `PlatformProductAssertionV1` schema and verifier-time cross-language
+  vector bundle with exact #887 digest handoff.
 
 ## 2. Deterministic release tooling
 
@@ -21,6 +25,8 @@
 - [ ] 2.3 Implement standard DSSE PAE/Ed25519 signer without production keys.
 - [ ] 2.4 Implement pinned TrustBundle anti-rollback, roles and trusted-time policy.
 - [ ] 2.5 Pass wrong/revoked/expired signer, timeout and archive security tests.
+- [ ] 2.6 Add `ReleaseVerificationKeySetV1`, 2-of-3 offline-root quorum vectors and
+  atomic anti-rollback lifecycle verification.
 
 ## 3. Connector contracts and SDK
 
