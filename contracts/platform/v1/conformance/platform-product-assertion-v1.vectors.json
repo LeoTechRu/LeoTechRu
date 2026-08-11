@@ -1,0 +1,1345 @@
+{
+  "vector_set_id": "urn:intdata:conformance:platform-product-assertion:v1",
+  "version": "v1",
+  "schema_id": "urn:intdata:schema:platform-product-assertion:v1",
+  "protected_header_contract": {
+    "typ": "at+jwt",
+    "alg": "ES256",
+    "kid_pattern": "^[A-Za-z0-9._-]{1,128}$"
+  },
+  "base": {
+    "schema_version": "PlatformProductAssertionV1",
+    "protected_header": {
+      "typ": "at+jwt",
+      "alg": "ES256",
+      "kid": "platform.assertion.2026-08"
+    },
+    "claims": {
+      "iss": "https://identity.intdata.pro",
+      "aud": "https://api.intdata.pro",
+      "sub": "123e4567-e89b-12d3-a456-426614174000",
+      "principal_type": "user",
+      "organization_id": "123e4567-e89b-12d3-a456-426614174001",
+      "product_id": "platform-tools",
+      "client_id": "bridge.oauth.client",
+      "session_id": "session.20260811",
+      "scopes": [
+        "platform.module:install",
+        "platform.registry:read"
+      ],
+      "entitlement_revision": 0,
+      "membership_revision": 0,
+      "jti": "PA_01J5A9Z7M8K6P4T2Q1R0",
+      "iat": 1786440000,
+      "nbf": 1786440000,
+      "exp": 1786440060
+    },
+    "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6170692e696e74646174612e70726f222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6964656e746974792e696e74646174612e70726f222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22706c6174666f726d2d746f6f6c73222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+    "canonical_claims_sha256": "a3d45ed8342f0c45dd75816f8871fa67acde80c3b78531bd57529e12be72cadb"
+  },
+  "positive_cases": [
+    {
+      "name": "canonical-user-zero-revisions",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "service-account-safe-integer-maxima",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/principal_type",
+          "value": "service_account"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/entitlement_revision",
+          "value": 9007199254740991
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/membership_revision",
+          "value": 9007199254740991
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "identifier-and-token-minima",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/protected_header/kid",
+          "value": "Platform.Assertion_2026-08"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "p"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": "c"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/session_id",
+          "value": "s"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/jti",
+          "value": "abcdefghijklmnop"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "a:b"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "identifier-and-token-maxima",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaz"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/session_id",
+          "value": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/jti",
+          "value": "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "scope-array-max-64",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "p:s00",
+            "p:s01",
+            "p:s02",
+            "p:s03",
+            "p:s04",
+            "p:s05",
+            "p:s06",
+            "p:s07",
+            "p:s08",
+            "p:s09",
+            "p:s10",
+            "p:s11",
+            "p:s12",
+            "p:s13",
+            "p:s14",
+            "p:s15",
+            "p:s16",
+            "p:s17",
+            "p:s18",
+            "p:s19",
+            "p:s20",
+            "p:s21",
+            "p:s22",
+            "p:s23",
+            "p:s24",
+            "p:s25",
+            "p:s26",
+            "p:s27",
+            "p:s28",
+            "p:s29",
+            "p:s30",
+            "p:s31",
+            "p:s32",
+            "p:s33",
+            "p:s34",
+            "p:s35",
+            "p:s36",
+            "p:s37",
+            "p:s38",
+            "p:s39",
+            "p:s40",
+            "p:s41",
+            "p:s42",
+            "p:s43",
+            "p:s44",
+            "p:s45",
+            "p:s46",
+            "p:s47",
+            "p:s48",
+            "p:s49",
+            "p:s50",
+            "p:s51",
+            "p:s52",
+            "p:s53",
+            "p:s54",
+            "p:s55",
+            "p:s56",
+            "p:s57",
+            "p:s58",
+            "p:s59",
+            "p:s60",
+            "p:s61",
+            "p:s62",
+            "p:s63"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "iat-nbf-skew-upper-bound",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/nbf",
+          "value": 1786440030
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "verifier-future-skew-boundary",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786439970,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "verifier-expiry-skew-boundary",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440089,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": true
+      }
+    }
+  ],
+  "adverse_cases": [
+    {
+      "name": "alternate-typ",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/protected_header/typ",
+          "value": "JWT"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "header",
+        "reason": "typ"
+      }
+    },
+    {
+      "name": "alternate-alg",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/protected_header/alg",
+          "value": "EdDSA"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "header",
+        "reason": "alg"
+      }
+    },
+    {
+      "name": "illegal-kid-character",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/protected_header/kid",
+          "value": "platform:assertion"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "header",
+        "reason": "kid"
+      }
+    },
+    {
+      "name": "kid-too-long",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/protected_header/kid",
+          "value": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "header",
+        "reason": "kid"
+      }
+    },
+    {
+      "name": "extra-header-member",
+      "mutations": [
+        {
+          "op": "add",
+          "pointer": "/protected_header/crit",
+          "value": []
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "header",
+        "reason": "closed_header"
+      }
+    },
+    {
+      "name": "alternate-issuer",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iss",
+          "value": "https://alternate.intdata.pro"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "issuer"
+      }
+    },
+    {
+      "name": "alternate-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://alternate.intdata.pro"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "array-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": [
+            "https://api.intdata.pro"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#type"
+      }
+    },
+    {
+      "name": "http-issuer",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iss",
+          "value": "http://identity.intdata.pro"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/iss#pattern"
+      }
+    },
+    {
+      "name": "missing-product-id",
+      "mutations": [
+        {
+          "op": "remove",
+          "pointer": "/claims/product_id"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims#required"
+      }
+    },
+    {
+      "name": "extra-claim",
+      "mutations": [
+        {
+          "op": "add",
+          "pointer": "/claims/tenant_id",
+          "value": "forbidden"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims#additionalProperties"
+      }
+    },
+    {
+      "name": "null-client-id",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": null
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/client_id#type"
+      }
+    },
+    {
+      "name": "uppercase-sub-uuid",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/sub",
+          "value": "123E4567-E89B-12D3-A456-426614174000"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/sub#pattern"
+      }
+    },
+    {
+      "name": "bad-organization-uuid",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/organization_id",
+          "value": "not-a-uuid"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/organization_id#pattern"
+      }
+    },
+    {
+      "name": "unknown-principal-type",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/principal_type",
+          "value": "admin"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/principal_type#enum"
+      }
+    },
+    {
+      "name": "product-id-leading-hyphen",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "-product"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/product_id#pattern"
+      }
+    },
+    {
+      "name": "product-id-over-64",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/product_id#pattern"
+      }
+    },
+    {
+      "name": "client-id-empty",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": ""
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/client_id#pattern"
+      }
+    },
+    {
+      "name": "client-id-over-128",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/client_id#pattern"
+      }
+    },
+    {
+      "name": "client-id-invalid-char",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/client_id",
+          "value": "client/id"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/client_id#pattern"
+      }
+    },
+    {
+      "name": "session-id-empty",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/session_id",
+          "value": ""
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/session_id#pattern"
+      }
+    },
+    {
+      "name": "session-id-over-128",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/session_id",
+          "value": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/session_id#pattern"
+      }
+    },
+    {
+      "name": "session-id-invalid-char",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/session_id",
+          "value": "session/id"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/session_id#pattern"
+      }
+    },
+    {
+      "name": "jti-under-16",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/jti",
+          "value": "jjjjjjjjjjjjjjj"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/jti#pattern"
+      }
+    },
+    {
+      "name": "jti-over-128",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/jti",
+          "value": "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/jti#pattern"
+      }
+    },
+    {
+      "name": "jti-invalid-char",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/jti",
+          "value": "abcdefghijklmnop+"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/jti#pattern"
+      }
+    },
+    {
+      "name": "scope-array-empty",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": []
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes#minItems"
+      }
+    },
+    {
+      "name": "scope-array-over-64",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "p:s00",
+            "p:s01",
+            "p:s02",
+            "p:s03",
+            "p:s04",
+            "p:s05",
+            "p:s06",
+            "p:s07",
+            "p:s08",
+            "p:s09",
+            "p:s10",
+            "p:s11",
+            "p:s12",
+            "p:s13",
+            "p:s14",
+            "p:s15",
+            "p:s16",
+            "p:s17",
+            "p:s18",
+            "p:s19",
+            "p:s20",
+            "p:s21",
+            "p:s22",
+            "p:s23",
+            "p:s24",
+            "p:s25",
+            "p:s26",
+            "p:s27",
+            "p:s28",
+            "p:s29",
+            "p:s30",
+            "p:s31",
+            "p:s32",
+            "p:s33",
+            "p:s34",
+            "p:s35",
+            "p:s36",
+            "p:s37",
+            "p:s38",
+            "p:s39",
+            "p:s40",
+            "p:s41",
+            "p:s42",
+            "p:s43",
+            "p:s44",
+            "p:s45",
+            "p:s46",
+            "p:s47",
+            "p:s48",
+            "p:s49",
+            "p:s50",
+            "p:s51",
+            "p:s52",
+            "p:s53",
+            "p:s54",
+            "p:s55",
+            "p:s56",
+            "p:s57",
+            "p:s58",
+            "p:s59",
+            "p:s60",
+            "p:s61",
+            "p:s62",
+            "p:s63",
+            "p:s64"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes#maxItems"
+      }
+    },
+    {
+      "name": "duplicate-scope",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "a:b",
+            "a:b"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes#uniqueItems"
+      }
+    },
+    {
+      "name": "unordered-scopes",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "platform.registry:read",
+            "platform.module:install"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "scope_order"
+      }
+    },
+    {
+      "name": "scope-prefix-over-32",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:b"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes/0#pattern"
+      }
+    },
+    {
+      "name": "scope-action-over-64",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "a:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes/0#pattern"
+      }
+    },
+    {
+      "name": "scope-uppercase",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/scopes",
+          "value": [
+            "A:b"
+          ]
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/scopes/0#pattern"
+      }
+    },
+    {
+      "name": "negative-revision",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/membership_revision",
+          "value": -1
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/membership_revision#minimum"
+      }
+    },
+    {
+      "name": "unsafe-revision",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/membership_revision",
+          "value": 9007199254740992
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "integer-policy",
+        "reason": "integer-policy"
+      }
+    },
+    {
+      "name": "boolean-revision",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/membership_revision",
+          "value": true
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/membership_revision#type"
+      }
+    },
+    {
+      "name": "floating-revision",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/membership_revision",
+          "value": 1.5
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "number-policy",
+        "reason": "number-policy"
+      }
+    },
+    {
+      "name": "boolean-numericdate",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iat",
+          "value": true
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/iat#type"
+      }
+    },
+    {
+      "name": "floating-numericdate",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iat",
+          "value": 1.5
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "number-policy",
+        "reason": "number-policy"
+      }
+    },
+    {
+      "name": "unsafe-numericdate",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iat",
+          "value": 9007199254740992
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "integer-policy",
+        "reason": "integer-policy"
+      }
+    },
+    {
+      "name": "iat-nbf-skew-over-30",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/nbf",
+          "value": 1786440031
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "iat_nbf_skew"
+      }
+    },
+    {
+      "name": "nonpositive-lifetime",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/exp",
+          "value": 1786440000
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "chronology"
+      }
+    },
+    {
+      "name": "ttl-over-60",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/exp",
+          "value": 1786440061
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ttl"
+      }
+    },
+    {
+      "name": "verifier-now-expired",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440090,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "expired"
+      }
+    },
+    {
+      "name": "verifier-now-future-iat",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786439969,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "future_iat"
+      }
+    },
+    {
+      "name": "verifier-now-future-nbf",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iat",
+          "value": 1786440100
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/nbf",
+          "value": 1786440125
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/exp",
+          "value": 1786440160
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro",
+        "audience": "https://api.intdata.pro",
+        "verifier_now": 1786440094,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "future_nbf"
+      }
+    }
+  ]
+}
