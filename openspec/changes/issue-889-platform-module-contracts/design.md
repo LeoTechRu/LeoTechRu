@@ -158,13 +158,13 @@ ordering, uid/gid/mode/time фиксированы. SBOM и scan attestation о�
 
 Production signing использует standard DSSE v1 + Ed25519. CLI canonicalizes the
 public release manifest, строит exact PAE из payload type
-`application/vnd.intdata.release-manifest.v1+json` и payload bytes и передаёт
-bounded public PAE bytes внешнему argv-only signer через закрытый stdin/stdout
-protocol без shell. Signer возвращает raw Ed25519 signature; CLI формирует closed
-single-signature envelope, повторно проверяет PAE/signature/trust до записи.
-Manifest digest binding является отдельным versioned input и никогда не называется
-DSSE. Production key material никогда не входит в Tools. File key допускается
-только отдельной development-командой и никогда не `release sign`.
+`application/vnd.intdata.release-manifest.v1+json` и payload bytes и формирует
+закрытый transport-neutral `ReleaseSignRequestV1` из committed root #887. Tools
+reference client проверяет request/response/PAE/DSSE, но не выбирает production
+transport и не получает production key material. Production shell/argv signer
+запрещён; local/test harness может использовать отдельный явно development-only
+adapter, который не является `release sign`. Manifest digest binding является
+отдельным versioned input и никогда не называется DSSE.
 
 ### 5. Resolver and Platform Lite boundary
 

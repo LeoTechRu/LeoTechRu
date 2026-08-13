@@ -47,14 +47,18 @@ nondeterministic metadata.
 `release sign` MUST implement standard DSSE v1 with Ed25519 over exact
 `PAE(payloadType, payload)` bytes. Payload type MUST be
 `application/vnd.intdata.release-manifest.v1+json`; payload MUST be canonical
-ReleaseManifest bytes. The argv-only bounded signer MUST receive public PAE bytes
-through closed stdin/stdout protocol, MUST NOT invoke a shell and MUST return one
-raw Ed25519 signature. CLI MUST construct a closed envelope with standard padded
-RFC 4648 base64 payload/signature, exactly one signature and non-authoritative
-`keyid`, then verify PAE/signature/trust before writing. Digest-only binding MUST be
-a separately versioned input and MUST NOT be labelled DSSE. Production key material
-MUST NOT enter Tools. File private keys MUST be forbidden for production signing
-and available only through an explicitly named development path.
+ReleaseManifest bytes. Tools MUST construct and verify the committed-root closed
+`ReleaseSignRequestV1`/`ReleaseSignResponseV1` contract, including the exact
+`intdata.release-manifest.v1` role, producer/module/lock/source/release bindings,
+1 MiB decoded-PAE bound, request expiry and response binding. The reference CLI
+MUST remain transport-neutral and MUST NOT invoke a production signer through
+shell or argv. A separately named local/test adapter MAY exercise the contract,
+but MUST NOT be accepted by production `release sign`. CLI MUST construct a closed
+envelope with standard padded RFC 4648 base64 payload/signature, exactly one
+signature and non-authoritative `keyid`, then verify PAE/signature/trust before
+writing. Digest-only binding MUST be a separately versioned input and MUST NOT be
+labelled DSSE. Production key material MUST NOT enter Tools. File private keys MUST
+be available only through an explicitly named development path.
 
 #### Scenario: Signer is invalid or unavailable
 
