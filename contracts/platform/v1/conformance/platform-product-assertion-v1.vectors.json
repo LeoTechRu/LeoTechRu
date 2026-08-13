@@ -15,12 +15,12 @@
       "kid": "platform.assertion.2026-08"
     },
     "claims": {
-      "iss": "https://identity.intdata.pro",
-      "aud": "https://api.intdata.pro",
+      "iss": "https://api.intdata.pro/functions/v1/platform-identity",
+      "aud": "https://bridge.intdata.pro/v1",
       "sub": "123e4567-e89b-12d3-a456-426614174000",
       "principal_type": "user",
       "organization_id": "123e4567-e89b-12d3-a456-426614174001",
-      "product_id": "platform-tools",
+      "product_id": "bridge",
       "client_id": "bridge.oauth.client",
       "session_id": "session.20260811",
       "scopes": [
@@ -34,21 +34,24 @@
       "nbf": 1786440000,
       "exp": 1786440060
     },
-    "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6170692e696e74646174612e70726f222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6964656e746974792e696e74646174612e70726f222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22706c6174666f726d2d746f6f6c73222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
-    "canonical_claims_sha256": "a3d45ed8342f0c45dd75816f8871fa67acde80c3b78531bd57529e12be72cadb"
+    "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+    "canonical_claims_sha256": "72939d9dc5ff117a457910464fa4a7caff0a68aa54343d3ee98bc4755fefed93"
   },
   "positive_cases": [
     {
       "name": "canonical-user-zero-revisions",
       "mutations": [],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "72939d9dc5ff117a457910464fa4a7caff0a68aa54343d3ee98bc4755fefed93"
       }
     },
     {
@@ -71,13 +74,16 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a393030373139393235343734303939312c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a393030373139393235343734303939312c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a22736572766963655f6163636f756e74222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "932fe1f0336957cbf15f9c22bddee7ff8496418f3e65229ed8b64119d6b2b54c"
       }
     },
     {
@@ -114,16 +120,24 @@
           "value": [
             "a:b"
           ]
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://p.intdata.pro/v1"
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://p.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "p"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f702e696e74646174612e70726f2f7631222c22636c69656e745f6964223a2263222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a226162636465666768696a6b6c6d6e6f70222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a2270222c2273636f706573223a5b22613a62225d2c2273657373696f6e5f6964223a2273222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "ef8ed186905a6b412384c4f59acee4502afcf72fc7d374c79b0b44108525baae"
       }
     },
     {
@@ -132,7 +146,7 @@
         {
           "op": "replace",
           "pointer": "/claims/product_id",
-          "value": "paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaz"
+          "value": "paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         {
           "op": "replace",
@@ -155,16 +169,24 @@
           "value": [
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
           ]
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.intdata.pro/v1"
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f70616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a226a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a227061616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c2273636f706573223a5b2261616161616161616161616161616161616161616161616161616161616161613a62626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262225d2c2273657373696f6e5f6964223a227373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "1c9811b519b2db636e7b16d050294ab160881fc908742f9fb9c69531f3ac9006"
       }
     },
     {
@@ -242,13 +264,16 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22703a733030222c22703a733031222c22703a733032222c22703a733033222c22703a733034222c22703a733035222c22703a733036222c22703a733037222c22703a733038222c22703a733039222c22703a733130222c22703a733131222c22703a733132222c22703a733133222c22703a733134222c22703a733135222c22703a733136222c22703a733137222c22703a733138222c22703a733139222c22703a733230222c22703a733231222c22703a733232222c22703a733233222c22703a733234222c22703a733235222c22703a733236222c22703a733237222c22703a733238222c22703a733239222c22703a733330222c22703a733331222c22703a733332222c22703a733333222c22703a733334222c22703a733335222c22703a733336222c22703a733337222c22703a733338222c22703a733339222c22703a733430222c22703a733431222c22703a733432222c22703a733433222c22703a733434222c22703a733435222c22703a733436222c22703a733437222c22703a733438222c22703a733439222c22703a733530222c22703a733531222c22703a733532222c22703a733533222c22703a733534222c22703a733535222c22703a733536222c22703a733537222c22703a733538222c22703a733539222c22703a733630222c22703a733631222c22703a733632222c22703a733633225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "79b4a52b918d0fec7e78a6057b437b54dbc77053bcfc6911a59f12897574bbfe"
       }
     },
     {
@@ -261,39 +286,124 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303033302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "dac6e5831beeafaad255da9823b74e867a3f2c181aa0426c9f99fd4612032065"
       }
     },
     {
       "name": "verifier-future-skew-boundary",
       "mutations": [],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
-        "verifier_now": 1786439970,
-        "clock_skew_seconds": 30
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "72939d9dc5ff117a457910464fa4a7caff0a68aa54343d3ee98bc4755fefed93"
       }
     },
     {
       "name": "verifier-expiry-skew-boundary",
       "mutations": [],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
-        "verifier_now": 1786440089,
-        "clock_skew_seconds": 30
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
-        "valid": true
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "72939d9dc5ff117a457910464fa4a7caff0a68aa54343d3ee98bc4755fefed93"
+      }
+    },
+    {
+      "name": "canonical-bridge-mcp",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/mcp",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f6272696467652e696e74646174612e70726f2f6d6370222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a22627269646765222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "0cff06b19275777eaf6ad451c82034d852aed2496a1542a48e81015a79333abf"
+      }
+    },
+    {
+      "name": "canonical-punkt-b-rest",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "punkt-b"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://punkt-b.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://punkt-b.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "punkt-b"
+      },
+      "expected": {
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f70756e6b742d622e696e74646174612e70726f2f7631222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a2270756e6b742d62222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "0d14fece1938c5f40bf98a61beab147e46d809bda868412f0456cd82ae382fb1"
+      }
+    },
+    {
+      "name": "canonical-punkt-b-mcp",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "punkt-b"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://punkt-b.intdata.pro/mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://punkt-b.intdata.pro/mcp",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "punkt-b"
+      },
+      "expected": {
+        "valid": true,
+        "canonical_claims_utf8_hex": "7b22617564223a2268747470733a2f2f70756e6b742d622e696e74646174612e70726f2f6d6370222c22636c69656e745f6964223a226272696467652e6f617574682e636c69656e74222c22656e7469746c656d656e745f7265766973696f6e223a302c22657870223a313738363434303036302c22696174223a313738363434303030302c22697373223a2268747470733a2f2f6170692e696e74646174612e70726f2f66756e6374696f6e732f76312f706c6174666f726d2d6964656e74697479222c226a7469223a2250415f30314a3541395a374d384b365034543251315230222c226d656d626572736869705f7265766973696f6e223a302c226e6266223a313738363434303030302c226f7267616e697a6174696f6e5f6964223a2231323365343536372d653839622d313264332d613435362d343236363134313734303031222c227072696e636970616c5f74797065223a2275736572222c2270726f647563745f6964223a2270756e6b742d62222c2273636f706573223a5b22706c6174666f726d2e6d6f64756c653a696e7374616c6c222c22706c6174666f726d2e72656769737472793a72656164225d2c2273657373696f6e5f6964223a2273657373696f6e2e3230323630383131222c22737562223a2231323365343536372d653839622d313264332d613435362d343236363134313734303030227d",
+        "canonical_claims_sha256": "c7329bfcf6659770d14add9a7ff3ce1eb95065301635e9303869c084f7c9f84f"
       }
     }
   ],
@@ -308,10 +418,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -329,10 +440,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -350,10 +462,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -371,10 +484,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -392,10 +506,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -404,45 +519,47 @@
       }
     },
     {
-      "name": "alternate-issuer",
+      "name": "origin-only-issuer",
       "mutations": [
         {
           "op": "replace",
           "pointer": "/claims/iss",
-          "value": "https://alternate.intdata.pro"
+          "value": "https://api.intdata.pro"
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
-        "stage": "semantic",
-        "reason": "issuer"
+        "stage": "schema",
+        "reason": "/claims/iss#pattern"
       }
     },
     {
-      "name": "alternate-audience",
+      "name": "origin-only-audience",
       "mutations": [
         {
           "op": "replace",
           "pointer": "/claims/aud",
-          "value": "https://alternate.intdata.pro"
+          "value": "https://bridge.intdata.pro"
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
-        "stage": "semantic",
-        "reason": "audience"
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
       }
     },
     {
@@ -452,15 +569,16 @@
           "op": "replace",
           "pointer": "/claims/aud",
           "value": [
-            "https://api.intdata.pro"
+            "https://bridge.intdata.pro/v1"
           ]
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -478,10 +596,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -498,10 +617,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -519,10 +639,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -540,10 +661,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -561,10 +683,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -582,10 +705,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -603,10 +727,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -624,10 +749,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -645,10 +771,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -666,10 +793,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -687,10 +815,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -708,10 +837,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -729,10 +859,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -750,10 +881,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -771,10 +903,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -792,10 +925,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -813,10 +947,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -834,10 +969,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -855,10 +991,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -942,10 +1079,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -966,10 +1104,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -990,10 +1129,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1013,10 +1153,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1036,10 +1177,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1059,10 +1201,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1080,10 +1223,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1101,10 +1245,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1122,10 +1267,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1143,10 +1289,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1164,10 +1311,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1185,10 +1333,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1206,10 +1355,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1227,10 +1377,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1248,10 +1399,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1269,10 +1421,11 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440000,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1284,10 +1437,11 @@
       "name": "verifier-now-expired",
       "mutations": [],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440090,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1299,10 +1453,11 @@
       "name": "verifier-now-future-iat",
       "mutations": [],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786439969,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
@@ -1330,15 +1485,963 @@
         }
       ],
       "verifier": {
-        "issuer": "https://identity.intdata.pro",
-        "audience": "https://api.intdata.pro",
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
         "verifier_now": 1786440094,
-        "clock_skew_seconds": 30
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
       },
       "expected": {
         "valid": false,
         "stage": "semantic",
         "reason": "future_nbf"
+      }
+    },
+    {
+      "name": "legacy-issuer",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iss",
+          "value": "https://identity.intdata.pro/functions/v1/platform-identity"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "issuer"
+      }
+    },
+    {
+      "name": "cross-rest-mcp-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "wrong-product-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "punkt-b"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://punkt-b.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "product_id"
+      }
+    },
+    {
+      "name": "wrong-audience-path",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v2"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "trailing-slash-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1/"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "query-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1?x=1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "fragment-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1#fragment"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "userinfo-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://user@bridge.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "uppercase-scheme-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "HTTPS://bridge.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "uppercase-host-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://Bridge.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "default-port-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro:443/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "repeated-slash-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro//v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "literal-dot-segment-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1/../mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "encoded-dot-segment-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1/%2E%2E/mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "encoded-unreserved-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v%31"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "encoded-slash-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1%2Fadmin"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "backslash-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro\\v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "whitespace-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1 "
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "control-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1\u0001"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "non-ascii-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/vé"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "empty-path-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "malformed-percent-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v%"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "lowercase-percent-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v%2f"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "invalid-verifier-config",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "verifier_authority"
+      }
+    },
+    {
+      "name": "redirect-as-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/callback"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "central-lite-fallback",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://api.intdata.pro/internal/platform-identity/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "lite-ip-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://127.0.0.1/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "lite-nondefault-port-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro:8443/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#pattern"
+      }
+    },
+    {
+      "name": "verifier-ip-literal-config",
+      "mutations": [],
+      "verifier": {
+        "issuer": "https://127.0.0.1/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "verifier_authority"
+      }
+    },
+    {
+      "name": "matched-legacy-issuer-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iss",
+          "value": "https://identity.intdata.pro/functions/v1/platform-identity"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://identity.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "issuer"
+      }
+    },
+    {
+      "name": "matched-alternate-issuer-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/iss",
+          "value": "https://api.intdata.pro/functions/v1/alternate-identity"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/alternate-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "issuer"
+      }
+    },
+    {
+      "name": "matched-v2-audience-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v2"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v2",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "matched-external-audience-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://evil.example/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://evil.example/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "audience"
+      }
+    },
+    {
+      "name": "matched-wrong-product-rest-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "punkt-b"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "product_id"
+      }
+    },
+    {
+      "name": "matched-wrong-product-mcp-config",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "punkt-b"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/mcp"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/mcp",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "product_id"
+      }
+    },
+    {
+      "name": "raw-illegal-pchar-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1|"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "schema",
+        "reason": "/claims/aud#format"
+      }
+    },
+    {
+      "name": "percent-c1-control-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1%C2%85"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "percent-bidi-format-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1%E2%80%AE"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "percent-nbsp-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1%C2%A0"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "percent-line-separator-audience",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://bridge.intdata.pro/v1%E2%80%A8"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://bridge.intdata.pro/v1",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30,
+        "product_id": "bridge"
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "ppa_uri"
+      }
+    },
+    {
+      "name": "trusted-product-id-mismatch",
+      "mutations": [
+        {
+          "op": "replace",
+          "pointer": "/claims/product_id",
+          "value": "evil"
+        },
+        {
+          "op": "replace",
+          "pointer": "/claims/aud",
+          "value": "https://evil.intdata.pro/v1"
+        }
+      ],
+      "verifier": {
+        "issuer": "https://api.intdata.pro/functions/v1/platform-identity",
+        "audience": "https://evil.intdata.pro/v1",
+        "product_id": "bridge",
+        "verifier_now": 1786440000,
+        "clock_skew_seconds": 30
+      },
+      "expected": {
+        "valid": false,
+        "stage": "semantic",
+        "reason": "product_id"
+      }
+    }
+  ],
+  "raw_json_cases": [
+    {
+      "name": "raw-duplicate-claims-key",
+      "raw_utf8_hex": "7b22636c61696d73223a7b22617564223a2278222c22617564223a2279227d7d0a",
+      "expected": {
+        "ok": false,
+        "reason": "duplicate-key"
+      }
+    },
+    {
+      "name": "raw-bom",
+      "raw_utf8_hex": "efbbbf7b7d0a",
+      "expected": {
+        "ok": false,
+        "reason": "source-encoding"
+      }
+    },
+    {
+      "name": "raw-trailing-bytes",
+      "raw_utf8_hex": "7b7d0a780a",
+      "expected": {
+        "ok": false,
+        "reason": "source-json"
+      }
+    },
+    {
+      "name": "raw-invalid-utf8",
+      "raw_utf8_hex": "7b2261223aff7d0a",
+      "expected": {
+        "ok": false,
+        "reason": "source-json"
+      }
+    },
+    {
+      "name": "raw-malformed-json",
+      "raw_utf8_hex": "7b2261223a7d0a",
+      "expected": {
+        "ok": false,
+        "reason": "source-json"
       }
     }
   ]

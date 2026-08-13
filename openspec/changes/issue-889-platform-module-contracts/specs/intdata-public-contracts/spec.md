@@ -92,8 +92,49 @@ All claims MUST be required, non-null and closed to `iss`, scalar `aud`, `sub`,
 `scopes`, `entitlement_revision`, `membership_revision`, `jti`, `iat`, `nbf` and
 `exp`. Array audience and alternate header or claim forms MUST fail closed.
 
-`iss` and `aud` MUST be exact configured HTTPS authorities. `sub` and
-`organization_id` MUST match lowercase canonical UUID regex
+Compatible V1 fix-forward replaces the historical origin-only tuple with one
+canonical path-bearing profile; it does not create V2, an alias or a dual-read
+window. `iss` and scalar `aud` MUST be strict ASCII canonical absolute HTTPS
+identifier/resource URIs of 1..2048 bytes with lowercase scheme and LDH DNS host,
+a nonempty absolute path, and byte-exact parse/re-serialization. The canonical
+issuer is `https://api.intdata.pro/functions/v1/platform-identity`; REST audience
+is `https://<product>.intdata.pro/v1`; MCP audience is
+`https://<product>.intdata.pro/mcp`. IP literals and every explicit port,
+including a non-default port for Lite, are excluded. Userinfo, query, fragment,
+backslash, control/whitespace/non-ASCII, trailing-dot or empty DNS labels,
+default ports, repeated slash, literal or encoded dot segments, normalization,
+uppercase scheme/host, and noncanonical percent encodings MUST fail closed.
+Percent escapes MUST be uppercase; encoded unreserved bytes, slash, backslash,
+NUL and controls MUST fail closed. Semantic verification MUST byte-compare only
+its exact configured issuer and audience: origin/prefix/suffix/redirect matching,
+normalization, REST-MCP substitution and central Lite fallback are forbidden.
+Hosted verification additionally requires a trusted configured `product_id`, matching
+the existing exact product-ID grammar. The verifier MUST first require
+`claims.product_id` to byte-equal that trusted value, then derive its only allowed
+audiences as `https://<trusted-product_id>.intdata.pro/v1` and
+`https://<trusted-product_id>.intdata.pro/mcp`; configured audience and claim
+`aud` MUST each byte-equal the selected derived endpoint. No derivation from a
+claim may select verifier configuration, so a matched malicious claim/audience
+cannot broaden this binding. URI path characters MUST use RFC 3986 `pchar` grammar. Any
+percent-decoded UTF-8 code point in categories Cc, Cf, Zs, Zl or Zp MUST fail
+closed. Every accepted positive vector MUST carry independently checked canonical
+JCS claim bytes and lowercase SHA-256. The combined corpus MUST also include
+raw-byte pre-parse rejection cases for duplicate keys, BOM, trailing bytes,
+invalid UTF-8 and malformed JSON. Schema errors are deterministically ordered
+before reporting, so an implementation never depends on validator iteration order.
+
+The old exact tuple is withdrawn and non-admissible historical evidence:
+schema `cb9304062759c10d8e068bf20386616c431acca49041816a8ff5190cf71c7e77`,
+vectors `36431fc32257713473059bffefe76caa5fd93aaa36c39c0da17cd6dbfb996304`,
+terminal aggregate
+`d14d2be588c704aec03b5925a8176a9848c076e1ce35c86bfde9f6608b46ab3d` and the terminal manifest file SHA-256
+`4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27`. No consumer may admit that tuple or read both old and corrected
+artifacts. A PPA-only manifest atomically pins the schema and combined corpus
+with raw lowercase SHA-256 and a separately defined deterministic aggregate; the
+existing terminal manifest remains a four-artifact aggregate and is not a PPA
+aggregate.
+
+`sub` and `organization_id` MUST match lowercase canonical UUID regex
 `[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`.
 `principal_type` MUST be `user` or `service_account`; `product_id` MUST match
 `[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?`; `client_id` and `session_id` MUST match

@@ -9,6 +9,7 @@ import hashlib
 import ipaddress
 import json
 import re
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "platform-product-assertion.schema.json"
 PPA_VECTORS_PATH = ROOT / "conformance" / "platform-product-assertion-v1.vectors.json"
+PPA_DIGEST_PATH = ROOT / "conformance" / "platform-product-assertion-v1.digests.json"
 URI_PROFILE_PATH = ROOT / "conformance" / "bridge-oauth-registration-uri-v1.profile.json"
 URI_VECTORS_PATH = ROOT / "conformance" / "bridge-oauth-registration-uri-v1.vectors.json"
 DIGEST_PATH = ROOT / "conformance" / "terminal-dependency-digests.json"
@@ -25,6 +27,8 @@ SAFE_INTEGER = 9007199254740991
 URI_PROFILE_ID = "bridge-oauth-registration-uri/v1"
 PPA_SCHEMA_ID = "urn:intdata:schema:platform-product-assertion:v1"
 PPA_VECTOR_ID = "urn:intdata:conformance:platform-product-assertion:v1"
+HOSTED_ISSUER = "https://api.intdata.pro/functions/v1/platform-identity"
+PPA_DIGEST_ID = "urn:intdata:conformance:platform-product-assertion:v1:digests"
 AGGREGATE_ENCODING = "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, path, LF; SHA-256 the concatenated UTF-8 bytes."
 
 
@@ -39,10 +43,9 @@ def require_keys(value: Any, keys: set[str], where: str) -> None:
         raise ConformanceError("closed-shape", where)
 
 
-def load_json(path: Path) -> Any:
-    raw = path.read_bytes()
+def load_json_bytes(raw: bytes, source: str) -> Any:
     if raw.startswith(b"\xef\xbb\xbf") or not raw.endswith(b"\n") or b"\r\n" in raw:
-        raise ConformanceError("source-encoding", path.as_posix())
+        raise ConformanceError("source-encoding", source)
 
     def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
         result: dict[str, Any] = {}
@@ -55,7 +58,11 @@ def load_json(path: Path) -> Any:
     try:
         return json.loads(raw.decode("utf-8", "strict"), object_pairs_hook=pairs)
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise ConformanceError("source-json", path.as_posix()) from error
+        raise ConformanceError("source-json", source) from error
+
+
+def load_json(path: Path) -> Any:
+    return load_json_bytes(path.read_bytes(), path.as_posix())
 
 
 def assert_number_policy(value: Any) -> None:
@@ -150,9 +157,16 @@ def canonical_schema_reason(error: Any) -> str:
 
 
 def validate_verifier(verifier: Any) -> None:
-    require_keys(verifier, {"issuer", "audience", "verifier_now", "clock_skew_seconds"}, "verifier")
+    require_keys(verifier, {"issuer", "audience", "product_id", "verifier_now", "clock_skew_seconds"}, "verifier")
     if not isinstance(verifier["issuer"], str) or not isinstance(verifier["audience"], str):
         raise ConformanceError("verifier_authority")
+    if not isinstance(verifier["product_id"], str) or not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", verifier["product_id"]):
+        raise ConformanceError("verifier_product_id")
+    try:
+        canonical_ppa_resource_uri(verifier["issuer"])
+        canonical_ppa_resource_uri(verifier["audience"])
+    except ConformanceError as error:
+        raise ConformanceError("verifier_authority") from error
     now = verifier["verifier_now"]
     if isinstance(now, bool) or not isinstance(now, int) or not 0 <= now <= SAFE_INTEGER:
         raise ConformanceError("verifier_now")
@@ -163,6 +177,15 @@ def validate_verifier(verifier: Any) -> None:
 
 def validate_ppa_semantics(claims: dict[str, Any], verifier: dict[str, Any]) -> None:
     validate_verifier(verifier)
+    canonical_ppa_resource_uri(claims["iss"])
+    canonical_ppa_resource_uri(claims["aud"])
+    if claims["iss"] != HOSTED_ISSUER:
+        raise ConformanceError("issuer")
+    if claims["product_id"] != verifier["product_id"]:
+        raise ConformanceError("product_id")
+    expected_audiences = {f"https://{verifier['product_id']}.intdata.pro/v1", f"https://{verifier['product_id']}.intdata.pro/mcp"}
+    if verifier["issuer"] != HOSTED_ISSUER or verifier["audience"] not in expected_audiences or claims["aud"] != verifier["audience"]:
+        raise ConformanceError("audience")
     if claims["iss"] != verifier["issuer"]:
         raise ConformanceError("issuer")
     if claims["aud"] != verifier["audience"]:
@@ -200,7 +223,7 @@ def evaluate_ppa_adverse(
         validate_header(document["protected_header"], header_contract)
     except ConformanceError as error:
         return "header", error.reason
-    schema_errors = list(validator.iter_errors(document))
+    schema_errors = sorted(validator.iter_errors(document), key=lambda error: (canonical_schema_reason(error), str(error.message)))
     if schema_errors:
         return "schema", canonical_schema_reason(schema_errors[0])
     try:
@@ -218,7 +241,7 @@ def validate_ppa() -> int:
     Draft202012Validator.check_schema(schema)
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     vectors = load_json(PPA_VECTORS_PATH)
-    require_keys(vectors, {"vector_set_id", "version", "schema_id", "protected_header_contract", "base", "positive_cases", "adverse_cases"}, "ppa-vectors")
+    require_keys(vectors, {"vector_set_id", "version", "schema_id", "protected_header_contract", "base", "positive_cases", "adverse_cases", "raw_json_cases"}, "ppa-vectors")
     if vectors["vector_set_id"] != PPA_VECTOR_ID or vectors["version"] != "v1" or vectors["schema_id"] != PPA_SCHEMA_ID:
         raise ConformanceError("vector-identity")
     contract = vectors["protected_header_contract"]
@@ -230,18 +253,18 @@ def validate_ppa() -> int:
     canonical = jcs(base["claims"])
     if canonical.hex() != base["canonical_claims_utf8_hex"] or hashlib.sha256(canonical).hexdigest() != base["canonical_claims_sha256"]:
         raise ConformanceError("ppa-jcs")
-    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 8:
+    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 11:
         raise ConformanceError("positive-count")
-    if not isinstance(vectors["adverse_cases"], list) or len(vectors["adverse_cases"]) != 46:
+    if not isinstance(vectors["adverse_cases"], list) or len(vectors["adverse_cases"]) != 87:
         raise ConformanceError("adverse-count")
     case_names = [case.get("name") for case in vectors["positive_cases"] + vectors["adverse_cases"] if isinstance(case, dict)]
-    if len(case_names) != 54 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
+    if len(case_names) != 98 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
         raise ConformanceError("case-names")
     checked = 0
     for positive in vectors["positive_cases"]:
         require_keys(positive, {"name", "mutations", "verifier", "expected"}, "positive-case")
-        require_keys(positive["expected"], {"valid"}, "positive-expected")
-        if positive["expected"] != {"valid": True}:
+        require_keys(positive["expected"], {"valid", "canonical_claims_utf8_hex", "canonical_claims_sha256"}, "positive-expected")
+        if positive["expected"]["valid"] is not True:
             raise ConformanceError("positive-expected")
         document = copy.deepcopy({"schema_version": base["schema_version"], "protected_header": base["protected_header"], "claims": base["claims"]})
         for mutation in positive["mutations"]:
@@ -252,6 +275,9 @@ def validate_ppa() -> int:
         if errors:
             raise ConformanceError("positive-schema", positive["name"])
         validate_ppa_semantics(document["claims"], positive["verifier"])
+        positive_jcs = jcs(document["claims"])
+        if positive_jcs.hex() != positive["expected"]["canonical_claims_utf8_hex"] or hashlib.sha256(positive_jcs).hexdigest() != positive["expected"]["canonical_claims_sha256"]:
+            raise ConformanceError("positive-jcs", positive["name"])
         checked += 1
     for adverse in vectors["adverse_cases"]:
         require_keys(adverse, {"name", "mutations", "verifier", "expected"}, "adverse-case")
@@ -266,6 +292,25 @@ def validate_ppa() -> int:
         if failed_stage != expected["stage"] or failed_reason != expected["reason"]:
             raise ConformanceError("adverse-case", f"{adverse['name']} got {failed_stage}/{failed_reason}")
         checked += 1
+    raw_cases = vectors["raw_json_cases"]
+    if not isinstance(raw_cases, list) or len(raw_cases) != 5:
+        raise ConformanceError("raw-json-count")
+    raw_names = [case.get("name") for case in raw_cases if isinstance(case, dict)]
+    if len(raw_names) != 5 or any(not isinstance(name, str) or not name for name in raw_names) or len(set(raw_names)) != 5:
+        raise ConformanceError("raw-json-names")
+    for raw_case in raw_cases:
+        require_keys(raw_case, {"name", "raw_utf8_hex", "expected"}, "raw-json-case")
+        require_keys(raw_case["expected"], {"ok", "reason"}, "raw-json-expected")
+        if raw_case["expected"]["ok"] is not False or not re.fullmatch(r"[0-9a-f]*", raw_case["raw_utf8_hex"]):
+            raise ConformanceError("raw-json-expected")
+        try:
+            load_json_bytes(bytes.fromhex(raw_case["raw_utf8_hex"]), raw_case["name"])
+        except ConformanceError as error:
+            if error.reason != raw_case["expected"]["reason"]:
+                raise ConformanceError("raw-json-case", raw_case["name"]) from error
+        else:
+            raise ConformanceError("raw-json-case", raw_case["name"])
+        checked += 1
     oracle_document = copy.deepcopy({"schema_version": base["schema_version"], "protected_header": base["protected_header"], "claims": base["claims"]})
     oracle_document["claims"]["__oracle_extra_claim"] = True
     oracle_stage, oracle_reason = evaluate_ppa_adverse(
@@ -277,14 +322,16 @@ def validate_ppa() -> int:
     if (oracle_stage, oracle_reason) != ("schema", "/claims#additionalProperties"):
         raise ConformanceError("adverse-oracle", f"{oracle_stage}/{oracle_reason}")
     verifier_policy_cases = [
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": True, "clock_skew_seconds": 30}, "verifier_now"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": 1.5, "clock_skew_seconds": 30}, "verifier_now"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": -1, "clock_skew_seconds": 30}, "verifier_now"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": SAFE_INTEGER + 1, "clock_skew_seconds": 30}, "verifier_now"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": 0, "clock_skew_seconds": True}, "clock_skew_seconds"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": 0, "clock_skew_seconds": 1.5}, "clock_skew_seconds"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": 0, "clock_skew_seconds": -1}, "clock_skew_seconds"),
-        ({"issuer": "https://identity.intdata.pro", "audience": "https://api.intdata.pro", "verifier_now": 0, "clock_skew_seconds": 31}, "clock_skew_seconds"),
+        ({"issuer": HOSTED_ISSUER, "audience": "https://bridge.intdata.pro/v1", "product_id": "Bridge", "verifier_now": 0, "clock_skew_seconds": 30}, "verifier_product_id"),
+        ({"issuer": HOSTED_ISSUER, "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 0, "clock_skew_seconds": 30, "extra": True}, "closed-shape"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": True, "clock_skew_seconds": 30}, "verifier_now"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 1.5, "clock_skew_seconds": 30}, "verifier_now"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": -1, "clock_skew_seconds": 30}, "verifier_now"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": SAFE_INTEGER + 1, "clock_skew_seconds": 30}, "verifier_now"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 0, "clock_skew_seconds": True}, "clock_skew_seconds"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 0, "clock_skew_seconds": 1.5}, "clock_skew_seconds"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 0, "clock_skew_seconds": -1}, "clock_skew_seconds"),
+        ({"issuer": "https://api.intdata.pro/functions/v1/platform-identity", "audience": "https://bridge.intdata.pro/v1", "product_id": "bridge", "verifier_now": 0, "clock_skew_seconds": 31}, "clock_skew_seconds"),
     ]
     for verifier, reason in verifier_policy_cases:
         try:
@@ -330,7 +377,7 @@ def canonical_host(authority: str, scheme: str) -> tuple[str, int | None, bool]:
         canonical = address.compressed.lower()
         if host_text != canonical:
             raise ConformanceError("noncanonical_ip")
-        return f"[{canonical}]", parse_port(port_text, scheme), address == ipaddress.IPv6Address("::1")
+        return f"[{canonical}]", parse_port(port_text, scheme), address == ipaddress.IPv6Address("::1"), True
     if authority.count(":") > 1:
         raise ConformanceError("invalid_host")
     host_text, separator, port_text_value = authority.rpartition(":")
@@ -341,6 +388,7 @@ def canonical_host(authority: str, scheme: str) -> tuple[str, int | None, bool]:
     if not host_text or host_text.endswith("."):
         raise ConformanceError("invalid_host")
     loopback = False
+    is_ip = False
     if re.fullmatch(r"[0-9.]+", host_text):
         try:
             address4 = ipaddress.IPv4Address(host_text)
@@ -350,12 +398,13 @@ def canonical_host(authority: str, scheme: str) -> tuple[str, int | None, bool]:
         if host_text != host:
             raise ConformanceError("noncanonical_ip")
         loopback = address4 == ipaddress.IPv4Address("127.0.0.1")
+        is_ip = True
     else:
         labels = host_text.split(".")
         if any(not label or len(label) > 63 or not re.fullmatch(r"[a-z0-9-]+", label) or label.startswith("-") or label.endswith("-") for label in labels):
             raise ConformanceError("invalid_host")
         host = host_text
-    return host, parse_port(port_text, scheme), loopback
+    return host, parse_port(port_text, scheme), loopback, is_ip
 
 
 UNRESERVED = set(b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
@@ -387,9 +436,11 @@ def normalize_component(component: str) -> str:
         output.append(char)
         index += 1
     try:
-        decoded.decode("utf-8", "strict")
+        decoded_text = decoded.decode("utf-8", "strict")
     except UnicodeDecodeError as error:
         raise ConformanceError("invalid_utf8") from error
+    if any(unicodedata.category(char) in {"Cc", "Cf", "Zs", "Zl", "Zp"} for char in decoded_text):
+        raise ConformanceError("unicode_category_forbidden")
     return "".join(output)
 
 
@@ -408,7 +459,7 @@ def normalize_uri(value: str, admit_nondefault_port: bool = False, reparse: bool
     if not match:
         raise ConformanceError("invalid_scheme")
     scheme, authority, path, query_part = match.groups()
-    host, port, loopback = canonical_host(authority, scheme)
+    host, port, loopback, _ = canonical_host(authority, scheme)
     if scheme == "http" and not loopback:
         raise ConformanceError("invalid_scheme")
     if scheme == "http" and port is None:
@@ -433,6 +484,38 @@ def normalize_uri(value: str, admit_nondefault_port: bool = False, reparse: bool
         raise ConformanceError("non_idempotent_output")
     return result
 
+
+
+def canonical_ppa_resource_uri(value: str) -> str:
+    try:
+        raw = value.encode("ascii", "strict")
+    except UnicodeEncodeError as error:
+        raise ConformanceError("ppa_uri") from error
+    if not 1 <= len(raw) <= 2048 or any(byte <= 0x20 or byte == 0x7F for byte in raw) or b"\\" in raw:
+        raise ConformanceError("ppa_uri")
+    match = re.fullmatch(r"https://([^/?#]+)(/[^?#]+)", value)
+    if not match:
+        raise ConformanceError("ppa_uri")
+    authority, path = match.groups()
+    try:
+        host, port, _, is_ip = canonical_host(authority, "https")
+    except ConformanceError as error:
+        raise ConformanceError("ppa_uri") from error
+    if is_ip or port is not None or host != authority or "//" in path:
+        raise ConformanceError("ppa_uri")
+    for segment in path.split("/"):
+        if not re.fullmatch(r"[A-Za-z0-9._~!$&\'()*+,;=:@%-]*", segment):
+            raise ConformanceError("ppa_uri")
+        if segment in {".", ".."} or re.sub(r"(?i:%2e)", ".", segment) in {".", ".."}:
+            raise ConformanceError("ppa_uri")
+    try:
+        normalized = normalize_component(path)
+    except ConformanceError as error:
+        raise ConformanceError("ppa_uri") from error
+    result = f"https://{host}{normalized}"
+    if result != value:
+        raise ConformanceError("ppa_uri")
+    return result
 
 def normalize_redirects(values: list[str], admit: bool) -> list[str]:
     inputs: dict[str, str] = {}
@@ -516,6 +599,31 @@ def validate_uri() -> int:
     return checked
 
 
+def validate_ppa_digests() -> int:
+    manifest = load_json(PPA_DIGEST_PATH)
+    require_keys(manifest, {"digest_set_id", "digest_set_version", "algorithm", "aggregate_encoding", "artifacts", "aggregate_manifest_utf8_hex", "aggregate_sha256"}, "ppa-digest-manifest")
+    if manifest["digest_set_id"] != PPA_DIGEST_ID or manifest["digest_set_version"] != "1.0.0" or manifest["algorithm"] != "sha256" or manifest["aggregate_encoding"] != AGGREGATE_ENCODING:
+        raise ConformanceError("ppa-digest-metadata")
+    entries = manifest["artifacts"]
+    expected = [
+        ("conformance/platform-product-assertion-v1.vectors.json", PPA_VECTOR_ID),
+        ("schemas/platform-product-assertion.schema.json", PPA_SCHEMA_ID),
+    ]
+    if not isinstance(entries, list) or [(entry.get("path"), entry.get("id")) for entry in entries] != expected:
+        raise ConformanceError("ppa-digest-paths")
+    lines = []
+    for entry in entries:
+        require_keys(entry, {"path", "id", "sha256"}, "ppa-digest-entry")
+        actual = hashlib.sha256((ROOT / entry["path"]).read_bytes()).hexdigest()
+        if entry["sha256"] != actual:
+            raise ConformanceError("ppa-digest-entry", entry["path"])
+        lines.append(f"{actual}  {entry['path']}\n")
+    aggregate = "".join(lines).encode("utf-8")
+    if aggregate.hex() != manifest["aggregate_manifest_utf8_hex"] or hashlib.sha256(aggregate).hexdigest() != manifest["aggregate_sha256"]:
+        raise ConformanceError("ppa-digest-aggregate")
+    return len(entries)
+
+
 def validate_digests() -> int:
     manifest = load_json(DIGEST_PATH)
     require_keys(manifest, {"digest_set_version", "algorithm", "aggregate_encoding", "artifacts", "aggregate_manifest_utf8_hex", "aggregate_sha256"}, "digest-manifest")
@@ -547,7 +655,8 @@ def run() -> dict[str, int]:
     return {
         "ppa_vectors": validate_ppa(),
         "uri_vectors": validate_uri(),
-        "artifact_digests": validate_digests(),
+        "ppa_artifact_digests": validate_ppa_digests(),
+        "terminal_artifact_digests": validate_digests(),
     }
 
 
