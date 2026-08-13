@@ -133,6 +133,16 @@
       "migration_action": "Audit and split private runtime parts before cleanup."
     },
     {
+      "id": "intdata-platform-ppa-validator",
+      "root": "packages",
+      "status": "public-tool",
+      "owner": "intData",
+      "public_surface": "Installable offline Python CLI intdata-ppa-validate for the published PlatformProductAssertionV1 and Bridge OAuth registration URI v1 conformance corpus.",
+      "runtime_state": "No tracked runtime state; verification is offline and has no network, Backend, credential, or private-configuration dependency.",
+      "target_home": "D:/int/tools/packages/intdata-platform-ppa-validator",
+      "migration_action": "Keep as a reviewed public package under packages/; publish immutable artifacts only from the exact committed package bytes."
+    },
+    {
       "id": "probe",
       "root": "probe",
       "status": "master-private",

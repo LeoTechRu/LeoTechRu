@@ -1,0 +1,20 @@
+{
+  "digest_set_id": "urn:intdata:conformance:platform-product-assertion:v1:digests",
+  "digest_set_version": "1.0.0",
+  "algorithm": "sha256",
+  "aggregate_encoding": "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, path, LF; SHA-256 the concatenated UTF-8 bytes.",
+  "artifacts": [
+    {
+      "path": "conformance/platform-product-assertion-v1.vectors.json",
+      "id": "urn:intdata:conformance:platform-product-assertion:v1",
+      "sha256": "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46"
+    },
+    {
+      "path": "schemas/platform-product-assertion.schema.json",
+      "id": "urn:intdata:schema:platform-product-assertion:v1",
+      "sha256": "97c6cd64c9f8b9b79c3889b47b05d567353af4efb8618ede7e8ec5ca1ebd441b"
+    }
+  ],
+  "aggregate_manifest_utf8_hex": "363531373538346436356233633862636237626531623530653064653838303661313939663230633766323930663239383661376630386437316235666134362020636f6e666f726d616e63652f706c6174666f726d2d70726f647563742d617373657274696f6e2d76312e766563746f72732e6a736f6e0a393763366364363463396638623962373963333838396234376230356435363733353361663465666238363138656465376538656335636131656264343431622020736368656d61732f706c6174666f726d2d70726f647563742d617373657274696f6e2e736368656d612e6a736f6e0a",
+  "aggregate_sha256": "fa09e94feb956e1f837e1e62082c0d0c694cf07bfa1c2ae7fafb0084ab536277"
+}

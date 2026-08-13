@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include src/intdata_platform_ppa_validator/platform/schemas *.json
+recursive-include src/intdata_platform_ppa_validator/platform/conformance *.json *.py

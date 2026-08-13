@@ -1,0 +1,233 @@
+{
+  "vector_set_id": "bridge-oauth-registration-uri/v1",
+  "version": "v1",
+  "uri_cases": [
+    {
+      "name": "uppercase-dns-host",
+      "input": "https://CLIENT.Example/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "invalid_host" }
+    },
+    {
+      "name": "empty-path-becomes-slash",
+      "input": "https://client.example",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "https://client.example/" }
+    },
+    {
+      "name": "admitted-nondefault-port-and-query-order",
+      "input": "https://client.example:8443/callback?b=2&a=1&a=2",
+      "admit_nondefault_port": true,
+      "expected": { "ok": true, "normalized": "https://client.example:8443/callback?b=2&a=1&a=2" }
+    },
+    {
+      "name": "ipv4-loopback-http",
+      "input": "http://127.0.0.1:49152/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "http://127.0.0.1:49152/callback" }
+    },
+    {
+      "name": "ipv4-loopback-http-port-required",
+      "input": "http://127.0.0.1/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "loopback_port_required" }
+    },
+    {
+      "name": "ipv6-loopback-canonical",
+      "input": "http://[::1]:49152/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "http://[::1]:49152/callback" }
+    },
+    {
+      "name": "ipv6-loopback-noncanonical",
+      "input": "http://[0:0:0:0:0:0:0:1]:49152/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "noncanonical_ip" }
+    },
+    {
+      "name": "ipv6-loopback-http-port-required",
+      "input": "http://[::1]/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "loopback_port_required" }
+    },
+    {
+      "name": "reserved-percent-uppercase",
+      "input": "https://client.example/callback%3Fpart",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "https://client.example/callback%3Fpart" }
+    },
+    {
+      "name": "percent-encoded-unicode-valid-utf8",
+      "input": "https://client.example/caf%C3%A9",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "https://client.example/caf%C3%A9" }
+    },
+    {
+      "name": "query-plus-is-literal",
+      "input": "https://client.example/callback?state=a+b&other=a%2Bb",
+      "admit_nondefault_port": false,
+      "expected": { "ok": true, "normalized": "https://client.example/callback?state=a+b&other=a%2Bb" }
+    },
+    {
+      "name": "raw-non-ascii",
+      "input": "https://client.example/café",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "ascii_required" }
+    },
+    {
+      "name": "userinfo",
+      "input": "https://user@client.example/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "userinfo_forbidden" }
+    },
+    {
+      "name": "fragment",
+      "input": "https://client.example/callback#fragment",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "fragment_forbidden" }
+    },
+    {
+      "name": "backslash",
+      "input": "https://client.example\\callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "forbidden_character" }
+    },
+    {
+      "name": "trailing-dot",
+      "input": "https://client.example./callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "invalid_host" }
+    },
+    {
+      "name": "empty-dns-label",
+      "input": "https://client..example/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "invalid_host" }
+    },
+    {
+      "name": "http-dns-forbidden",
+      "input": "http://localhost/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "invalid_scheme" }
+    },
+    {
+      "name": "default-https-port",
+      "input": "https://client.example:443/callback",
+      "admit_nondefault_port": true,
+      "expected": { "ok": false, "reason": "default_port_forbidden" }
+    },
+    {
+      "name": "noncanonical-port",
+      "input": "https://client.example:08443/callback",
+      "admit_nondefault_port": true,
+      "expected": { "ok": false, "reason": "invalid_port" }
+    },
+    {
+      "name": "nondefault-port-not-admitted",
+      "input": "https://client.example:8443/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "policy_admission_required" }
+    },
+    {
+      "name": "dot-segment",
+      "input": "https://client.example/a/../callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "path_normalization_forbidden" }
+    },
+    {
+      "name": "encoded-dot-segment",
+      "input": "https://client.example/a/%2e%2e/callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "path_normalization_forbidden" }
+    },
+    {
+      "name": "repeated-slash",
+      "input": "https://client.example/a//callback",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "path_normalization_forbidden" }
+    },
+    {
+      "name": "encoded-unreserved",
+      "input": "https://client.example/%41",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "encoded_byte_forbidden" }
+    },
+    {
+      "name": "encoded-slash",
+      "input": "https://client.example/a%2Fb",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "encoded_byte_forbidden" }
+    },
+    {
+      "name": "encoded-nul",
+      "input": "https://client.example/a%00b",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "encoded_byte_forbidden" }
+    },
+    {
+      "name": "lowercase-percent-escape",
+      "input": "https://client.example/callback%3fpart",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "lowercase_percent_encoding" }
+    },
+    {
+      "name": "malformed-utf8",
+      "input": "https://client.example/a%C3%28",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "invalid_utf8" }
+    },
+    {
+      "name": "empty-query",
+      "input": "https://client.example/callback?",
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "empty_query" }
+    }
+  ],
+  "redirect_array_cases": [
+    {
+      "name": "normalize-deduplicate-sort-utf8",
+      "inputs": [
+        "https://client.example/secondary",
+        "https://client.example",
+        "https://client.example/secondary"
+      ],
+      "admit_nondefault_port": false,
+      "expected": {
+        "ok": true,
+        "normalized": [
+          "https://client.example/",
+          "https://client.example/secondary"
+        ]
+      }
+    },
+    {
+      "name": "distinct-input-normalization-collision",
+      "inputs": [
+        "https://client.example",
+        "https://client.example/"
+      ],
+      "admit_nondefault_port": false,
+      "expected": { "ok": false, "reason": "normalized_collision" }
+    }
+  ],
+  "token_array_cases": [
+    {
+      "name": "grant-types-identity-deduplicate-sort",
+      "kind": "grant_types",
+      "inputs": ["refresh_token", "authorization_code", "refresh_token"],
+      "expected": { "ok": true, "normalized": ["authorization_code", "refresh_token"] }
+    },
+    {
+      "name": "scopes-identity-deduplicate-sort",
+      "kind": "scopes",
+      "inputs": ["platform.bridge.register", "openid", "openid"],
+      "expected": { "ok": true, "normalized": ["openid", "platform.bridge.register"] }
+    },
+    {
+      "name": "scope-case-is-not-folded",
+      "kind": "scopes",
+      "inputs": ["OpenID", "openid"],
+      "expected": { "ok": true, "normalized": ["OpenID", "openid"] }
+    }
+  ]
+}

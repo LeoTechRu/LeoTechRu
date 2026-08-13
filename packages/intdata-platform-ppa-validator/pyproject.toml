@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intdata-platform-ppa-validator"
+version = "0.1.0"
+description = "Offline verifier for published intData Platform Product Assertion vectors"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "intData contributors"}]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "jsonschema==4.20.0",
+  "rfc3987==1.3.8",
+]
+
+[project.scripts]
+intdata-ppa-validate = "intdata_platform_ppa_validator.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["intdata_platform_ppa_validator*"]
+
+[tool.setuptools.package-data]
+intdata_platform_ppa_validator = [
+  "platform/schemas/platform-product-assertion.schema.json",
+  "platform/conformance/platform-product-assertion-v1.vectors.json",
+  "platform/conformance/platform-product-assertion-v1.digests.json",
+  "platform/conformance/bridge-oauth-registration-uri-v1.profile.json",
+  "platform/conformance/bridge-oauth-registration-uri-v1.vectors.json",
+  "platform/conformance/terminal-dependency-digests.json",
+  "platform/conformance/validate-terminal-dependencies.py",
+]

@@ -1,0 +1,65 @@
+{
+  "profile_id": "bridge-oauth-registration-uri/v1",
+  "version": "v1",
+  "input": {
+    "encoding": "strict-ascii",
+    "min_bytes": 1,
+    "max_bytes": 2048,
+    "reject": [
+      "controls",
+      "whitespace",
+      "backslash",
+      "raw-non-ascii",
+      "invalid-utf8",
+      "userinfo",
+      "fragment"
+    ]
+  },
+  "scheme_and_authority": {
+    "https": "allowed",
+    "http": "allowed-only-for-exact-127.0.0.1-or-bracketed-ipv6-loopback-with-an-explicit-non-default-port",
+    "dns": "lowercase-ldh-without-empty-labels-leading-or-trailing-hyphen-or-trailing-dot",
+    "ip": "canonical-text",
+    "port": "absent-or-canonical-decimal-1-through-65535",
+    "default_ports": "forbidden",
+    "non_loopback_non_default_port": "requires-signed-installation-policy-admission"
+  },
+  "path": {
+    "empty_input_path": "normalize-to-slash",
+    "output": "absolute-nonempty",
+    "reject": [
+      "dot-segment",
+      "encoded-dot-segment",
+      "repeated-slash",
+      "any-other-path-normalization"
+    ]
+  },
+  "percent_encoding": {
+    "hex_output": "input-and-output-uppercase-only",
+    "forbid_encoded": [
+      "ascii-unreserved",
+      "slash",
+      "backslash",
+      "nul",
+      "control"
+    ],
+    "utf8": "percent-octets-must-form-valid-utf8",
+    "reserved": "preserve-byte-and-uppercase-escape-exact"
+  },
+  "query": {
+    "order": "preserve-exact",
+    "duplicates": "preserve-exact",
+    "percent_rules": "same-as-path",
+    "empty_question_mark": "forbidden",
+    "plus": "literal-plus-with-no-form-decoding"
+  },
+  "output": {
+    "form": "lowercase-scheme-and-host-plus-canonical-ip-and-port-plus-exact-path-and-query",
+    "idempotence": "reparse-output-must-equal-output"
+  },
+  "arrays": {
+    "redirect_uris": "normalize-each-reject-distinct-input-collision-then-deduplicate-exact-normalized-and-sort-ascending-unsigned-utf8",
+    "grant_types": "ascii-schema-token-identity-normalization-deduplicate-and-sort-ascending-unsigned-utf8",
+    "scopes": "ascii-schema-token-identity-normalization-deduplicate-and-sort-ascending-unsigned-utf8"
+  }
+}
