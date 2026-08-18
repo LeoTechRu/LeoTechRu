@@ -1,0 +1,27 @@
+{
+  "schema_version": "PlatformProductAssertionV1",
+  "protected_header": {
+    "typ": "at+jwt",
+    "alg": "ES256",
+    "kid": "platform.assertion.offline-01"
+  },
+  "claims": {
+    "iss": "https://identity.intdata.pro",
+    "aud": "https://api.intdata.pro",
+    "sub": "123e4567-e89b-12d3-a456-426614174002",
+    "principal_type": "service_account",
+    "organization_id": "123e4567-e89b-12d3-a456-426614174001",
+    "product_id": "platform-tools",
+    "client_id": "platform.resolver:service",
+    "session_id": "service-session.01J5A9Z7M8K6",
+    "scopes": [
+      "platform.release:verify"
+    ],
+    "entitlement_revision": 9007199254740991,
+    "membership_revision": 9007199254740991,
+    "jti": "PA_01J5A9Z7M8K6P4T2Q1R1",
+    "iat": 1786440100,
+    "nbf": 1786440125,
+    "exp": 1786440160
+  }
+}

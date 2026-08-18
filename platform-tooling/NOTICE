@@ -1,0 +1,14 @@
+intdata-platform-tooling
+Copyright (c) 2026 intData contributors
+
+This distribution depends on the following third-party software:
+
+* rfc8785 0.1.4, by Trail of Bits, is licensed under the Apache License 2.0.
+  The complete license is included at third_party/rfc8785/LICENSE.
+  Source: https://github.com/trailofbits/rfc8785.py
+
+* jsonschema 4.25.1, by Julian Berman and contributors, is licensed under the
+  MIT License. The complete license is included at
+  third_party/jsonschema/COPYING.
+  Source: https://github.com/python-jsonschema/jsonschema
+

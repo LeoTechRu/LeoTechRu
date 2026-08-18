@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:scan-attestation:v1",
+  "title": "ScanAttestationV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "attestation_id",
+    "created_at",
+    "scanner",
+    "subject",
+    "sbom",
+    "policy",
+    "result",
+    "findings",
+    "materials"
+  ],
+  "properties": {
+    "schema_version": { "const": "ScanAttestationV1" },
+    "attestation_id": { "$ref": "#/$defs/identifier" },
+    "created_at": { "$ref": "#/$defs/timestamp" },
+    "scanner": { "$ref": "#/$defs/versioned_component" },
+    "subject": { "$ref": "#/$defs/artifact_ref" },
+    "sbom": { "$ref": "#/$defs/artifact_ref" },
+    "policy": { "$ref": "#/$defs/versioned_component" },
+    "result": { "enum": ["passed", "failed"] },
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["critical", "high", "medium", "low"],
+      "properties": {
+        "critical": { "$ref": "#/$defs/safe_nonnegative_integer" },
+        "high": { "$ref": "#/$defs/safe_nonnegative_integer" },
+        "medium": { "$ref": "#/$defs/safe_nonnegative_integer" },
+        "low": { "$ref": "#/$defs/safe_nonnegative_integer" }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/artifact_ref" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+    },
+    "version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decimal_size": { "type": "string", "pattern": "^(?:0|[1-9][0-9]{0,20})$" },
+    "safe_nonnegative_integer": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "versioned_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "sha256"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "version": { "$ref": "#/$defs/version" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "size_bytes"],
+      "properties": {
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "$ref": "#/$defs/decimal_size" }
+      }
+    }
+  }
+}

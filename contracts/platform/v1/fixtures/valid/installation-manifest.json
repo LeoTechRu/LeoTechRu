@@ -1,0 +1,33 @@
+{
+  "schema_version": "InstallationManifestV1",
+  "installation_id": "acme.platform",
+  "revision": 7,
+  "created_at": "2026-08-11T12:00:00Z",
+  "origins": [
+    { "origin_id": "customer", "url": "https://platform.example" }
+  ],
+  "modules": [
+    { "module_id": "bridge.core", "version_constraint": "^1.0.0", "state": "enabled" }
+  ],
+  "capabilities": [
+    { "capability_id": "bridge.oauth", "version_constraint": "1.x" }
+  ],
+  "policies": [
+    {
+      "policy_id": "platform.default",
+      "version": "1.0.0",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+  ],
+  "configuration_custody": [
+    {
+      "configuration_key": "database.url",
+      "custody_ref": "vault.database.url",
+      "present": true
+    }
+  ],
+  "resolver_preferences": {
+    "allow_prerelease": false,
+    "preferred_modules": ["bridge.core"]
+  }
+}

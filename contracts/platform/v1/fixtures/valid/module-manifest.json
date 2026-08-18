@@ -1,0 +1,57 @@
+{
+  "schema_version": "ModuleManifestV1",
+  "module_id": "bridge.core",
+  "version": "1.0.0",
+  "provenance": {
+    "repository": "https://github.com/LeoTechPro/bridge",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "license": "MIT"
+  },
+  "compatibility": {
+    "platform_api": "v1",
+    "operating_systems": ["linux", "windows"],
+    "architectures": ["amd64"]
+  },
+  "capabilities": {
+    "provides": [
+      { "capability_id": "bridge.oauth", "version_constraint": "1.0.0" }
+    ],
+    "requires": []
+  },
+  "dependencies": [],
+  "conflicts": [],
+  "artifacts": [
+    {
+      "artifact_id": "bridge.package",
+      "media_type": "application/gzip",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "size_bytes": "1024",
+      "path": "dist/bridge-core.tar.gz"
+    }
+  ],
+  "migrations": [],
+  "routes": [
+    {
+      "route_id": "bridge.mcp",
+      "kind": "mcp",
+      "origin": "https://bridge.intdata.pro",
+      "path": "/mcp",
+      "runtime_unit_id": "bridge.server"
+    }
+  ],
+  "web_modules": [],
+  "runtime_units": [
+    {
+      "runtime_unit_id": "bridge.server",
+      "kind": "process",
+      "artifact_id": "bridge.package",
+      "entrypoint": "bin/bridge-server",
+      "capabilities": ["bridge.oauth"],
+      "configuration_keys": ["database.url"]
+    }
+  ],
+  "configuration_requirements": [
+    { "key": "database.url", "value_type": "uri", "required": true, "secret": true }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "InstallationLockV1",
+  "lock_id": "lite.lock.1",
+  "generated_at": "2026-08-11T12:03:00Z",
+  "installation": {
+    "installation_id": "lite.platform",
+    "revision": 1,
+    "sha256": "7777777777777777777777777777777777777777777777777777777777777777"
+  },
+  "registry_snapshot": {
+    "registry_id": "lite.registry",
+    "version": "1.0.0",
+    "sha256": "8888888888888888888888888888888888888888888888888888888888888888"
+  },
+  "resolver_version": "1.0.0",
+  "solver_policy_version": "1.0.0",
+  "policy_input_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+  "bootstrap_root_set_digest": "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+  "bridge_oauth_registration_approval_issuer": "https://bridge.customer.example/oauth",
+  "bridge_oauth_registration_approval_audience": "https://identity.customer.example/bridge/software-statements",
+  "resolved_modules": [],
+  "capability_bindings": [],
+  "artifact_bindings": [],
+  "route_bindings": [],
+  "migration_bindings": [],
+  "mcp_bindings": [],
+  "runtime_bindings": []
+}

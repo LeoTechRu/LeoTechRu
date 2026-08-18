@@ -1,0 +1,25 @@
+{
+  "schema_version": "PlatformProductAssertionV1",
+  "protected_header": {
+    "typ": "at+jwt",
+    "alg": "ES256",
+    "kid": "platform.assertion.zero-boundary"
+  },
+  "claims": {
+    "iss": "https://identity.intdata.pro",
+    "aud": "https://api.intdata.pro",
+    "sub": "123e4567-e89b-12d3-a456-426614174003",
+    "principal_type": "user",
+    "organization_id": "123e4567-e89b-12d3-a456-426614174001",
+    "product_id": "platform-tools",
+    "client_id": "boundary.client",
+    "session_id": "boundary.session",
+    "scopes": ["platform.registry:read"],
+    "entitlement_revision": 0,
+    "membership_revision": 0,
+    "jti": "PA_01J5A9Z7M8K6P4T2Q1R2",
+    "iat": 1786440200,
+    "nbf": 1786440200,
+    "exp": 1786440260
+  }
+}

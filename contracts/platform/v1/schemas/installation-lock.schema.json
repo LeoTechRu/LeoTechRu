@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:installation-lock:v1",
+  "title": "InstallationLockV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lock_id",
+    "generated_at",
+    "installation",
+    "registry_snapshot",
+    "resolver_version",
+    "solver_policy_version",
+    "policy_input_sha256",
+    "bootstrap_root_set_digest",
+    "bridge_oauth_registration_approval_issuer",
+    "bridge_oauth_registration_approval_audience",
+    "resolved_modules",
+    "capability_bindings",
+    "artifact_bindings",
+    "route_bindings",
+    "migration_bindings",
+    "mcp_bindings",
+    "runtime_bindings"
+  ],
+  "properties": {
+    "schema_version": { "const": "InstallationLockV1" },
+    "lock_id": { "$ref": "#/$defs/identifier" },
+    "generated_at": { "$ref": "#/$defs/timestamp" },
+    "installation": { "$ref": "#/$defs/installation_binding" },
+    "registry_snapshot": { "$ref": "#/$defs/registry_binding" },
+    "resolver_version": { "$ref": "#/$defs/version" },
+    "solver_policy_version": { "$ref": "#/$defs/version" },
+    "policy_input_sha256": { "$ref": "#/$defs/sha256" },
+    "bootstrap_root_set_digest": { "$ref": "#/$defs/sha256" },
+    "bridge_oauth_registration_approval_issuer": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[^?#]+$"
+    },
+    "bridge_oauth_registration_approval_audience": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[^?#]+$"
+    },
+    "resolved_modules": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/resolved_module" }
+    },
+    "capability_bindings": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/capability_binding" }
+    },
+    "artifact_bindings": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": { "$ref": "#/$defs/artifact_binding" }
+    },
+    "route_bindings": {
+      "type": "array",
+      "maxItems": 2048,
+      "items": { "$ref": "#/$defs/route_binding" }
+    },
+    "migration_bindings": {
+      "type": "array",
+      "maxItems": 2048,
+      "items": { "$ref": "#/$defs/migration_binding" }
+    },
+    "mcp_bindings": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/mcp_binding" }
+    },
+    "runtime_bindings": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/runtime_binding" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+    },
+    "version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decimal_size": { "type": "string", "pattern": "^(?:0|[1-9][0-9]{0,20})$" },
+    "positive_safe_integer": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "installation_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installation_id", "revision", "sha256"],
+      "properties": {
+        "installation_id": { "$ref": "#/$defs/identifier" },
+        "revision": { "$ref": "#/$defs/positive_safe_integer" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "registry_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_id", "version", "sha256"],
+      "properties": {
+        "registry_id": { "$ref": "#/$defs/identifier" },
+        "version": { "$ref": "#/$defs/version" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "resolved_module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_id", "version", "manifest_sha256", "release_manifest_sha256", "signature_envelope_sha256"],
+      "properties": {
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "version": { "$ref": "#/$defs/version" },
+        "manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "release_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "signature_envelope_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "capability_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "provider_module_id", "provider_version"],
+      "properties": {
+        "capability_id": { "$ref": "#/$defs/identifier" },
+        "provider_module_id": { "$ref": "#/$defs/identifier" },
+        "provider_version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "module_id", "sha256", "size_bytes", "locations"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "$ref": "#/$defs/decimal_size" },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "type": "string", "format": "uri", "pattern": "^(?:https|file)://" }
+        }
+      }
+    },
+    "route_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_id", "module_id", "origin", "path", "runtime_unit_id"],
+      "properties": {
+        "route_id": { "$ref": "#/$defs/identifier" },
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "origin": { "type": "string", "format": "uri", "pattern": "^https://[^/]+$" },
+        "path": { "type": "string", "pattern": "^/(?:[A-Za-z0-9._~-]+/?)*$", "maxLength": 512 },
+        "runtime_unit_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "migration_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["migration_id", "module_id", "lineage_parent", "artifact_sha256", "order"],
+      "properties": {
+        "migration_id": { "$ref": "#/$defs/identifier" },
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "lineage_parent": {
+          "oneOf": [
+            { "$ref": "#/$defs/identifier" },
+            { "type": "null" }
+          ]
+        },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "order": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    },
+    "mcp_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "resource_uri", "audience", "runtime_unit_id"],
+      "properties": {
+        "capability_id": { "$ref": "#/$defs/identifier" },
+        "resource_uri": { "type": "string", "format": "uri" },
+        "audience": { "type": "string", "format": "uri" },
+        "runtime_unit_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "runtime_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime_unit_id", "module_id", "artifact_sha256", "configuration_custody_refs"],
+      "properties": {
+        "runtime_unit_id": { "$ref": "#/$defs/identifier" },
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "configuration_custody_refs": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    }
+  }
+}

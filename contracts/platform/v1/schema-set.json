@@ -1,0 +1,115 @@
+{
+  "schema_set_version": "1.0.0",
+  "draft": "https://json-schema.org/draft/2020-12/schema",
+  "schemas": [
+    {
+      "name": "ModuleManifestV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:module-manifest:v1",
+      "filename": "schemas/module-manifest.schema.json",
+      "sha256": "4cd68b6fcc76ea763737cc320db6c202a6b84480e353660f9fee8424fbc412cb"
+    },
+    {
+      "name": "InstallationManifestV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:installation-manifest:v1",
+      "filename": "schemas/installation-manifest.schema.json",
+      "sha256": "35436baf0711d15ef27145d9f0f14c2c4069a95d94f2f8abd9459b5e273c1ead"
+    },
+    {
+      "name": "RegistrySnapshotV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:registry-snapshot:v1",
+      "filename": "schemas/registry-snapshot.schema.json",
+      "sha256": "dbf12d452e0a0fa3804a053d4171ad0c86e07c36d4742551a1f0a48a002ed34f"
+    },
+    {
+      "name": "ResolverInputV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:resolver-input:v1",
+      "filename": "schemas/resolver-input.schema.json",
+      "sha256": "1dcc03a3bf150b4738d1273b1e9a3e446e966d798ea8ad42d956e897d068fdf4"
+    },
+    {
+      "name": "ResolverResultV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:resolver-result:v1",
+      "filename": "schemas/resolver-result.schema.json",
+      "sha256": "4e1a0fa1c5cbc05d840c0b7a23b0ee0c6472526982216e6115143ebb7f0dc85b"
+    },
+    {
+      "name": "InstallationLockV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:installation-lock:v1",
+      "filename": "schemas/installation-lock.schema.json",
+      "sha256": "62b8d5f77ae1c6b316b8915950892c258dd1be977fd25d40aa802d5059efe58c"
+    },
+    {
+      "name": "ReleaseManifestV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:release-manifest:v1",
+      "filename": "schemas/release-manifest.schema.json",
+      "sha256": "0f3c91941cf19059198d974805e685659c21a3b28b50fac98c4fffec5a1e576e"
+    },
+    {
+      "name": "SignatureEnvelopeV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:signature-envelope:v1",
+      "filename": "schemas/signature-envelope.schema.json",
+      "sha256": "9f8b9a5d724904d3883a7631b1581689ace5e9be3f01752ffa54129dfdc1b1ef"
+    },
+    {
+      "name": "TrustBundleV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:trust-bundle:v1",
+      "filename": "schemas/trust-bundle.schema.json",
+      "sha256": "f9ef14850a3ebb6030b9258db4dba3952e0db92213b46ad38bf21208dd4c910d"
+    },
+    {
+      "name": "ScanAttestationV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:scan-attestation:v1",
+      "filename": "schemas/scan-attestation.schema.json",
+      "sha256": "cc93054014071bd77763e050870a2098fa3ed9d1b12e199e78ac306f2bd17454"
+    },
+    {
+      "name": "BridgeOAuthRegistrationApprovalReceiptV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+      "filename": "schemas/bridge-oauth-registration-approval-receipt.schema.json",
+      "sha256": "7ae1781716c9b6a8bd981fb7c9c0e0998c4703d25ea329df283e555ec6ffc368"
+    },
+    {
+      "name": "ReleaseVerificationKeySetV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:release-verification-key-set:v1",
+      "filename": "schemas/release-verification-key-set.schema.json",
+      "sha256": "3274ccb90e2f30335f4a1e0cac89d356b3c9e82eb722b606486dd69ef45aa1ea"
+    },
+    {
+      "name": "PlatformProductAssertionV1",
+      "version": "v1",
+      "id": "urn:intdata:schema:platform-product-assertion:v1",
+      "filename": "schemas/platform-product-assertion.schema.json",
+      "sha256": "cb9304062759c10d8e068bf20386616c431acca49041816a8ff5190cf71c7e77"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "bridge-oauth-registration-uri/v1",
+      "version": "v1",
+      "filename": "conformance/bridge-oauth-registration-uri-v1.profile.json",
+      "sha256": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070",
+      "vectors_filename": "conformance/bridge-oauth-registration-uri-v1.vectors.json",
+      "vectors_sha256": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89"
+    }
+  ],
+  "vectors": [
+    {
+      "id": "platform-v1-conformance",
+      "version": "1.0.0",
+      "filename": "conformance/vectors.json",
+      "sha256": "b7fd9160e081518f019e83e766208862eb8f4144d6e0ce4bc0c56b6cf5a5dc74"
+    }
+  ]
+}

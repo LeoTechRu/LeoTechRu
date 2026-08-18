@@ -1,0 +1,45 @@
+{
+  "schema_version": "ResolverInputV1",
+  "installation": {
+    "schema_version": "InstallationManifestV1",
+    "installation_id": "acme.platform",
+    "revision": 7,
+    "created_at": "2026-08-11T12:00:00Z",
+    "origins": [
+      { "origin_id": "customer", "url": "https://platform.example" }
+    ],
+    "modules": [],
+    "capabilities": [],
+    "policies": [],
+    "configuration_custody": [],
+    "resolver_preferences": {
+      "allow_prerelease": false,
+      "preferred_modules": []
+    }
+  },
+  "installation_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+  "registry_snapshot": {
+    "schema_version": "RegistrySnapshotV1",
+    "registry_id": "intdata.registry",
+    "version": "2026.08.11",
+    "revision": 42,
+    "generated_at": "2026-08-11T12:01:00Z",
+    "trust_bundle": {
+      "bundle_id": "intdata.trust",
+      "version": "1.0.0",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "accepted_signers": [
+      { "role": "installation-actor", "key_ids": ["key.installation"] },
+      { "role": "module", "key_ids": ["key.module"] },
+      { "role": "registry", "key_ids": ["key.registry"] },
+      { "role": "scan", "key_ids": ["key.scan"] }
+    ],
+    "modules": []
+  },
+  "registry_snapshot_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+  "resolver_version": "1.0.0",
+  "solver_policy_version": "1.0.0",
+  "policy_input_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+  "trusted_time": "2026-08-11T12:02:00Z"
+}

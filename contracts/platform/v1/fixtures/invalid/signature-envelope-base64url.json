@@ -1,0 +1,10 @@
+{
+  "payloadType": "application/vnd.intdata.release-manifest.v1+json",
+  "payload": "eyJmb28iOiJiYXIifQ",
+  "signatures": [
+    {
+      "keyid": "key.release",
+      "sig": "______________________________________________________________________________________=="
+    }
+  ]
+}

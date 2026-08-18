@@ -54,3 +54,7 @@ graphify-out/graph.html
 graphify-out/GRAPH_REPORT.md
 graphify-out/manifest.json
 graphify-out/cost.json
+
+*.egg-info/
+build/
+.pytest_cache/

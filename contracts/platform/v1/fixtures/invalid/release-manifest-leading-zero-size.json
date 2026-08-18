@@ -1,0 +1,59 @@
+{
+    "schema_version":  "ReleaseManifestV1",
+    "release_id":  "bridge.release",
+    "producer_id":  "bridge.release-producer",
+    "module_id":  "bridge.core",
+    "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+    "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "version":  "1.0.0",
+    "created_at":  "2026-08-11T12:04:00Z",
+    "source":  {
+                   "repository":  "https://github.com/LeoTechPro/bridge",
+                   "commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                   "tree_sha256":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                   "remote_ref":  "refs/tags/v1.0.0"
+               },
+    "artifacts":  [
+                      {
+                          "name":  "bridge-core.tar.gz",
+                          "media_type":  "application/gzip",
+                          "sha256":  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                          "size_bytes":  "01"
+                      }
+                  ],
+    "sbom":  {
+                 "sha256":  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                 "size_bytes":  "512"
+             },
+    "scan_attestation":  {
+                             "sha256":  "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                             "size_bytes":  "256"
+                         },
+    "modules":  [
+                    {
+                        "module_id":  "bridge.core",
+                        "version":  "1.0.0",
+                        "manifest_sha256":  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                    }
+                ],
+    "compatibility":  {
+                          "platform_api":  "v1",
+                          "operating_systems":  [
+                                                    "linux",
+                                                    "windows"
+                                                ],
+                          "architectures":  [
+                                                "amd64"
+                                            ]
+                      },
+    "rollback_predecessor":  null,
+    "trust_bundle":  {
+                         "sha256":  "1111111111111111111111111111111111111111111111111111111111111111",
+                         "size_bytes":  "2048"
+                     },
+    "signature_policy":  {
+                             "role":  "intdata.release-manifest.v1",
+                             "payload_type":  "application/vnd.intdata.release-manifest.v1+json",
+                             "algorithm":  "Ed25519"
+                         }
+}

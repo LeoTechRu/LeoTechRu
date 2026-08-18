@@ -1,0 +1,1184 @@
+{
+    "vector_set_version":  "1.0.0",
+    "strict_json":  [
+                        {
+                            "name":  "empty-object",
+                            "input_utf8_hex":  "7b7d",
+                            "expected":  {
+                                             "ok":  true,
+                                             "canonical_utf8_hex":  "7b7d",
+                                             "canonical_sha256":  "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+                                         }
+                        },
+                        {
+                            "name":  "safe-integer-upper-bound",
+                            "input_utf8_hex":  "7b226e223a393030373139393235343734303939317d",
+                            "expected":  {
+                                             "ok":  true,
+                                             "canonical_utf8_hex":  "7b226e223a393030373139393235343734303939317d",
+                                             "canonical_sha256":  "e1da48c6a6089f06ecb4e0a2259e658e3786b2420f52baccdf929ec6460d7b41"
+                                         }
+                        },
+                        {
+                            "name":  "utf16-key-order-and-no-normalization",
+                            "input_utf8_hex":  "7b22efbfbd223a22626d70222c22f09f9880223a2261737472616c222c22c3a9223a22707265636f6d706f736564222c2261223a2265cc81227d",
+                            "expected":  {
+                                             "ok":  true,
+                                             "canonical_utf8_hex":  "7b2261223a2265cc81222c22c3a9223a22707265636f6d706f736564222c22f09f9880223a2261737472616c222c22efbfbd223a22626d70227d",
+                                             "canonical_sha256":  "bf48920b6865e7fa66cc74a2fdc1efd92be10b6b68197a3f9bf45c2011cce555"
+                                         }
+                        },
+                        {
+                            "name":  "unsafe-integer-positive",
+                            "input_utf8_hex":  "7b226e223a393030373139393235343734303939327d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "integer-policy"
+                                         }
+                        },
+                        {
+                            "name":  "unsafe-integer-negative",
+                            "input_utf8_hex":  "7b226e223a2d393030373139393235343734303939327d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "integer-policy"
+                                         }
+                        },
+                        {
+                            "name":  "floating-number",
+                            "input_utf8_hex":  "7b226e223a312e307d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "number-policy"
+                                         }
+                        },
+                        {
+                            "name":  "duplicate-key",
+                            "input_utf8_hex":  "7b2261223a312c2261223a327d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "parse"
+                                         }
+                        },
+                        {
+                            "name":  "trailing-newline",
+                            "input_utf8_hex":  "7b7d0a",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "parse"
+                                         }
+                        },
+                        {
+                            "name":  "leading-space",
+                            "input_utf8_hex":  "207b7d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "parse"
+                                         }
+                        },
+                        {
+                            "name":  "utf8-bom",
+                            "input_utf8_hex":  "efbbbf7b7d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "parse"
+                                         }
+                        },
+                        {
+                            "name":  "lone-surrogate",
+                            "input_utf8_hex":  "7b2278223a225c7564383030227d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "unicode-policy"
+                                         }
+                        },
+                        {
+                            "name":  "invalid-utf8",
+                            "input_utf8_hex":  "7b2278223a22ff227d",
+                            "expected":  {
+                                             "ok":  false,
+                                             "stage":  "parse"
+                                         }
+                        }
+                    ],
+    "schema_fixtures":  [
+                            {
+                                "path":  "fixtures/valid/module-manifest.json",
+                                "schema_id":  "urn:intdata:schema:module-manifest:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/installation-manifest.json",
+                                "schema_id":  "urn:intdata:schema:installation-manifest:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/registry-snapshot.json",
+                                "schema_id":  "urn:intdata:schema:registry-snapshot:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/resolver-input.json",
+                                "schema_id":  "urn:intdata:schema:resolver-input:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/resolver-result.json",
+                                "schema_id":  "urn:intdata:schema:resolver-result:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/installation-lock.json",
+                                "schema_id":  "urn:intdata:schema:installation-lock:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/installation-lock-lite.json",
+                                "schema_id":  "urn:intdata:schema:installation-lock:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/release-manifest.json",
+                                "schema_id":  "urn:intdata:schema:release-manifest:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/signature-envelope.json",
+                                "schema_id":  "urn:intdata:schema:signature-envelope:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/trust-bundle.json",
+                                "schema_id":  "urn:intdata:schema:trust-bundle:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/scan-attestation.json",
+                                "schema_id":  "urn:intdata:schema:scan-attestation:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/release-verification-key-set.json",
+                                "schema_id":  "urn:intdata:schema:release-verification-key-set:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/release-verification-key-set-bootstrap.json",
+                                "schema_id":  "urn:intdata:schema:release-verification-key-set:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/bridge-oauth-registration-approval-receipt-central.json",
+                                "schema_id":  "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/bridge-oauth-registration-approval-receipt-lite.json",
+                                "schema_id":  "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/platform-product-assertion-user.json",
+                                "schema_id":  "urn:intdata:schema:platform-product-assertion:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/platform-product-assertion-service.json",
+                                "schema_id":  "urn:intdata:schema:platform-product-assertion:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/valid/platform-product-assertion-zero-revisions.json",
+                                "schema_id":  "urn:intdata:schema:platform-product-assertion:v1",
+                                "valid":  true
+                            },
+                            {
+                                "path":  "fixtures/invalid/module-unknown-field.json",
+                                "schema_id":  "urn:intdata:schema:module-manifest:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/installation-secret-value.json",
+                                "schema_id":  "urn:intdata:schema:installation-manifest:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/registry-key-material.json",
+                                "schema_id":  "urn:intdata:schema:registry-snapshot:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/resolver-result-partial-lock.json",
+                                "schema_id":  "urn:intdata:schema:resolver-result:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/installation-lock-unknown-binding.json",
+                                "schema_id":  "urn:intdata:schema:installation-lock:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/release-manifest-leading-zero-size.json",
+                                "schema_id":  "urn:intdata:schema:release-manifest:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/signature-envelope-base64url.json",
+                                "schema_id":  "urn:intdata:schema:signature-envelope:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/scan-attestation-unknown-field.json",
+                                "schema_id":  "urn:intdata:schema:scan-attestation:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/release-keyset-private-key.json",
+                                "schema_id":  "urn:intdata:schema:release-verification-key-set:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/oauth-wrong-header.json",
+                                "schema_id":  "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1",
+                                "valid":  false
+                            },
+                            {
+                                "path":  "fixtures/invalid/platform-product-assertion-extra-claim.json",
+                                "schema_id":  "urn:intdata:schema:platform-product-assertion:v1",
+                                "valid":  false
+                            }
+                        ],
+    "schema_mutations":  [
+                             {
+                                 "name":  "resolver-input-unsafe-integer",
+                                 "base_fixture":  "fixtures/valid/resolver-input.json",
+                                 "schema_id":  "urn:intdata:schema:resolver-input:v1",
+                                 "mutation":  {
+                                                  "operation":  "replace",
+                                                  "pointer":  "/installation/revision",
+                                                  "value":  9007199254740992
+                                              },
+                                 "expected":  {
+                                                  "stage":  "integer-policy",
+                                                  "valid":  false
+                                              }
+                             },
+                             {
+                                 "name":  "resolver-input-float",
+                                 "base_fixture":  "fixtures/valid/resolver-input.json",
+                                 "schema_id":  "urn:intdata:schema:resolver-input:v1",
+                                 "mutation":  {
+                                                  "operation":  "replace",
+                                                  "pointer":  "/installation/revision",
+                                                  "value":  1.5
+                                              },
+                                 "expected":  {
+                                                  "stage":  "number-policy",
+                                                  "valid":  false
+                                              }
+                             }
+                         ],
+    "release_bootstrap_root_set":  {
+                                       "payload":  {
+                                                       "schema_version":  1,
+                                                       "role":  "release.trust.root",
+                                                       "threshold":  2,
+                                                       "keys":  [
+                                                                    {
+                                                                        "key_id":  "root.one",
+                                                                        "algorithm":  "Ed25519",
+                                                                        "public_key_base64":  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+                                                                    },
+                                                                    {
+                                                                        "key_id":  "root.three",
+                                                                        "algorithm":  "Ed25519",
+                                                                        "public_key_base64":  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="
+                                                                    },
+                                                                    {
+                                                                        "key_id":  "root.two",
+                                                                        "algorithm":  "Ed25519",
+                                                                        "public_key_base64":  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="
+                                                                    }
+                                                                ]
+                                                   },
+                                       "canonical_utf8_hex":  "7b226b657973223a5b7b22616c676f726974686d223a2245643235353139222c226b65795f6964223a22726f6f742e6f6e65222c227075626c69635f6b65795f626173653634223a22414141414141414141414141414141414141414141414141414141414141414141414141414141414141413d227d2c7b22616c676f726974686d223a2245643235353139222c226b65795f6964223a22726f6f742e7468726565222c227075626c69635f6b65795f626173653634223a22434343434343434343434343434343434343434343434343434343434343434343434343434343434343433d227d2c7b22616c676f726974686d223a2245643235353139222c226b65795f6964223a22726f6f742e74776f222c227075626c69635f6b65795f626173653634223a22424242424242424242424242424242424242424242424242424242424242424242424242424242424242423d227d5d2c22726f6c65223a2272656c656173652e74727573742e726f6f74222c22736368656d615f76657273696f6e223a312c227468726573686f6c64223a327d",
+                                       "sha256":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                       "adverse":  [
+                                                       {
+                                                           "name":  "duplicate-root-key-id",
+                                                           "mutation":  {
+                                                                            "operation":  "replace",
+                                                                            "pointer":  "/keys/1/key_id",
+                                                                            "value":  "root.one"
+                                                                        },
+                                                           "reason":  "root_keys"
+                                                       },
+                                                       {
+                                                           "name":  "unsorted-root-keys",
+                                                           "mutation":  {
+                                                                            "operation":  "replace",
+                                                                            "pointer":  "/keys/0/key_id",
+                                                                            "value":  "root.zed"
+                                                                        },
+                                                           "reason":  "root_keys"
+                                                       },
+                                                       {
+                                                           "name":  "wrong-root-role",
+                                                           "mutation":  {
+                                                                            "operation":  "replace",
+                                                                            "pointer":  "/role",
+                                                                            "value":  "release.artifact.signing"
+                                                                        },
+                                                           "reason":  "root_shape"
+                                                       },
+                                                       {
+                                                           "name":  "root-key-wrong-decoded-length",
+                                                           "mutation":  {
+                                                                            "operation":  "replace",
+                                                                            "pointer":  "/keys/0/public_key_base64",
+                                                                            "value":  "AA=="
+                                                                        },
+                                                           "reason":  "root_key"
+                                                       },
+                                                       {
+                                                           "name":  "root-public-key-alias",
+                                                           "mutation":  {
+                                                                            "operation":  "replace",
+                                                                            "pointer":  "/keys/1/public_key_base64",
+                                                                            "value":  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+                                                                        },
+                                                           "reason":  "root_keys"
+                                                       }
+                                                   ]
+                                   },
+    "release_keyset_semantics":  [
+                                     {
+                                         "name":  "bootstrap-revision-one",
+                                         "fixture":  "fixtures/valid/release-verification-key-set-bootstrap.json",
+                                         "context":  {
+                                                         "pae_length_bytes":  262144,
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  0,
+                                                         "current_digest":  "",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  true
+                                                      }
+                                     },
+                                     {
+                                         "name":  "valid-revision-two-quorum",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pae_length_bytes":  262144,
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+                                                                                    "release.retired":  "active",
+                                                                                    "release.revoked":  "active"
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  true
+                                                      }
+                                     },
+                                     {
+                                         "name":  "duplicate-root-id-does-not-count",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "root_quorum"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "wrong-root-role",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.artifact.signing"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "root_quorum"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "bootstrap-pin-substitution",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "bootstrap_pin"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "skipped-revision",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  0,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "revision"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "forked-prior-digest",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "previous_digest"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "rollback-revision",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  3,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "revision"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "unknown-root-signer",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.unknown",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "root_quorum"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "key-resurrection",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+                                                                                    "release.active":  "revoked"
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "key_resurrection"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "offline-root-pae-overflow",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pae_length_bytes":  262145,
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "pae_size"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "root-signer-public-key-alias",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root",
+                                                                                  "public_key_sha256":  "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "root_quorum"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "online-public-key-alias",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "mutation":  {
+                                                          "operation":  "replace",
+                                                          "pointer":  "/keys/1/public_key_base64",
+                                                          "value":  "DAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw="
+                                                      },
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "online_key_alias"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "root-online-public-key-alias",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "mutation":  {
+                                                          "operation":  "replace",
+                                                          "pointer":  "/keys/0/public_key_base64",
+                                                          "value":  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+                                                      },
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "root_online_alias"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "online-key-deletion",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "current_keys":  [
+                                                                              {
+                                                                                  "key_id":  "release.deleted"
+                                                                              }
+                                                                          ],
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "key_deletion"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "online-key-identity-mutation",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "current_keys":  [
+                                                                              {
+                                                                                  "key_id":  "release.active",
+                                                                                  "role":  "release.artifact.signing",
+                                                                                  "algorithm":  "Ed25519",
+                                                                                  "public_key_base64":  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                                                                                  "valid_from":  "2026-08-11T00:00:00Z"
+                                                                              }
+                                                                          ],
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "key_identity"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "retired-key-historical-signature-valid",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "verification":  {
+                                                                              "key_id":  "release.retired",
+                                                                              "signed_at":  "2026-08-10T00:00:00Z"
+                                                                          },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  true
+                                                      }
+                                     },
+                                     {
+                                         "name":  "retired-key-after-cutoff",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "verification":  {
+                                                                              "key_id":  "release.retired",
+                                                                              "signed_at":  "2026-08-11T00:00:01Z"
+                                                                          },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "retired_cutoff"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "revoked-key-invalidates-all-times",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "verification":  {
+                                                                              "key_id":  "release.revoked",
+                                                                              "signed_at":  "2025-08-12T00:00:00Z"
+                                                                          },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "revoked_key"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "retired-time-before-validity",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "mutation":  {
+                                                          "operation":  "replace",
+                                                          "pointer":  "/keys/1/retired_at",
+                                                          "value":  "2025-08-10T23:59:59Z"
+                                                      },
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "lifecycle_time"
+                                                      }
+                                     },
+                                     {
+                                         "name":  "revoked-time-before-validity",
+                                         "fixture":  "fixtures/valid/release-verification-key-set.json",
+                                         "mutation":  {
+                                                          "operation":  "replace",
+                                                          "pointer":  "/keys/2/revoked_at",
+                                                          "value":  "2025-08-10T23:59:59Z"
+                                                      },
+                                         "context":  {
+                                                         "pinned_bootstrap_root_set_digest":  "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+                                                         "current_revision":  1,
+                                                         "current_digest":  "12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+                                                         "current_key_states":  {
+
+                                                                                },
+                                                         "root_signers":  [
+                                                                              {
+                                                                                  "key_id":  "root.one",
+                                                                                  "role":  "release.trust.root"
+                                                                              },
+                                                                              {
+                                                                                  "key_id":  "root.two",
+                                                                                  "role":  "release.trust.root"
+                                                                              }
+                                                                          ]
+                                                     },
+                                         "expected":  {
+                                                          "valid":  false,
+                                                          "reason":  "lifecycle_time"
+                                                      }
+                                     }
+                                 ],
+    "delegated_vector_sets":  [
+                                  {
+                                      "id":  "urn:intdata:conformance:platform-product-assertion:v1",
+                                      "vectors_path":  "conformance/platform-product-assertion-v1.vectors.json",
+                                      "vectors_sha256":  "36431fc32257713473059bffefe76caa5fd93aaa36c39c0da17cd6dbfb996304",
+                                      "digest_manifest_path":  "conformance/terminal-dependency-digests.json",
+                                      "digest_manifest_sha256":  "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27"
+                                  },
+                                  {
+                                      "id":  "urn:intdata:conformance:bridge-oauth-registration-uri:v1",
+                                      "vectors_path":  "conformance/bridge-oauth-registration-uri-v1.vectors.json",
+                                      "vectors_sha256":  "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
+                                      "digest_manifest_path":  "conformance/terminal-dependency-digests.json",
+                                      "digest_manifest_sha256":  "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27"
+                                  },
+                                  {
+                                      "id":  "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
+                                      "vectors_path":  "conformance/bridge-oauth-registration-approval-receipt-v1.vectors.json",
+                                      "vectors_sha256":  "477284f0d5f9254fc7413e5aeade5c0c6abde933c185b2105aa46a5cb9073727",
+                                      "digest_manifest_path":  "conformance/approval-receipt-digests.json",
+                                      "digest_manifest_sha256":  "56a86537f25d03598169fa65e09ca75c9e845504873e8a7e96cea77d49b9a6e5"
+                                  }
+                              ],
+    "release_manifest_semantics":  [
+                                       {
+                                           "name":  "exact-request-and-lock-bindings",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "valid"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "source-commit-must-match-embedded-source",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "mutation":  {
+                                                            "operation":  "replace",
+                                                            "pointer":  "/source_commit",
+                                                            "value":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                                                        },
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "source_commit"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "module-must-match-single-module-entry",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "mutation":  {
+                                                            "operation":  "replace",
+                                                            "pointer":  "/module_id",
+                                                            "value":  "bridge.observer"
+                                                        },
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.observer",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "module_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "request-producer-binding-mismatch",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "another.producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "producer_id_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "request-lock-binding-mismatch",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "8888888888888888888888888888888888888888888888888888888888888888",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "installation_lock_digest_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "request-release-binding-mismatch",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.other-release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "release_id_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "request-module-binding-mismatch",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.other",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "module_id_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "request-source-binding-mismatch",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "semantic",
+                                                            "reason":  "source_commit_binding"
+                                                        }
+                                       },
+                                       {
+                                           "name":  "legacy-release-role-rejected",
+                                           "base_fixture":  "fixtures/valid/release-manifest.json",
+                                           "mutation":  {
+                                                            "operation":  "replace",
+                                                            "pointer":  "/signature_policy/role",
+                                                            "value":  "release"
+                                                        },
+                                           "context":  {
+                                                           "producer_id":  "bridge.release-producer",
+                                                           "module_id":  "bridge.core",
+                                                           "installation_lock_digest":  "9999999999999999999999999999999999999999999999999999999999999999",
+                                                           "source_commit":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                                           "release_id":  "bridge.release"
+                                                       },
+                                           "expected":  {
+                                                            "stage":  "schema"
+                                                        }
+                                       }
+                                   ],
+    "registry_signer_semantics":  [
+                                      {
+                                          "name":  "closed-sorted-signer-admission",
+                                          "base_fixture":  "fixtures/valid/registry-snapshot.json",
+                                          "expected":  {
+                                                           "stage":  "valid"
+                                                       }
+                                      },
+                                      {
+                                          "name":  "duplicate-role-and-missing-scan-rejected",
+                                          "base_fixture":  "fixtures/valid/registry-snapshot.json",
+                                          "mutation":  {
+                                                           "operation":  "replace",
+                                                           "pointer":  "/accepted_signers/3/role",
+                                                           "value":  "registry"
+                                                       },
+                                          "expected":  {
+                                                           "stage":  "semantic",
+                                                           "reason":  "accepted_signer_roles"
+                                                       }
+                                      },
+                                      {
+                                          "name":  "missing-role-rejected",
+                                          "base_fixture":  "fixtures/valid/registry-snapshot.json",
+                                          "mutation":  {
+                                                           "operation":  "remove",
+                                                           "pointer":  "/accepted_signers/3"
+                                                       },
+                                          "expected":  {
+                                                           "stage":  "schema"
+                                                       }
+                                      },
+                                      {
+                                          "name":  "legacy-release-role-rejected",
+                                          "base_fixture":  "fixtures/valid/registry-snapshot.json",
+                                          "mutation":  {
+                                                           "operation":  "replace",
+                                                           "pointer":  "/accepted_signers/3/role",
+                                                           "value":  "release"
+                                                       },
+                                          "expected":  {
+                                                           "stage":  "schema"
+                                                       }
+                                      },
+                                      {
+                                          "name":  "unsorted-key-ids-rejected",
+                                          "base_fixture":  "fixtures/valid/registry-snapshot.json",
+                                          "mutation":  {
+                                                           "operation":  "replace",
+                                                           "pointer":  "/accepted_signers/0/key_ids",
+                                                           "value":  [
+                                                                         "key.z",
+                                                                         "key.a"
+                                                                     ]
+                                                       },
+                                          "expected":  {
+                                                           "stage":  "semantic",
+                                                           "reason":  "accepted_signer_key_ids"
+                                                       }
+                                      }
+                                  ]
+}

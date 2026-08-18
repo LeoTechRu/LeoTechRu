@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:signature-envelope:v1",
+  "title": "SignatureEnvelopeV1",
+  "$comment": "Standard DSSE v1 envelope. The keyid is a non-authoritative hint. Ed25519 algorithm, role, validity and revocation are resolved exclusively from TrustBundleV1. Artifact digest bindings are separate signed payload fields, never DSSE extensions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["payloadType", "payload", "signatures"],
+  "properties": {
+    "payloadType": {
+      "enum": [
+        "application/vnd.intdata.module-manifest.v1+json",
+        "application/vnd.intdata.registry-snapshot.v1+json",
+        "application/vnd.intdata.installation-lock.v1+json",
+        "application/vnd.intdata.release-manifest.v1+json",
+        "application/vnd.intdata.release-keyset.v1+json",
+        "application/vnd.intdata.scan-attestation.v1+json"
+      ]
+    },
+    "payload": {
+      "type": "string",
+      "minLength": 4,
+      "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    },
+    "signatures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["keyid", "sig"],
+        "properties": {
+          "keyid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+          },
+          "sig": { "type": "string", "pattern": "^[A-Za-z0-9+/]{86}==$" }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["payloadType"],
+        "properties": { "payloadType": { "const": "application/vnd.intdata.release-keyset.v1+json" } }
+      },
+      "then": { "properties": { "signatures": { "minItems": 2, "maxItems": 3 } } },
+      "else": { "properties": { "signatures": { "minItems": 1, "maxItems": 1 } } }
+    }
+  ]
+}

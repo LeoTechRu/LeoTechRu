@@ -1,0 +1,29 @@
+{
+  "schema_version": "InstallationLockV1",
+  "lock_id": "invalid.lock",
+  "generated_at": "2026-08-11T12:00:00Z",
+  "installation": {
+    "installation_id": "acme.platform",
+    "revision": 1,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "registry_snapshot": {
+    "registry_id": "intdata.registry",
+    "version": "1.0.0",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "resolver_version": "1.0.0",
+  "solver_policy_version": "1.0.0",
+  "policy_input_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "bootstrap_root_set_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "bridge_oauth_registration_approval_issuer": "https://bridge.intdata.pro/oauth",
+  "bridge_oauth_registration_approval_audience": "https://identity.example/software-statements",
+  "resolved_modules": [],
+  "capability_bindings": [],
+  "artifact_bindings": [],
+  "route_bindings": [],
+  "migration_bindings": [],
+  "mcp_bindings": [],
+  "runtime_bindings": [],
+  "ambient_runtime_unit": "not-authorized"
+}

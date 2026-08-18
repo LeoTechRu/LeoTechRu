@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:resolver-result:v1",
+  "title": "ResolverResultV1",
+  "oneOf": [
+    { "$ref": "#/$defs/resolved" },
+    { "$ref": "#/$defs/rejected" }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "envelope"],
+      "properties": {
+        "role": { "const": "installation-actor" },
+        "envelope": { "$ref": "urn:intdata:schema:signature-envelope:v1" }
+      }
+    },
+    "resolved": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "lock", "lock_sha256", "acceptance_signature"],
+      "properties": {
+        "schema_version": { "const": "ResolverResultV1" },
+        "status": { "const": "resolved" },
+        "lock": { "$ref": "urn:intdata:schema:installation-lock:v1" },
+        "lock_sha256": { "$ref": "#/$defs/sha256" },
+        "acceptance_signature": { "$ref": "#/$defs/acceptance" }
+      }
+    },
+    "rejected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "error"],
+      "properties": {
+        "schema_version": { "const": "ResolverResultV1" },
+        "status": { "const": "rejected" },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message", "details_sha256"],
+          "properties": {
+            "code": {
+              "enum": [
+                "missing_capability",
+                "version_conflict",
+                "route_collision",
+                "migration_lineage_broken",
+                "secret_custody_missing",
+                "mcp_binding_missing",
+                "artifact_drift",
+                "reverse_dependency_disable",
+                "policy_rejected"
+              ]
+            },
+            "message": { "type": "string", "minLength": 1, "maxLength": 512 },
+            "details_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    }
+  }
+}

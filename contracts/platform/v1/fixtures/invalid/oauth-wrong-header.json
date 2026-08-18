@@ -1,0 +1,23 @@
+{
+  "schema_version": "BridgeOAuthRegistrationApprovalReceiptV1",
+  "protected_header": {
+    "typ": "JWT",
+    "alg": "ES256",
+    "kid": "bridge-approval-2026-08"
+  },
+  "claims": {
+    "iss": "https://bridge.intdata.pro/oauth",
+    "aud": "https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements",
+    "sub": "123e4567-e89b-42d3-a456-426614174001",
+    "principal_type": "user",
+    "organization_id": "123e4567-e89b-42d3-a456-426614174002",
+    "session_id": "session-0001",
+    "membership_revision": 11,
+    "entitlement_revision": 7,
+    "registration_metadata_digest": "sha256:9400c26bb8d00db8a2c09c52445e194683db607f7a3482ff7003d600cd3b455d",
+    "jti": "approval-jti-0001",
+    "iat": 1786461600,
+    "nbf": 1786461600,
+    "exp": 1786461660
+  }
+}

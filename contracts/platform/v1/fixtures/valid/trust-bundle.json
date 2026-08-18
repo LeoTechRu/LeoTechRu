@@ -1,0 +1,62 @@
+{
+  "schema_version": "TrustBundleV1",
+  "bundle_id": "intdata.trust",
+  "version": "1.0.0",
+  "revision": 1,
+  "issued_at": "2026-08-11T12:00:00Z",
+  "root": {
+    "root_id": "intdata.root",
+    "version": "1.0.0",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "release_verification_key_set": {
+    "key_set_id": "intdata.release.keys",
+    "revision": 2,
+    "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bootstrap_root_set_digest": "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531"
+  },
+  "previous_bundle": null,
+  "trusted_time_policy": {
+    "mode": "explicit-input",
+    "required_source": "operator-pinned",
+    "maximum_clock_skew_seconds": 30
+  },
+  "keys": [
+    {
+      "key_id": "key.registry",
+      "algorithm": "Ed25519",
+      "public_key_base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "role": "registry",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "revoked_at": null
+    },
+    {
+      "key_id": "key.module",
+      "algorithm": "Ed25519",
+      "public_key_base64": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+      "role": "module",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "revoked_at": null
+    },
+    {
+      "key_id": "key.installation",
+      "algorithm": "Ed25519",
+      "public_key_base64": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD=",
+      "role": "installation-actor",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "revoked_at": null
+    },
+    {
+      "key_id": "key.scan",
+      "algorithm": "Ed25519",
+      "public_key_base64": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE=",
+      "role": "scan",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "revoked_at": null
+    }
+  ]
+}

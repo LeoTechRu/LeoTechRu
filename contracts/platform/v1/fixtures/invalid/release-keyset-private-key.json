@@ -1,0 +1,23 @@
+{
+  "schema_version": "ReleaseVerificationKeySetV1",
+  "revision": 1,
+  "previous_digest": null,
+  "generated_at": "2026-08-11T12:00:00Z",
+  "bootstrap_root_set_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "keys": [
+    {
+      "key_id": "release.active",
+      "role": "release.artifact.signing",
+      "algorithm": "Ed25519",
+      "public_key_base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "private_key_base64": "must-never-be-public",
+      "state": "active",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "retired_at": null,
+      "retirement_reason": null,
+      "revoked_at": null,
+      "revocation_reason": null
+    }
+  ]
+}

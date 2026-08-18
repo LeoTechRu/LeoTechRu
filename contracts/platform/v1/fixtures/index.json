@@ -1,0 +1,8 @@
+{
+  "fixture_set_version": "1.0.0",
+  "valid_fixture_count": 18,
+  "invalid_fixture_count": 11,
+  "schema_vectors": "../conformance/vectors.json",
+  "uri_profile_vectors": "../conformance/bridge-oauth-registration-uri-v1.vectors.json",
+  "note": "The conformance vectors are authoritative for expected outcomes; fixture directory names are descriptive only."
+}

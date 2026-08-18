@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:resolver-input:v1",
+  "title": "ResolverInputV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "installation",
+    "installation_sha256",
+    "registry_snapshot",
+    "registry_snapshot_sha256",
+    "resolver_version",
+    "solver_policy_version",
+    "policy_input_sha256",
+    "trusted_time"
+  ],
+  "properties": {
+    "schema_version": { "const": "ResolverInputV1" },
+    "installation": { "$ref": "urn:intdata:schema:installation-manifest:v1" },
+    "installation_sha256": { "$ref": "#/$defs/sha256" },
+    "registry_snapshot": { "$ref": "urn:intdata:schema:registry-snapshot:v1" },
+    "registry_snapshot_sha256": { "$ref": "#/$defs/sha256" },
+    "resolver_version": { "$ref": "#/$defs/version" },
+    "solver_policy_version": { "$ref": "#/$defs/version" },
+    "policy_input_sha256": { "$ref": "#/$defs/sha256" },
+    "trusted_time": { "$ref": "#/$defs/timestamp" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]*$" },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    }
+  }
+}

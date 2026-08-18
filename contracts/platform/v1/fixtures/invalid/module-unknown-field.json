@@ -1,0 +1,34 @@
+{
+  "schema_version": "ModuleManifestV1",
+  "module_id": "module.minimal",
+  "version": "1.0.0",
+  "provenance": {
+    "repository": "https://example.com/module",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "license": "MIT"
+  },
+  "compatibility": {
+    "platform_api": "v1",
+    "operating_systems": ["linux"],
+    "architectures": ["amd64"]
+  },
+  "capabilities": { "provides": [], "requires": [] },
+  "dependencies": [],
+  "conflicts": [],
+  "artifacts": [
+    {
+      "artifact_id": "module.package",
+      "media_type": "application/gzip",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "size_bytes": "1",
+      "path": "dist/module.tar.gz"
+    }
+  ],
+  "migrations": [],
+  "routes": [],
+  "web_modules": [],
+  "runtime_units": [],
+  "configuration_requirements": [],
+  "unknown": true
+}

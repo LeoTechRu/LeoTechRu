@@ -1,0 +1,46 @@
+{
+  "schema_version": "ResolverResultV1",
+  "status": "resolved",
+  "lock": {
+    "schema_version": "InstallationLockV1",
+    "lock_id": "empty.lock.1",
+    "generated_at": "2026-08-11T12:03:00Z",
+    "installation": {
+      "installation_id": "acme.platform",
+      "revision": 7,
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "registry_snapshot": {
+      "registry_id": "intdata.registry",
+      "version": "2026.08.11",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "resolver_version": "1.0.0",
+    "solver_policy_version": "1.0.0",
+    "policy_input_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+    "bootstrap_root_set_digest": "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+    "bridge_oauth_registration_approval_issuer": "https://bridge.intdata.pro/oauth",
+    "bridge_oauth_registration_approval_audience": "https://api.intdata.pro/internal/platform-identity/v1/bridge/software-statements",
+    "resolved_modules": [],
+    "capability_bindings": [],
+    "artifact_bindings": [],
+    "route_bindings": [],
+    "migration_bindings": [],
+    "mcp_bindings": [],
+    "runtime_bindings": []
+  },
+  "lock_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "acceptance_signature": {
+    "role": "installation-actor",
+    "envelope": {
+      "payloadType": "application/vnd.intdata.installation-lock.v1+json",
+      "payload": "e30=",
+      "signatures": [
+        {
+          "keyid": "key.installation",
+          "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+        }
+      ]
+    }
+  }
+}

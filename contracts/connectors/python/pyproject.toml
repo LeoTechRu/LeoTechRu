@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intdata-connector-contracts"
+version = "0.1.0"
+description = "Installable carrier for the public intData connector contract"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = ["jsonschema>=4.20,<5"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+intdata_connector_contracts = ["_resources/*"]

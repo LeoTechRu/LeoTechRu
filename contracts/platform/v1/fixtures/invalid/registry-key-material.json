@@ -1,0 +1,20 @@
+{
+  "schema_version": "RegistrySnapshotV1",
+  "registry_id": "intdata.registry",
+  "version": "1.0.0",
+  "revision": 1,
+  "generated_at": "2026-08-11T12:00:00Z",
+  "trust_bundle": {
+    "bundle_id": "intdata.trust",
+    "version": "1.0.0",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "public_key_base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  "accepted_signers": [
+    { "role": "registry", "key_ids": ["key.registry"] },
+    { "role": "module", "key_ids": ["key.module"] },
+    { "role": "installation-actor", "key_ids": ["key.installation"] },
+    { "role": "scan", "key_ids": ["key.scan"] }
+  ],
+  "modules": []
+}

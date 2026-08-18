@@ -1,0 +1,48 @@
+{
+  "schema_version": "ReleaseVerificationKeySetV1",
+  "revision": 2,
+  "previous_digest": "sha256:12bc97941a6dc9d12645ddb5d8d9794c03c69b4bcef0777c584cc7d1dabb5908",
+  "generated_at": "2026-08-11T12:06:00Z",
+  "bootstrap_root_set_digest": "97ef2cc9b43908a6be6e7b3c91680f75f9e4cbec15828056bec6f024d966e531",
+  "keys": [
+    {
+      "key_id": "release.active",
+      "role": "release.artifact.signing",
+      "algorithm": "Ed25519",
+      "public_key_base64": "DAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw=",
+      "state": "active",
+      "valid_from": "2026-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "retired_at": null,
+      "retirement_reason": null,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "key_id": "release.retired",
+      "role": "release.artifact.signing",
+      "algorithm": "Ed25519",
+      "public_key_base64": "EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA=",
+      "state": "retired",
+      "valid_from": "2025-08-11T00:00:00Z",
+      "valid_until": "2026-08-11T00:00:00Z",
+      "retired_at": "2026-08-11T00:00:00Z",
+      "retirement_reason": "scheduled rotation",
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "key_id": "release.revoked",
+      "role": "release.artifact.signing",
+      "algorithm": "Ed25519",
+      "public_key_base64": "FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQ=",
+      "state": "revoked",
+      "valid_from": "2025-08-11T00:00:00Z",
+      "valid_until": "2027-08-11T00:00:00Z",
+      "retired_at": null,
+      "retirement_reason": null,
+      "revoked_at": "2026-08-10T00:00:00Z",
+      "revocation_reason": "key compromise"
+    }
+  ]
+}

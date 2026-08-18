@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:module-manifest:v1",
+  "title": "ModuleManifestV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "module_id",
+    "version",
+    "provenance",
+    "compatibility",
+    "capabilities",
+    "dependencies",
+    "conflicts",
+    "artifacts",
+    "migrations",
+    "routes",
+    "web_modules",
+    "runtime_units",
+    "configuration_requirements"
+  ],
+  "properties": {
+    "schema_version": { "const": "ModuleManifestV1" },
+    "module_id": { "$ref": "#/$defs/identifier" },
+    "version": { "$ref": "#/$defs/version" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "compatibility": { "$ref": "#/$defs/compatibility" },
+    "capabilities": { "$ref": "#/$defs/capability_set" },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/dependency" }
+    },
+    "conflicts": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/identifier" }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "migrations": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/migration" }
+    },
+    "routes": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/route" }
+    },
+    "web_modules": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/web_module" }
+    },
+    "runtime_units": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/runtime_unit" }
+    },
+    "configuration_requirements": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/configuration_requirement" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]*$"
+    },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decimal_size": { "type": "string", "pattern": "^(?:0|[1-9][0-9]{0,20})$" },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._@+-]+(?:/[A-Za-z0-9._@+-]+)*$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "tree_sha256", "license"],
+      "properties": {
+        "repository": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "commit": { "type": "string", "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$" },
+        "tree_sha256": { "$ref": "#/$defs/sha256" },
+        "license": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform_api", "operating_systems", "architectures"],
+      "properties": {
+        "platform_api": { "const": "v1" },
+        "operating_systems": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "enum": ["linux", "windows"] }
+        },
+        "architectures": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "enum": ["amd64", "arm64"] }
+        }
+      }
+    },
+    "capability_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "version_constraint"],
+      "properties": {
+        "capability_id": { "$ref": "#/$defs/identifier" },
+        "version_constraint": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "capability_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provides", "requires"],
+      "properties": {
+        "provides": {
+          "type": "array",
+          "maxItems": 128,
+          "items": { "$ref": "#/$defs/capability_requirement" }
+        },
+        "requires": {
+          "type": "array",
+          "maxItems": 128,
+          "items": { "$ref": "#/$defs/capability_requirement" }
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_id", "version_constraint", "optional"],
+      "properties": {
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "version_constraint": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "optional": { "type": "boolean" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "media_type", "sha256", "size_bytes", "path"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "media_type": { "type": "string", "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$", "maxLength": 128 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "$ref": "#/$defs/decimal_size" },
+        "path": { "$ref": "#/$defs/path" }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["migration_id", "lineage_parent", "artifact_id", "order"],
+      "properties": {
+        "migration_id": { "$ref": "#/$defs/identifier" },
+        "lineage_parent": {
+          "oneOf": [
+            { "$ref": "#/$defs/identifier" },
+            { "type": "null" }
+          ]
+        },
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "order": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_id", "kind", "origin", "path", "runtime_unit_id"],
+      "properties": {
+        "route_id": { "$ref": "#/$defs/identifier" },
+        "kind": { "enum": ["http", "mcp", "static"] },
+        "origin": { "type": "string", "format": "uri", "pattern": "^https://[^/]+$" },
+        "path": { "type": "string", "pattern": "^/(?:[A-Za-z0-9._~-]+/?)*$", "maxLength": 512 },
+        "runtime_unit_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "web_module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web_module_id", "entrypoint_artifact_id", "route_id"],
+      "properties": {
+        "web_module_id": { "$ref": "#/$defs/identifier" },
+        "entrypoint_artifact_id": { "$ref": "#/$defs/identifier" },
+        "route_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "runtime_unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime_unit_id", "kind", "artifact_id", "entrypoint", "capabilities", "configuration_keys"],
+      "properties": {
+        "runtime_unit_id": { "$ref": "#/$defs/identifier" },
+        "kind": { "enum": ["process", "container", "function", "static"] },
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "entrypoint": { "$ref": "#/$defs/path" },
+        "capabilities": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "configuration_keys": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "configuration_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "value_type", "required", "secret"],
+      "properties": {
+        "key": { "$ref": "#/$defs/identifier" },
+        "value_type": { "enum": ["string", "integer", "boolean", "uri", "json"] },
+        "required": { "type": "boolean" },
+        "secret": { "type": "boolean" }
+      }
+    }
+  }
+}

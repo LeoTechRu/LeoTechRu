@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:intdata:schema:trust-bundle:v1",
+  "title": "TrustBundleV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "version",
+    "revision",
+    "issued_at",
+    "root",
+    "release_verification_key_set",
+    "previous_bundle",
+    "trusted_time_policy",
+    "keys"
+  ],
+  "properties": {
+    "schema_version": { "const": "TrustBundleV1" },
+    "bundle_id": { "$ref": "#/$defs/identifier" },
+    "version": { "$ref": "#/$defs/version" },
+    "revision": { "$ref": "#/$defs/positive_safe_integer" },
+    "issued_at": { "$ref": "#/$defs/timestamp" },
+    "root": { "$ref": "#/$defs/root_ref" },
+    "release_verification_key_set": { "$ref": "#/$defs/release_verification_key_set_ref" },
+    "previous_bundle": {
+      "oneOf": [
+        { "$ref": "#/$defs/previous_bundle" },
+        { "type": "null" }
+      ]
+    },
+    "trusted_time_policy": { "$ref": "#/$defs/trusted_time_policy" },
+    "keys": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/key" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$"
+    },
+    "version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "positive_safe_integer": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "safe_nonnegative_integer": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "root_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "version", "sha256"],
+      "properties": {
+        "root_id": { "$ref": "#/$defs/identifier" },
+        "version": { "$ref": "#/$defs/version" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "release_verification_key_set_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_set_id", "revision", "digest", "bootstrap_root_set_digest"],
+      "properties": {
+        "key_set_id": { "$ref": "#/$defs/identifier" },
+        "revision": { "$ref": "#/$defs/positive_safe_integer" },
+        "digest": { "$ref": "#/$defs/sha256" },
+        "bootstrap_root_set_digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "previous_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_id", "revision", "sha256"],
+      "properties": {
+        "bundle_id": { "$ref": "#/$defs/identifier" },
+        "revision": { "$ref": "#/$defs/positive_safe_integer" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "trusted_time_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "required_source", "maximum_clock_skew_seconds"],
+      "properties": {
+        "mode": { "const": "explicit-input" },
+        "required_source": { "enum": ["signed-timestamp", "operator-pinned"] },
+        "maximum_clock_skew_seconds": { "$ref": "#/$defs/safe_nonnegative_integer" }
+      }
+    },
+    "key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "algorithm", "public_key_base64", "role", "valid_from", "valid_until", "revoked_at"],
+      "properties": {
+        "key_id": { "$ref": "#/$defs/identifier" },
+        "algorithm": { "const": "Ed25519" },
+        "public_key_base64": { "type": "string", "pattern": "^[A-Za-z0-9+/]{43}=$" },
+        "role": { "enum": ["registry", "module", "installation-actor", "scan"] },
+        "valid_from": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "revoked_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}
