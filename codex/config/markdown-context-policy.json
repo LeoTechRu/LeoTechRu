@@ -13,7 +13,6 @@
   "exclude_globs": [
     ".tmp/**",
     "**/node_modules/**",
-    "tools/codex/assets/codex-home/**",
-    "tools/codex/tools/openspec/node_modules/**"
+    "tools/codex/assets/codex-home/**"
   ]
 }

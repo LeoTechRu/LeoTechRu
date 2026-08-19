@@ -279,8 +279,9 @@ def _powershell_base() -> list[str]:
 
 def _openspec_base() -> list[str]:
     if os.name == "nt":
-        return [*_powershell_base(), "-File", str(ROOT_DIR / "codex" / "bin" / "openspec.ps1")]
-    return [str(ROOT_DIR / "codex" / "bin" / "openspec")]
+        binary = shutil.which("openspec.cmd") or shutil.which("openspec") or "openspec"
+        return [binary]
+    return [shutil.which("openspec") or "openspec"]
 
 
 def _is_openspec_mutating(args: list[str]) -> bool:

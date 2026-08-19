@@ -73,7 +73,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 ## OpenSpec governance
 
 - Для любых tracked-мутаций repo-owned tooling в `/int/tools/**` канонический process source-of-truth живёт в master/manifest репозитории `/int`, вне публичного `intData-tools`.
-- Agents in MCP-enabled Codex/OpenClaw runtimes use `intdata-control` OpenSpec tools for OpenSpec discovery, validation, status, and lifecycle operations; repo-local `codex/bin/openspec*` entrypoints are operator/adapter fallback paths, not a PATH fallback.
+- OpenSpec управляется через канонический глобальный CLI `openspec` (@fission-ai/openspec), а агенты в MCP-enabled рантаймах используют `intdata-control` OpenSpec tools.
 - Agents resolve `INT-*` through authenticated `gh` against `LeoTechPro/int`; legacy numbers use the tracked workspace mapping and all API/auth/mapping failures fail closed for outward gates.
 - Перед первой правкой обязателен owner-approved change package в master-level `openspec/changes/<change-id>/`:
   - `proposal.md`
@@ -130,9 +130,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `/int/tools/codex/bin/codex-host-bootstrap` — bootstrap рабочего минимума Codex/OpenClaw/cloud tooling;
 - `pwsh -File /int/tools/codex/scripts/bootstrap_windows_toolchain.ps1 -AllowUserFallback` — idempotent bootstrap Windows CLI-toolchain (`rg`, `fd`, `yq`, `uv`, `pnpm`, `terraform`, `make`, PATH-normalization, fallback для `cmake/7z`);
 - `pwsh -File /int/tools/codex/scripts/codex_preflight.ps1` — preflight-проверка ключевых CLI с machine-readable режимом `-Json`;
-- `/int/tools/codex/bin/openspec` — tracked Linux operator/adapter entrypoint для локального OpenSpec CLI; agents with MCP tools use `intdata-control` OpenSpec tools first;
-- `pwsh -File D:\int\tools\codex\bin\openspec.ps1` — tracked Windows PowerShell operator/adapter entrypoint для локального OpenSpec CLI; agents with MCP tools use `intdata-control` OpenSpec tools first;
-- `D:\int\tools\codex\bin\openspec.cmd` — tracked Windows CMD operator/adapter entrypoint для локального OpenSpec CLI; agents with MCP tools use `intdata-control` OpenSpec tools first;
+- `openspec --version` — канонический CLI OpenSpec (@fission-ai/openspec);
 - Native git sync/publish path: `git status --short --branch`, `git fetch --prune origin`, `git pull --ff-only` only on a clean checkout when behind, and owner-approved `ALLOW_MAIN_PUSH=1 git push origin main:main` for `main`;
 - `python /int/tools/codex/bin/agent_tool_routing.py validate --strict --json` — validate registry и blocker-rules для V1 high-risk tooling;
 - `bash /int/tools/codex/bin/register-intdata-mcp.sh` или `pwsh -File D:\int\tools\codex\bin\register-intdata-mcp.ps1` — read-only проверка двух host-native регистраций `intdata-control` и `intdata-runtime`;
