@@ -13,7 +13,7 @@ Host int-dev-intdata-public
 Host int-dev-runtime-public int-dev-codex-public int-dev-hermes-public
     HostName vds.intdata.pro
     User dev
-    IdentityFile ~/.ssh/id_ed25519_vds_intdata_agents
+    IdentityFile ~/.ssh/id_ed25519_vds_intdata_dev
     IdentitiesOnly yes
     BatchMode yes
     ConnectTimeout 5
@@ -40,7 +40,7 @@ Host int-dev-intdata-tailnet
 Host int-dev-runtime-tailnet int-dev-codex-tailnet int-dev-hermes-tailnet
     HostName vds-intdata-pro.tailf0f164.ts.net
     User dev
-    IdentityFile ~/.ssh/id_ed25519_vds_intdata_agents
+    IdentityFile ~/.ssh/id_ed25519_vds_intdata_dev
     IdentitiesOnly yes
     BatchMode yes
     ConnectTimeout 5

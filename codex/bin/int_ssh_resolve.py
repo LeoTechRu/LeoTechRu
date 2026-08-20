@@ -94,7 +94,7 @@ def build_spec(logical_host: str) -> TargetSpec | None:
         return TargetSpec(
             logical_host=logical_host,
             user="dev",
-            identity_file="~/.ssh/id_ed25519_vds_intdata_agents",
+            identity_file="~/.ssh/id_ed25519_vds_intdata_dev",
             public_host=public_host,
             tailnet_host=tailnet_host,
             public_alias="int-dev-runtime-public",
