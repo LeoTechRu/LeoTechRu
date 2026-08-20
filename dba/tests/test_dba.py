@@ -368,7 +368,7 @@ class DBATests(unittest.TestCase):
             try:
                 os.environ.pop("DBA_DATA_REPO", None)
                 with mock.patch.object(dba.os, "name", "nt"):
-                    with self.assertRaisesRegex(dba.DBAError, "agents@vds\\.intdata\\.pro:/int/data"):
+                    with self.assertRaisesRegex(dba.DBAError, "dev@vds\\.intdata\\.pro:/int/data"):
                         dba._resolve_data_repo(None)
             finally:
                 dba.TOOL_ROOT = previous_root

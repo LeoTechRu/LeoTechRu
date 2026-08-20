@@ -10,9 +10,9 @@ Host int-dev-intdata-public
     ConnectTimeout 5
     StrictHostKeyChecking accept-new
 
-Host int-dev-agents-public int-dev-codex-public int-dev-openclaw-public
+Host int-dev-runtime-public int-dev-codex-public int-dev-hermes-public
     HostName vds.intdata.pro
-    User agents
+    User dev
     IdentityFile ~/.ssh/id_ed25519_vds_intdata_agents
     IdentitiesOnly yes
     BatchMode yes
@@ -37,9 +37,9 @@ Host int-dev-intdata-tailnet
     ConnectTimeout 5
     StrictHostKeyChecking accept-new
 
-Host int-dev-agents-tailnet int-dev-codex-tailnet int-dev-openclaw-tailnet
+Host int-dev-runtime-tailnet int-dev-codex-tailnet int-dev-hermes-tailnet
     HostName vds-intdata-pro.tailf0f164.ts.net
-    User agents
+    User dev
     IdentityFile ~/.ssh/id_ed25519_vds_intdata_agents
     IdentitiesOnly yes
     BatchMode yes

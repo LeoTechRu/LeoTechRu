@@ -33,7 +33,7 @@ python d:\int\tools\vault\installers\vault_sanitize.py --profile strict --apply
 - Local: `D:\int\.tmp\brain-runtime-vault`
 - VDS: `/int/.tmp/brain-runtime-vault`
 
-Legacy path `agents@vds.intdata.pro:/int/brain/runtime/vault` (or `/int/brain/runtime/vault` when already on VDS) is supported only as explicit override and emits a deprecation warning.
+Legacy path `/int/brain/runtime/vault` (when already on VDS) is supported only as explicit override and emits a deprecation warning.
 
 ## `runtime_vault_gc.py`
 

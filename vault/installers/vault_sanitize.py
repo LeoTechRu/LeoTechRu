@@ -290,7 +290,7 @@ def action_to_dict(vault_root: Path, brain_root: Path, action: Action, exists: b
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Vault sanitization: move operational artifacts out of Obsidian vault.")
     parser.add_argument("--vault-root", default=r"D:\Yandex.Disk\2brain", help="Vault path (local or /2brain on VDS).")
-    parser.add_argument("--brain-root", default="agents@vds.intdata.pro:/int/brain", help="int/brain repo root on agents@vds.intdata.pro.")
+    parser.add_argument("--brain-root", default="dev@vds.intdata.pro:/int/brain", help="int/brain repo root on dev@vds.intdata.pro.")
     parser.add_argument("--tools-root", default=r"D:\int\tools", help="int/tools root path (local or /int/tools on VDS).")
     parser.add_argument(
         "--runtime-root",

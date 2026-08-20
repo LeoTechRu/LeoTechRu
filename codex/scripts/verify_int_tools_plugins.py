@@ -438,7 +438,7 @@ def verify_guard_cases(profile: str) -> None:
             ("openspec_archive", {"change_name": "guard-negative"}),
             ("openspec_change_mutate", {"subcommand": "set", "args": ["guard-negative"]}),
         ],
-        "intdata-runtime": [("host_bootstrap", {}), ("recovery_bundle", {}), ("ssh_execute", {"host": "dev-agents", "argv": ["true"], "execution_mode": "mutation"}), ("browser_profile_launch", {"profile": "firefox-default"}), ("intdata_vault_sanitize", {"dry_run": False})],
+        "intdata-runtime": [("host_bootstrap", {}), ("recovery_bundle", {}), ("ssh_execute", {"host": "dev-runtime", "argv": ["true"], "execution_mode": "mutation"}), ("browser_profile_launch", {"profile": "firefox-default"}), ("intdata_vault_sanitize", {"dry_run": False})],
         "intbrain": [("intbrain_context_store", {"owner_id": 1, "kind": "note", "title": "guard", "text_content": "guard"}), ("intbrain_pm_task_create", {"owner_id": 1, "title": "guard"}), ("intbrain_jobs_sync_runtime", {"owner_id": 1})],
     }
     requests = [{"id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05"}}]

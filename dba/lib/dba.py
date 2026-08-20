@@ -19,7 +19,7 @@ from urllib.parse import urlsplit, urlunsplit
 TOOL_ROOT = Path(__file__).resolve().parents[1]
 INT_ROOT = TOOL_ROOT.parent.parent
 DEFAULT_DATA_REPO_ENV = "DBA_DATA_REPO"
-REMOTE_DATA_REPO_HINT = "agents@vds.intdata.pro:/int/data"
+REMOTE_DATA_REPO_HINT = "dev@vds.intdata.pro:/int/data"
 PROFILE_PATTERN = re.compile(r"^DBA_PROFILE__([A-Z0-9_]+)__([A-Z0-9_]+)$")
 SAFE_TABLE_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$")
 WINDOWS_PG_ROOT = Path(r"C:\Program Files\PostgreSQL")
@@ -188,7 +188,7 @@ def _resolve_data_repo(requested_repo: str | None) -> Path:
         raise DBAError(
             "Не удалось автоматически найти repo `/int/data`: локальный Windows checkout `D:\\int\\data` "
             f"не является dev backend default. Для работы с dev backend intdata используйте remote checkout "
-            f"`{REMOTE_DATA_REPO_HINT}`, например через `ssh agents@vds.intdata.pro` и `cd /int/data`, "
+            f"`{REMOTE_DATA_REPO_HINT}`, например через `ssh dev@vds.intdata.pro` и `cd /int/data`, "
             "либо передайте явный локальный --repo/DBA_DATA_REPO для осознанного disposable flow."
         )
     if sibling_repo.exists():

@@ -107,7 +107,7 @@ Post-change checks must confirm:
 ## SSH Access Layer (v1)
 
 - Use standard OpenSSH over tailnet (do not switch to Tailscale SSH by default).
-- dev agent aliases target the consolidated `agents` runtime user, not blanket root.
+- dev runtime aliases target the consolidated `dev` runtime user, not blanket root.
 - prod alias must target restricted read-first user only.
 - local PC OpenSSH stays fallback-only unless owner asks to make it primary.
 - repo-managed transport layer:
@@ -117,7 +117,7 @@ Post-change checks must confirm:
 
 Operator entrypoints in current workspace:
 
-- `ssh vds-intdata-agents`
+- `ssh vds`
 
 ## Process Matrix (tailnet-first vs public)
 

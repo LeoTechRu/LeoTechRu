@@ -229,7 +229,7 @@
 - Обновлены `vault/installers/README.md` и корневой `README.md` с новым CLI-контрактом и примерами для local/VDS.
 
 ### Принят canonical vault tooling из `/int/brain`
-- Добавлен новый machine-wide модуль `vault/installers/` с переносом installer-контента из `agents@vds.intdata.pro:/int/brain/tools/vault/installers`.
+- Добавлен новый machine-wide модуль `vault/installers/` с переносом installer-контента из `dev@vds.intdata.pro:/int/brain/tools/vault/installers`.
 - `vault_sanitize.py` переведён на canonical контур `/int/tools`: добавлены `--tools-root`, профили whitelist (`strict|balanced|permissive`, default `strict`) и legacy-алиас `--enforce-whitelist`.
 - Добавлен `runtime_vault_gc.py` для архивирования и очистки `runtime/vault` с поддержкой `--dry-run`/`--apply`.
 - Обновлён `vault/installers/README.md` под новый путь запуска и профильную политику.

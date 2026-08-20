@@ -144,7 +144,7 @@ class RegistrationTests(unittest.TestCase):
         self.assertFalse(any(call[1:3] == ["mcp", "remove"] for call in fake.calls))
 
     def test_plugin_cache_origin_is_refused(self):
-        fake = FakeCodex([row("intdata-control", "/usr/bin/python3", ["/home/agents/.codex/plugins/cache/retired-plugin/runtime.py"])])
+        fake = FakeCodex([row("intdata-control", "/usr/bin/python3", ["/home/dev/.codex/plugins/cache/retired-plugin/runtime.py"])])
         with tempfile.TemporaryDirectory() as directory:
             rc = registration.main(["--python", str(self.python), "--apply", "--replace", "--backup-dir", directory], runner=fake)
         self.assertEqual(rc, 1)

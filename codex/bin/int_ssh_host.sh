@@ -6,7 +6,7 @@ usage() {
 Resolve logical SSH target for /int transport layer.
 
 Usage:
-  int_ssh_host.sh --logical <dev-intdata|dev-agents|prod-leon> [--mode auto|tailnet|public]
+  int_ssh_host.sh --logical <dev-intdata|dev-runtime|prod-leon> [--mode auto|tailnet|public]
 
 Output:
   destination to stdout
