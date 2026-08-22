@@ -6,8 +6,8 @@
     "kid": "platform.assertion.2026-08"
   },
   "claims": {
-    "iss": "https://identity.intdata.pro",
-    "aud": "https://api.intdata.pro",
+    "iss": "https://api.intdata.pro/functions/v1/platform-identity",
+    "aud": "https://platform-tools.intdata.pro/v1",
     "sub": "123e4567-e89b-12d3-a456-426614174000",
     "principal_type": "user",
     "organization_id": "123e4567-e89b-12d3-a456-426614174001",

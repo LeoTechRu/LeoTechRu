@@ -486,16 +486,16 @@ def validate_delegated_vector_sets(vectors: dict[str, Any]) -> dict[str, int]:
         (
             "urn:intdata:conformance:platform-product-assertion:v1",
             "conformance/platform-product-assertion-v1.vectors.json",
-            "36431fc32257713473059bffefe76caa5fd93aaa36c39c0da17cd6dbfb996304",
+            "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46",
             "conformance/terminal-dependency-digests.json",
-            "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27",
+            "000e868d2b972d8ad11af021f7df052fbf81fb3d60f09ed1373ed114e273a9e4",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-uri:v1",
             "conformance/bridge-oauth-registration-uri-v1.vectors.json",
             "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
             "conformance/terminal-dependency-digests.json",
-            "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27",
+            "000e868d2b972d8ad11af021f7df052fbf81fb3d60f09ed1373ed114e273a9e4",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
@@ -538,7 +538,9 @@ def validate_delegated_vector_sets(vectors: dict[str, Any]) -> dict[str, int]:
         "approval_receipt_positive_vectors": positives,
         "approval_receipt_adverse_vectors": adverses,
         "delegated_artifact_digests": (
-            terminal_checked["artifact_digests"] + receipt.validate_digests()
+            terminal_checked["ppa_artifact_digests"]
+            + terminal_checked["terminal_artifact_digests"]
+            + receipt.validate_digests()
         ),
     }
 
