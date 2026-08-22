@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import ntpath
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -219,17 +220,21 @@ def _process_env(profile: Profile, *, read_only: bool = False, extra: dict[str, 
 
 
 def _prepend_path_entry(path_value: str, entry: Path) -> str:
-    resolved_entry = str(entry.resolve())
+    raw_entry = str(entry)
+    windows_path = bool(ntpath.splitdrive(raw_entry)[0])
+    path_module = ntpath if windows_path else os.path
+    separator = ";" if windows_path else os.pathsep
+    resolved_entry = ntpath.normpath(raw_entry) if windows_path else str(entry.resolve())
     if not path_value:
         return resolved_entry
-    parts = [part for part in path_value.split(os.pathsep) if part]
-    normalized_entry = os.path.normcase(os.path.normpath(resolved_entry))
+    parts = [part for part in path_value.split(separator) if part]
+    normalized_entry = path_module.normcase(path_module.normpath(resolved_entry))
     filtered = [
         part
         for part in parts
-        if os.path.normcase(os.path.normpath(part)) != normalized_entry
+        if path_module.normcase(path_module.normpath(part)) != normalized_entry
     ]
-    return os.pathsep.join([resolved_entry, *filtered])
+    return separator.join([resolved_entry, *filtered])
 
 
 def _candidate_pg_paths(command_name: str) -> list[Path]:
@@ -1787,7 +1792,12 @@ def _cmd_migrate_data(args: argparse.Namespace) -> int:
 
     if args.mode == "incremental":
         bash_path = _require_bash()
-        psql_dir = Path(_require_pg_command("psql")).resolve().parent
+        psql_path = _require_pg_command("psql")
+        psql_dir = (
+            Path(ntpath.dirname(psql_path))
+            if ntpath.splitdrive(psql_path)[0]
+            else Path(psql_path).resolve().parent
+        )
         incremental_env = dict(env)
         incremental_env["PATH"] = _prepend_path_entry(os.environ.get("PATH", ""), psql_dir)
         _run_checked(

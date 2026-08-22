@@ -112,6 +112,25 @@ def _error_key(error: Any) -> tuple[bytes, bytes, bytes]:
     )
 
 
+def _actionable_error(error: Any) -> Any:
+    if error.validator not in {"oneOf", "anyOf"} or not error.context:
+        return error
+    branches: dict[object, list[Any]] = {}
+    for child in error.context:
+        relative_schema_path = tuple(child.relative_schema_path)
+        branch = relative_schema_path[0] if relative_schema_path else None
+        branches.setdefault(branch, []).append(child)
+    candidates = min(
+        branches.values(),
+        key=lambda branch_errors: (
+            len(branch_errors),
+            tuple(_error_key(item) for item in sorted(branch_errors, key=_error_key)),
+        ),
+    )
+    selected = best_match(sorted(candidates, key=_error_key))
+    return _actionable_error(selected) if selected is not None else error
+
+
 def validate_document(document: Mapping[str, object]) -> None:
     if not isinstance(document, Mapping):
         raise ContractValidationError("invalid_document")
@@ -120,6 +139,7 @@ def validate_document(document: Mapping[str, object]) -> None:
         selected = best_match(errors)
         if selected is None:
             raise ContractValidationError("schema_violation")
+        selected = _actionable_error(selected)
         raise ContractValidationError(
             "schema_violation", tuple(selected.absolute_path)
         )

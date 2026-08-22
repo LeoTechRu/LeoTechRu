@@ -2,6 +2,14 @@
 
 Этот файл фиксирует понятные записи по каждому локальному commit репозитория `/int/tools`. Запись готовится перед commit и входит в тот же commit.
 
+## 2026-08-22
+### Публичный каталог и совместимость пакетов восстановлены
+- Каталог публичной поверхности синхронизирован с фактическими top-level модулями; отсутствующий `openclaw` удалён, а contracts, validators, tests, OpenSpec и MCP-контуры классифицированы явно.
+- Catalog gate теперь допускает публичные `AGENTS.md` и product-local OpenSpec, но по-прежнему блокирует private `.codex`-артефакты.
+- MCP-пакеты на legacy `mcp.server.fastmcp` ограничены совместимой major-версией `mcp<2`; metadata amoCRM MCP приведена к актуальному PEP 639/setuptools.
+- Python carrier connector contracts стабильно выбирает actionable schema error внутри `oneOf`/`anyOf` на актуальных `jsonschema`, сохраняя закрытые reason/path envelopes.
+- DBA корректно формирует Windows `PATH` и каталог `psql` независимо от ОС, на которой выполняется regression suite.
+
 ## 2026-07-19
 ### amoCRM MCP: agent-agnostic root и полный публичный HTTP API registry
 - Канонический source перенесён из `codex/tools/amocrm-mcp/` в top-level [amocrm-mcp/](/int/tools/amocrm-mcp), чтобы один пакет использовался Codex, Hermes и другими MCP-host'ами.
