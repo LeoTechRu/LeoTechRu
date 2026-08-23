@@ -132,8 +132,7 @@
   - `/int/brain/mcp/intbrain/bin/mcp-intbrain --stdio`
   - `python /int/brain/mcp/intbrain/bin/mcp-intbrain.py`
 - `/int/tools/codex/bin/mcp-intdata-cli.py --profile intbrain` is now a thin compatibility wrapper that delegates to `/int/brain`.
-- `/int/tools/codex/plugins/intbrain/.mcp.json` now points to `D:\int\brain\mcp\intbrain\bin\mcp-intbrain.py`.
-- IntBrain Codex plugin source and skills source-of-truth moved to `/int/brain/codex/plugins/intbrain/`.
+- IntBrain Codex plugin source, skills and private catalog moved to `/int/brain/codex/plugins/intbrain/`; `/int/tools` retains no private product payload.
 
 ### finalize: закрыт pending server-state по `mcp-intbrain` и `mcp-memory-bank`
 - В `codex/bin/mcp-intbrain.py` добавлена нормализация PM date-алиасов (`today|tomorrow|yesterday`) с учётом timezone для `pm/*` инструментов (`dashboard/tasks/health/constraints/task_create/task_patch`).
