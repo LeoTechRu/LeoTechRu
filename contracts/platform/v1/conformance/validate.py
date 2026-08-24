@@ -566,6 +566,14 @@ def validate_release_manifest_semantics(
         raise ConformanceError("role")
 
 
+def validate_resolver_result_semantics(result: dict[str, Any]) -> None:
+    if result["status"] != "resolved":
+        return
+    actual = hashlib.sha256(jcs_canonical(result["lock"])).hexdigest()
+    if result["lock_sha256"] != actual:
+        raise ConformanceError("lock_digest")
+
+
 def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:
     expected_roles = ["installation-actor", "module", "registry", "scan"]
     entries = snapshot["accepted_signers"]
@@ -583,6 +591,7 @@ def run() -> dict[str, int]:
     validate_schema_set(schemas)
     vectors = load_source_json(VECTORS_PATH, enforce_data_policy=False)
     schema_count = 0
+    resolver_result_count = 0
     for fixture in vectors["schema_fixtures"]:
         document = load_source_json(ROOT / fixture["path"])
         errors = list(
@@ -590,6 +599,12 @@ def run() -> dict[str, int]:
         )
         if bool(errors) == fixture["valid"]:
             raise ConformanceError("fixture", fixture["path"])
+        if (
+            fixture["schema_id"] == "urn:intdata:schema:resolver-result:v1"
+            and not errors
+        ):
+            validate_resolver_result_semantics(document)
+            resolver_result_count += 1
         schema_count += 1
     mutation_count = 0
     for vector in vectors["schema_mutations"]:
@@ -720,6 +735,7 @@ def run() -> dict[str, int]:
         "release_keyset_vectors": keyset_count,
         "bootstrap_root_vectors": bootstrap_adverse_count + 1,
         "release_manifest_vectors": release_manifest_count,
+        "resolver_result_vectors": resolver_result_count,
         "registry_signer_vectors": registry_signer_count,
         "priority_artifact_digests": validate_priority_digests(),
     }

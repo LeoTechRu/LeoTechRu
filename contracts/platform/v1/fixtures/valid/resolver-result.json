@@ -29,7 +29,7 @@
     "mcp_bindings": [],
     "runtime_bindings": []
   },
-  "lock_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "lock_sha256": "2cfbc938b284e46f0da1dd891644605089f629469d3767a7bdb10ef8d5623b73",
   "acceptance_signature": {
     "role": "installation-actor",
     "envelope": {
