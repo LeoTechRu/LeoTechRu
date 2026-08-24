@@ -154,7 +154,7 @@ prod -> dev/local PC  : must not be open by default
 ## Probe Dual-Check Notes
 
 - `probe` keeps external monitoring intact and adds private `tailnet` collector.
-- `PROBE_AGENT_COLLECTORS` must include `tailnet` for private channel checks.
+- `INTNODE_COLLECTORS` must include `tailnet` for private channel checks.
 - `tailnet` collector evaluates:
   - `tailscale status --json` backend state;
   - required peer online status;
