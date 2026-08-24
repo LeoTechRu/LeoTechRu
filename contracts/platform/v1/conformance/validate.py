@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import copy
 import hashlib
 import importlib.util
@@ -569,9 +570,18 @@ def validate_release_manifest_semantics(
 def validate_resolver_result_semantics(result: dict[str, Any]) -> None:
     if result["status"] != "resolved":
         return
-    actual = hashlib.sha256(jcs_canonical(result["lock"])).hexdigest()
+    lock_bytes = jcs_canonical(result["lock"])
+    actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
         raise ConformanceError("lock_digest")
+    try:
+        signed_payload = base64.b64decode(
+            result["acceptance_signature"]["envelope"]["payload"], validate=True
+        )
+    except (ValueError, binascii.Error) as error:
+        raise ConformanceError("acceptance_payload") from error
+    if signed_payload != lock_bytes:
+        raise ConformanceError("acceptance_payload")
 
 
 def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:

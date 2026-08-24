@@ -29,6 +29,14 @@ def test_resolver_result_rejects_stale_lock_digest() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document)
 
 
+def test_resolver_result_rejects_acceptance_payload_for_different_lock() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    document["acceptance_signature"]["envelope"]["payload"] = "e30="
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^acceptance_payload"):
+        CONFORMANCE.validate_resolver_result_semantics(document)
+
+
 def test_rejected_resolver_result_has_no_lock_digest_binding() -> None:
     CONFORMANCE.validate_resolver_result_semantics(
         {
