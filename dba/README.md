@@ -31,7 +31,7 @@
 - `python` или `py` в `PATH`;
 - `psql`, `pg_dump`, `pg_restore` в `PATH` или в стандартном каталоге `C:\Program Files\PostgreSQL\<version>\bin`;
 - сетевой доступ до нужных PostgreSQL endpoint'ов;
-- для `migrate *`: на Windows локальный `D:\int\data` не является default; dev backend work выполняется через `agents@vds.intdata.pro:/int/data`, а disposable/local flow требует явный `--repo` или `DBA_DATA_REPO`;
+- для `migrate *`: на Windows локальный `D:\int\data` не является default; dev backend work выполняется через `dev@vds.intdata.pro:/int/data`, а disposable/local flow требует явный `--repo` или `DBA_DATA_REPO`;
 - на Linux remote host допускается sibling checkout `/int/data`;
 - для `migrate data --mode incremental`: `bash` из Git for Windows или иной совместимый `bash`.
 
@@ -82,7 +82,7 @@ python /int/tools/dba/bin/pg-dev-migrate.py --path /path/to/change.sql --write -
 - Wrappers должны использовать только custom роли.
 - Raw `psql` с ad-hoc DSN для agent workflow запрещен process-policy.
 - `vds.intdata.pro` больше не используется как disposable test contour для `/int/data`; live remote contour остаётся только `intdata`.
-- Для dev backend intdata не используйте локальный `D:\int\data`; заходите в `agents@vds.intdata.pro:/int/data` и запускайте owner flow там.
+- Для dev backend intdata не используйте локальный `D:\int\data`; заходите в `dev@vds.intdata.pro:/int/data` и запускайте owner flow там.
 
 ## Local disposable Supabase runner
 

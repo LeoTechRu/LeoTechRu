@@ -9,7 +9,7 @@ Canonical source:
 
 ## Symptom
 
-Codex on `agents@vds.intdata.pro` must reach external network targets through local v2ray/v2rayA proxies:
+Codex on `dev@vds.intdata.pro` must reach external network targets through local v2ray/v2rayA proxies:
 
 - HTTP proxy: `http://127.0.0.1:20171`
 - SOCKS proxy: `socks5h://127.0.0.1:20170`
