@@ -41,6 +41,17 @@ def test_resolver_result_rejects_stale_lock_digest() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolver_result_rejects_alternate_acceptance_payload_type() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+    document["acceptance_signature"]["envelope"]["payloadType"] = "application/json"
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^acceptance_payload_type"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_rejects_acceptance_payload_for_different_lock() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)

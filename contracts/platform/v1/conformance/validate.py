@@ -653,9 +653,12 @@ def validate_resolver_result_semantics(
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
         raise ConformanceError("lock_digest")
+    envelope = result["acceptance_signature"]["envelope"]
+    if envelope["payloadType"] != "application/vnd.intdata.installation-lock.v1+json":
+        raise ConformanceError("acceptance_payload_type")
     try:
         signed_payload = base64.b64decode(
-            result["acceptance_signature"]["envelope"]["payload"], validate=True
+            envelope["payload"], validate=True
         )
     except (ValueError, binascii.Error) as error:
         raise ConformanceError("acceptance_payload") from error
