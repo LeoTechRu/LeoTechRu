@@ -61,6 +61,29 @@ def test_resolver_result_rejects_acceptance_payload_for_different_lock() -> None
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolver_result_treats_acceptance_keyid_as_hint() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+    document["acceptance_signature"]["envelope"]["signatures"][0]["keyid"] = (
+        "key.module"
+    )
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolver_result_rejects_missing_installation_actor_admission() -> None:
+    document = CONFORMANCE.load_source_json(FIXTURE_PATH)
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    resolver_input["registry_snapshot"]["accepted_signers"] = [
+        entry
+        for entry in resolver_input["registry_snapshot"]["accepted_signers"]
+        if entry["role"] != "installation-actor"
+    ]
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^accepted_signer_roles"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_rejected_resolver_result_has_no_lock_digest_binding() -> None:
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
     CONFORMANCE.validate_resolver_result_semantics(

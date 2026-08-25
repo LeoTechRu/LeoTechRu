@@ -623,6 +623,7 @@ def validate_resolver_result_semantics(
 ) -> None:
     if result["status"] != "resolved":
         return
+    validate_registry_signer_semantics(resolver_input["registry_snapshot"])
     lock = result["lock"]
     expected_bindings = {
         "installation_id": resolver_input["installation"]["installation_id"],
