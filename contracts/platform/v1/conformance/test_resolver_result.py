@@ -62,6 +62,37 @@ def _refresh_lock_binding(document: dict) -> None:
     ).decode("ascii")
 
 
+def _add_registry_module_and_artifact_binding(document: dict, resolver_input: dict) -> None:
+    registry = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)
+    entry = registry["modules"][0]
+    module = entry["module"]
+    artifact = module["artifacts"][0]
+    resolver_input["registry_snapshot"]["modules"] = registry["modules"]
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"] = [
+        {
+            "module_id": module["module_id"],
+            "version": module["version"],
+            "manifest_sha256": entry["manifest_sha256"],
+            "release_manifest_sha256": entry["release_manifest_sha256"],
+            "signature_envelope_sha256": entry["signature_envelope_sha256"],
+        }
+    ]
+    document["lock"]["artifact_bindings"] = [
+        {
+            "artifact_id": artifact["artifact_id"],
+            "module_id": module["module_id"],
+            "sha256": artifact["sha256"],
+            "size_bytes": artifact["size_bytes"],
+            "locations": ["https://artifacts.example/bridge-core.tar.gz"],
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
 def test_resolver_result_binds_canonical_lock_digest() -> None:
     document = CONFORMANCE.load_source_json(FIXTURE_PATH)
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
@@ -229,6 +260,41 @@ def test_resolved_result_rejects_module_digest_not_admitted_by_registry(
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("module_id", "other.module"),
+        ("artifact_id", "other.package"),
+        ("sha256", "6" * 64),
+        ("size_bytes", "2048"),
+    ],
+)
+def test_resolved_result_rejects_artifact_not_bound_to_admitted_manifest(
+    field: str, value: str
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["artifact_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^artifact_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_artifact_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["artifact_bindings"].append(
+        copy.deepcopy(document["lock"]["artifact_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^artifact_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

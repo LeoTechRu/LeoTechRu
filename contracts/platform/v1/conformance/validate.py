@@ -666,6 +666,7 @@ def validate_resolver_result_semantics(
             raise ConformanceError("registry_module_binding", "duplicate registry module")
         registry_modules[key] = entry
     resolved_keys: set[tuple[str, str]] = set()
+    resolved_manifests: dict[str, dict[str, Any]] = {}
     for resolved in lock["resolved_modules"]:
         key = (resolved["module_id"], resolved["version"])
         if key in resolved_keys:
@@ -681,6 +682,30 @@ def validate_resolver_result_semantics(
             )
         ):
             raise ConformanceError("registry_module_binding", resolved["module_id"])
+        if resolved["module_id"] in resolved_manifests:
+            raise ConformanceError("registry_module_binding", "multiple resolved versions")
+        resolved_manifests[resolved["module_id"]] = registry_entry["module"]
+    artifact_keys: set[tuple[str, str]] = set()
+    for binding in lock["artifact_bindings"]:
+        key = (binding["module_id"], binding["artifact_id"])
+        if key in artifact_keys:
+            raise ConformanceError("artifact_binding", "duplicate artifact")
+        artifact_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("artifact_binding", binding["module_id"])
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if candidate["artifact_id"] == binding["artifact_id"]
+            ),
+            None,
+        )
+        if artifact is None or any(
+            binding[field] != artifact[field] for field in ("sha256", "size_bytes")
+        ):
+            raise ConformanceError("artifact_binding", binding["artifact_id"])
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
