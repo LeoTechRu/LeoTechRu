@@ -618,9 +618,37 @@ def validate_release_manifest_semantics(
         raise ConformanceError("role")
 
 
-def validate_resolver_result_semantics(result: dict[str, Any]) -> None:
+def validate_resolver_result_semantics(
+    result: dict[str, Any], resolver_input: dict[str, Any]
+) -> None:
     if result["status"] != "resolved":
         return
+    lock = result["lock"]
+    expected_bindings = {
+        "installation_id": resolver_input["installation"]["installation_id"],
+        "installation_revision": resolver_input["installation"]["revision"],
+        "installation_sha256": resolver_input["installation_sha256"],
+        "registry_id": resolver_input["registry_snapshot"]["registry_id"],
+        "registry_version": resolver_input["registry_snapshot"]["version"],
+        "registry_sha256": resolver_input["registry_snapshot_sha256"],
+        "resolver_version": resolver_input["resolver_version"],
+        "solver_policy_version": resolver_input["solver_policy_version"],
+        "policy_input_sha256": resolver_input["policy_input_sha256"],
+    }
+    actual_bindings = {
+        "installation_id": lock["installation"]["installation_id"],
+        "installation_revision": lock["installation"]["revision"],
+        "installation_sha256": lock["installation"]["sha256"],
+        "registry_id": lock["registry_snapshot"]["registry_id"],
+        "registry_version": lock["registry_snapshot"]["version"],
+        "registry_sha256": lock["registry_snapshot"]["sha256"],
+        "resolver_version": lock["resolver_version"],
+        "solver_policy_version": lock["solver_policy_version"],
+        "policy_input_sha256": lock["policy_input_sha256"],
+    }
+    for field, expected in expected_bindings.items():
+        if actual_bindings[field] != expected:
+            raise ConformanceError("resolver_input_binding", field)
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
@@ -651,6 +679,7 @@ def run() -> dict[str, int]:
     schemas, registry = _schema_registry()
     validate_schema_set(schemas)
     vectors = load_source_json(VECTORS_PATH, enforce_data_policy=False)
+    resolver_input = load_source_json(ROOT / "fixtures/valid/resolver-input.json")
     schema_count = 0
     resolver_result_count = 0
     for fixture in vectors["schema_fixtures"]:
@@ -664,7 +693,7 @@ def run() -> dict[str, int]:
             fixture["schema_id"] == "urn:intdata:schema:resolver-result:v1"
             and not errors
         ):
-            validate_resolver_result_semantics(document)
+            validate_resolver_result_semantics(document, resolver_input)
             resolver_result_count += 1
         schema_count += 1
     mutation_count = 0
