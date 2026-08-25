@@ -18,6 +18,9 @@ REJECTED_FIXTURE_PATH = (
     MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-result-rejected.json"
 )
 INPUT_FIXTURE_PATH = MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-input.json"
+REGISTRY_FIXTURE_PATH = (
+    MODULE_PATH.parents[1] / "fixtures" / "valid" / "registry-snapshot.json"
+)
 
 REJECTED_ERROR_CODES = [
     "missing_capability",
@@ -165,6 +168,38 @@ def test_resolver_result_rejects_missing_installation_actor_admission() -> None:
     _refresh_embedded_digest(resolver_input, "registry_snapshot")
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^accepted_signer_roles"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_registry_snapshot_binds_embedded_module_manifest_digest() -> None:
+    snapshot = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)
+
+    CONFORMANCE.validate_registry_signer_semantics(snapshot)
+
+
+@pytest.mark.parametrize("mutate_manifest", [False, True])
+def test_registry_snapshot_rejects_stale_module_manifest_digest(
+    mutate_manifest: bool,
+) -> None:
+    snapshot = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)
+    if mutate_manifest:
+        snapshot["modules"][0]["module"]["module_id"] = "bridge.changed"
+    else:
+        snapshot["modules"][0]["manifest_sha256"] = "6" * 64
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_digest"):
+        CONFORMANCE.validate_registry_signer_semantics(snapshot)
+
+
+def test_resolved_result_rejects_stale_registry_module_manifest_digest() -> None:
+    document = CONFORMANCE.load_source_json(FIXTURE_PATH)
+    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+    registry = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)
+    registry["modules"][0]["module"]["module_id"] = "bridge.changed"
+    resolver_input["registry_snapshot"]["modules"] = registry["modules"]
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_digest"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

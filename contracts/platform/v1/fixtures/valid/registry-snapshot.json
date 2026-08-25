@@ -55,7 +55,7 @@
         "runtime_units": [],
         "configuration_requirements": []
       },
-      "manifest_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "manifest_sha256": "4fad5fd6f9b95f411402db5635ed7d49964d7e1a1a94311665ea116c8bce3131",
       "release_manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
       "signature_envelope_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
     }
