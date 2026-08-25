@@ -17,7 +17,7 @@
       "preferred_modules": []
     }
   },
-  "installation_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+  "installation_sha256": "9e182f199b8d7461ddca9e372e9c2629955452b0b7263ad03245876fecf3440e",
   "registry_snapshot": {
     "schema_version": "RegistrySnapshotV1",
     "registry_id": "intdata.registry",
@@ -37,7 +37,7 @@
     ],
     "modules": []
   },
-  "registry_snapshot_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+  "registry_snapshot_sha256": "033d2429df883d70721420083ced60510b685a8144ee7691a8037e61b226fdf7",
   "resolver_version": "1.0.0",
   "solver_policy_version": "1.0.0",
   "policy_input_sha256": "5555555555555555555555555555555555555555555555555555555555555555",

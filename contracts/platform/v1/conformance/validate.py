@@ -621,6 +621,15 @@ def validate_release_manifest_semantics(
 def validate_resolver_result_semantics(
     result: dict[str, Any], resolver_input: dict[str, Any]
 ) -> None:
+    for document_field, digest_field in (
+        ("installation", "installation_sha256"),
+        ("registry_snapshot", "registry_snapshot_sha256"),
+    ):
+        actual_digest = hashlib.sha256(
+            jcs_canonical(resolver_input[document_field])
+        ).hexdigest()
+        if resolver_input[digest_field] != actual_digest:
+            raise ConformanceError("resolver_input_digest", document_field)
     if result["status"] != "resolved":
         return
     validate_registry_signer_semantics(resolver_input["registry_snapshot"])
