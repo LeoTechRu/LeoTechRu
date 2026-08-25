@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import copy
 import hashlib
 import importlib.util
@@ -51,6 +52,14 @@ def _refresh_embedded_digest(resolver_input: dict, document_field: str) -> None:
     resolver_input[digest_field] = hashlib.sha256(
         CONFORMANCE.jcs_canonical(resolver_input[document_field])
     ).hexdigest()
+
+
+def _refresh_lock_binding(document: dict) -> None:
+    lock_bytes = CONFORMANCE.jcs_canonical(document["lock"])
+    document["lock_sha256"] = hashlib.sha256(lock_bytes).hexdigest()
+    document["acceptance_signature"]["envelope"]["payload"] = base64.b64encode(
+        lock_bytes
+    ).decode("ascii")
 
 
 def test_resolver_result_binds_canonical_lock_digest() -> None:
@@ -191,15 +200,35 @@ def test_registry_snapshot_rejects_stale_module_manifest_digest(
         CONFORMANCE.validate_registry_signer_semantics(snapshot)
 
 
-def test_resolved_result_rejects_stale_registry_module_manifest_digest() -> None:
-    document = CONFORMANCE.load_source_json(FIXTURE_PATH)
-    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+@pytest.mark.parametrize(
+    "field",
+    ["manifest_sha256", "release_manifest_sha256", "signature_envelope_sha256"],
+)
+def test_resolved_result_rejects_module_digest_not_admitted_by_registry(
+    field: str,
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
     registry = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)
-    registry["modules"][0]["module"]["module_id"] = "bridge.changed"
     resolver_input["registry_snapshot"]["modules"] = registry["modules"]
     _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    entry = registry["modules"][0]
+    document["lock"]["resolved_modules"] = [
+        {
+            "module_id": entry["module"]["module_id"],
+            "version": entry["module"]["version"],
+            "manifest_sha256": entry["manifest_sha256"],
+            "release_manifest_sha256": entry["release_manifest_sha256"],
+            "signature_envelope_sha256": entry["signature_envelope_sha256"],
+        }
+    ]
+    document["lock"]["resolved_modules"][0][field] = "6" * 64
+    _refresh_lock_binding(document)
 
-    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_digest"):
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

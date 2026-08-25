@@ -659,6 +659,28 @@ def validate_resolver_result_semantics(
     for field, expected in expected_bindings.items():
         if actual_bindings[field] != expected:
             raise ConformanceError("resolver_input_binding", field)
+    registry_modules: dict[tuple[str, str], dict[str, Any]] = {}
+    for entry in resolver_input["registry_snapshot"]["modules"]:
+        key = (entry["module"]["module_id"], entry["module"]["version"])
+        if key in registry_modules:
+            raise ConformanceError("registry_module_binding", "duplicate registry module")
+        registry_modules[key] = entry
+    resolved_keys: set[tuple[str, str]] = set()
+    for resolved in lock["resolved_modules"]:
+        key = (resolved["module_id"], resolved["version"])
+        if key in resolved_keys:
+            raise ConformanceError("registry_module_binding", "duplicate resolved module")
+        resolved_keys.add(key)
+        registry_entry = registry_modules.get(key)
+        if registry_entry is None or any(
+            resolved[field] != registry_entry[field]
+            for field in (
+                "manifest_sha256",
+                "release_manifest_sha256",
+                "signature_envelope_sha256",
+            )
+        ):
+            raise ConformanceError("registry_module_binding", resolved["module_id"])
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
