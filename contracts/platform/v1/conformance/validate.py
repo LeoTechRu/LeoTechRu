@@ -56,6 +56,26 @@ EXPECTED_SCHEMAS = {
     ),
 }
 
+EXPECTED_SCHEMA_NAMES = {
+    "urn:intdata:schema:module-manifest:v1": "ModuleManifestV1",
+    "urn:intdata:schema:installation-manifest:v1": "InstallationManifestV1",
+    "urn:intdata:schema:registry-snapshot:v1": "RegistrySnapshotV1",
+    "urn:intdata:schema:resolver-input:v1": "ResolverInputV1",
+    "urn:intdata:schema:resolver-result:v1": "ResolverResultV1",
+    "urn:intdata:schema:installation-lock:v1": "InstallationLockV1",
+    "urn:intdata:schema:release-manifest:v1": "ReleaseManifestV1",
+    "urn:intdata:schema:signature-envelope:v1": "SignatureEnvelopeV1",
+    "urn:intdata:schema:trust-bundle:v1": "TrustBundleV1",
+    "urn:intdata:schema:scan-attestation:v1": "ScanAttestationV1",
+    "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1": (
+        "BridgeOAuthRegistrationApprovalReceiptV1"
+    ),
+    "urn:intdata:schema:release-verification-key-set:v1": (
+        "ReleaseVerificationKeySetV1"
+    ),
+    "urn:intdata:schema:platform-product-assertion:v1": "PlatformProductAssertionV1",
+}
+
 
 class ConformanceError(ValueError):
     """Closed conformance failure with a stable reason code."""
@@ -213,7 +233,8 @@ def validate_schema_set(schemas: dict[str, Any]) -> None:
             raise ConformanceError("schema-set", "duplicate or unknown schema id")
         seen.add(schema_id)
         if (
-            entry.get("version") != "v1"
+            entry.get("name") != EXPECTED_SCHEMA_NAMES[schema_id]
+            or entry.get("version") != "v1"
             or entry.get("filename") != EXPECTED_SCHEMAS[schema_id]
         ):
             raise ConformanceError("schema-set", f"metadata mismatch for {schema_id}")
