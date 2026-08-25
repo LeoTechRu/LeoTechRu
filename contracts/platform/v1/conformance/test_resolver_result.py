@@ -298,6 +298,66 @@ def test_resolved_result_rejects_duplicate_artifact_binding() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_accepts_capability_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "bridge.oauth",
+            "provider_module_id": "bridge.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    _refresh_lock_binding(document)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("capability_id", "bridge.unknown"),
+        ("provider_module_id", "other.module"),
+        ("provider_version", "2.0.0"),
+    ],
+)
+def test_resolved_result_rejects_capability_not_bound_to_admitted_manifest(
+    field: str, value: str
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "bridge.oauth",
+            "provider_module_id": "bridge.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    document["lock"]["capability_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^capability_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_capability_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    binding = {
+        "capability_id": "bridge.oauth",
+        "provider_module_id": "bridge.core",
+        "provider_version": "1.0.0",
+    }
+    document["lock"]["capability_bindings"] = [binding, copy.deepcopy(binding)]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^capability_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_rejected_resolver_result_has_no_lock_digest_binding() -> None:
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
     document = CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH)

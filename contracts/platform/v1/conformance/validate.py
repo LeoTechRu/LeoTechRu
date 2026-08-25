@@ -685,6 +685,23 @@ def validate_resolver_result_semantics(
         if resolved["module_id"] in resolved_manifests:
             raise ConformanceError("registry_module_binding", "multiple resolved versions")
         resolved_manifests[resolved["module_id"]] = registry_entry["module"]
+    capability_ids: set[str] = set()
+    for binding in lock["capability_bindings"]:
+        capability_id = binding["capability_id"]
+        if capability_id in capability_ids:
+            raise ConformanceError("capability_binding", "duplicate capability")
+        capability_ids.add(capability_id)
+        manifest = resolved_manifests.get(binding["provider_module_id"])
+        if (
+            manifest is None
+            or binding["provider_version"] != manifest["version"]
+            or capability_id
+            not in {
+                provided["capability_id"]
+                for provided in manifest["capabilities"]["provides"]
+            }
+        ):
+            raise ConformanceError("capability_binding", capability_id)
     artifact_keys: set[tuple[str, str]] = set()
     for binding in lock["artifact_bindings"]:
         key = (binding["module_id"], binding["artifact_id"])
