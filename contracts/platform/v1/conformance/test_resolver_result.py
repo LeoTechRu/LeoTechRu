@@ -22,6 +22,9 @@ INPUT_FIXTURE_PATH = MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-i
 REGISTRY_FIXTURE_PATH = (
     MODULE_PATH.parents[1] / "fixtures" / "valid" / "registry-snapshot.json"
 )
+MODULE_FIXTURE_PATH = (
+    MODULE_PATH.parents[1] / "fixtures" / "valid" / "module-manifest.json"
+)
 
 REJECTED_ERROR_CODES = [
     "missing_capability",
@@ -88,6 +91,36 @@ def _add_registry_module_and_artifact_binding(document: dict, resolver_input: di
             "sha256": artifact["sha256"],
             "size_bytes": artifact["size_bytes"],
             "locations": ["https://artifacts.example/bridge-core.tar.gz"],
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
+def _add_route_binding(document: dict, resolver_input: dict) -> None:
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    manifest["routes"] = copy.deepcopy(
+        CONFORMANCE.load_source_json(MODULE_FIXTURE_PATH)["routes"]
+    )
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    route = manifest["routes"][0]
+    document["lock"]["route_bindings"] = [
+        {
+            "route_id": route["route_id"],
+            "module_id": manifest["module_id"],
+            "origin": route["origin"],
+            "path": route["path"],
+            "runtime_unit_id": route["runtime_unit_id"],
         }
     ]
     _refresh_lock_binding(document)
@@ -355,6 +388,50 @@ def test_resolved_result_rejects_duplicate_capability_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^capability_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_route_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_route_binding(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("route_id", "bridge.other"),
+        ("module_id", "other.module"),
+        ("origin", "https://other.intdata.pro"),
+        ("path", "/other"),
+        ("runtime_unit_id", "bridge.other"),
+    ],
+)
+def test_resolved_result_rejects_route_not_bound_to_admitted_manifest(
+    field: str, value: str
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_route_binding(document, resolver_input)
+    document["lock"]["route_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^route_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_route_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_route_binding(document, resolver_input)
+    document["lock"]["route_bindings"].append(
+        copy.deepcopy(document["lock"]["route_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^route_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

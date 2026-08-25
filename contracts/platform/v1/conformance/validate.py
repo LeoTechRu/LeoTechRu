@@ -723,6 +723,28 @@ def validate_resolver_result_semantics(
             binding[field] != artifact[field] for field in ("sha256", "size_bytes")
         ):
             raise ConformanceError("artifact_binding", binding["artifact_id"])
+    route_keys: set[tuple[str, str]] = set()
+    for binding in lock["route_bindings"]:
+        key = (binding["module_id"], binding["route_id"])
+        if key in route_keys:
+            raise ConformanceError("route_binding", "duplicate route")
+        route_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("route_binding", binding["module_id"])
+        route = next(
+            (
+                candidate
+                for candidate in manifest["routes"]
+                if candidate["route_id"] == binding["route_id"]
+            ),
+            None,
+        )
+        if route is None or any(
+            binding[field] != route[field]
+            for field in ("origin", "path", "runtime_unit_id")
+        ):
+            raise ConformanceError("route_binding", binding["route_id"])
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
