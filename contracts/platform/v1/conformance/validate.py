@@ -779,6 +779,64 @@ def validate_resolver_result_semantics(
             or binding["artifact_sha256"] != artifact["sha256"]
         ):
             raise ConformanceError("migration_binding", binding["migration_id"])
+    custody_by_key: dict[str, dict[str, Any]] = {}
+    for custody in resolver_input["installation"]["configuration_custody"]:
+        if custody["configuration_key"] in custody_by_key:
+            raise ConformanceError("runtime_binding", "duplicate configuration custody")
+        custody_by_key[custody["configuration_key"]] = custody
+    runtime_keys: set[tuple[str, str]] = set()
+    for binding in lock["runtime_bindings"]:
+        key = (binding["module_id"], binding["runtime_unit_id"])
+        if key in runtime_keys:
+            raise ConformanceError("runtime_binding", "duplicate runtime unit")
+        runtime_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("runtime_binding", binding["module_id"])
+        runtime_unit = next(
+            (
+                candidate
+                for candidate in manifest["runtime_units"]
+                if candidate["runtime_unit_id"] == binding["runtime_unit_id"]
+            ),
+            None,
+        )
+        if runtime_unit is None:
+            raise ConformanceError("runtime_binding", binding["runtime_unit_id"])
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if candidate["artifact_id"] == runtime_unit["artifact_id"]
+            ),
+            None,
+        )
+        if artifact is None or binding["artifact_sha256"] != artifact["sha256"]:
+            raise ConformanceError("runtime_binding", binding["runtime_unit_id"])
+        expected_custody_refs: set[str] = set()
+        requirement_keys: set[str] = set()
+        requirements_by_key = {}
+        for requirement in manifest["configuration_requirements"]:
+            configuration_key = requirement["key"]
+            if configuration_key in requirement_keys:
+                raise ConformanceError("runtime_binding", "duplicate configuration requirement")
+            requirement_keys.add(configuration_key)
+            requirements_by_key[configuration_key] = requirement
+        for configuration_key in runtime_unit["configuration_keys"]:
+            requirement = requirements_by_key.get(configuration_key)
+            if requirement is None:
+                raise ConformanceError("runtime_binding", configuration_key)
+            custody = custody_by_key.get(configuration_key)
+            if custody is None or not custody["present"]:
+                if requirement["required"]:
+                    raise ConformanceError("secret_custody_missing", configuration_key)
+                continue
+            expected_custody_refs.add(custody["custody_ref"])
+        ordered_custody_refs = sorted(
+            expected_custody_refs, key=lambda item: item.encode("utf-8")
+        )
+        if binding["configuration_custody_refs"] != ordered_custody_refs:
+            raise ConformanceError("runtime_binding", "configuration custody")
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:

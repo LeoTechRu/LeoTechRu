@@ -159,6 +159,47 @@ def _add_migration_binding(document: dict, resolver_input: dict) -> None:
     _refresh_lock_binding(document)
 
 
+def _add_runtime_binding(document: dict, resolver_input: dict) -> None:
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    module_fixture = CONFORMANCE.load_source_json(MODULE_FIXTURE_PATH)
+    manifest["runtime_units"] = copy.deepcopy(module_fixture["runtime_units"])
+    manifest["configuration_requirements"] = copy.deepcopy(
+        module_fixture["configuration_requirements"]
+    )
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    resolver_input["installation"]["configuration_custody"] = [
+        {
+            "configuration_key": "database.url",
+            "custody_ref": "vault.database.url",
+            "present": True,
+        }
+    ]
+    _refresh_embedded_digest(resolver_input, "installation")
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["runtime_bindings"] = [
+        {
+            "runtime_unit_id": "bridge.server",
+            "module_id": "bridge.core",
+            "artifact_sha256": manifest["artifacts"][0]["sha256"],
+            "configuration_custody_refs": ["vault.database.url"],
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
 def test_resolver_result_binds_canonical_lock_digest() -> None:
     document = CONFORMANCE.load_source_json(FIXTURE_PATH)
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
@@ -509,6 +550,133 @@ def test_resolved_result_rejects_duplicate_migration_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^migration_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_runtime_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("runtime_unit_id", "bridge.other"),
+        ("module_id", "other.module"),
+        ("artifact_sha256", "6" * 64),
+        ("configuration_custody_refs", ["vault.other"]),
+    ],
+)
+def test_resolved_result_rejects_runtime_not_bound_to_admitted_manifest(
+    field: str, value: object
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    document["lock"]["runtime_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_optional_runtime_configuration_without_custody() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["module"]["configuration_requirements"][0]["required"] = False
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    resolver_input["installation"]["configuration_custody"] = []
+    _refresh_embedded_digest(resolver_input, "installation")
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["runtime_bindings"][0]["configuration_custody_refs"] = []
+    _refresh_lock_binding(document)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_shared_custody_reference_for_runtime_keys() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["module"]["runtime_units"][0]["configuration_keys"].append(
+        "other.value"
+    )
+    registry_entry["module"]["configuration_requirements"].append(
+        {
+            "key": "other.value",
+            "value_type": "string",
+            "required": True,
+            "secret": False,
+        }
+    )
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    resolver_input["installation"]["configuration_custody"].append(
+        {
+            "configuration_key": "other.value",
+            "custody_ref": "vault.database.url",
+            "present": True,
+        }
+    )
+    _refresh_embedded_digest(resolver_input, "installation")
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_missing_runtime_configuration_custody() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    resolver_input["installation"]["configuration_custody"][0]["present"] = False
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^secret_custody_missing"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_runtime_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    document["lock"]["runtime_bindings"].append(
+        copy.deepcopy(document["lock"]["runtime_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
