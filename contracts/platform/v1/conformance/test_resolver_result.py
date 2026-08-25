@@ -14,7 +14,30 @@ assert SPEC is not None and SPEC.loader is not None
 CONFORMANCE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(CONFORMANCE)
 FIXTURE_PATH = MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-result.json"
+REJECTED_FIXTURE_PATH = (
+    MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-result-rejected.json"
+)
 INPUT_FIXTURE_PATH = MODULE_PATH.parents[1] / "fixtures" / "valid" / "resolver-input.json"
+
+REJECTED_ERROR_CODES = [
+    "missing_capability",
+    "version_conflict",
+    "route_collision",
+    "migration_lineage_broken",
+    "secret_custody_missing",
+    "mcp_binding_missing",
+    "artifact_drift",
+    "reverse_dependency_disable",
+    "policy_rejected",
+]
+
+
+def _resolver_result_schema_errors(document: dict) -> list:
+    schemas, registry = CONFORMANCE._schema_registry()
+    validator = CONFORMANCE._validator(
+        "urn:intdata:schema:resolver-result:v1", schemas, registry
+    )
+    return list(validator.iter_errors(document))
 
 
 def _refresh_embedded_digest(resolver_input: dict, document_field: str) -> None:
@@ -147,14 +170,52 @@ def test_resolver_result_rejects_missing_installation_actor_admission() -> None:
 
 def test_rejected_resolver_result_has_no_lock_digest_binding() -> None:
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
-    CONFORMANCE.validate_resolver_result_semantics(
-        {
-            "schema_version": "ResolverResultV1",
-            "status": "rejected",
-            "error": {"code": "UNSATISFIABLE", "message": "no solution"},
-        },
-        resolver_input,
-    )
+    document = CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH)
+
+    assert not _resolver_result_schema_errors(document)
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_rejected_resolver_result_error_codes_match_schema() -> None:
+    schemas, _ = CONFORMANCE._schema_registry()
+    schema_error_codes = schemas["urn:intdata:schema:resolver-result:v1"]["$defs"][
+        "rejected"
+    ]["properties"]["error"]["properties"]["code"]["enum"]
+
+    assert schema_error_codes == REJECTED_ERROR_CODES
+
+
+@pytest.mark.parametrize("error_code", REJECTED_ERROR_CODES)
+def test_rejected_resolver_result_accepts_only_closed_error_codes(
+    error_code: str,
+) -> None:
+    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+    document = copy.deepcopy(CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH))
+    document["error"]["code"] = error_code
+
+    assert not _resolver_result_schema_errors(document)
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_rejected_resolver_result_rejects_unknown_error_code() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH))
+    document["error"]["code"] = "UNSATISFIABLE"
+
+    assert _resolver_result_schema_errors(document)
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["lock", "lock_sha256", "acceptance_signature"],
+)
+def test_rejected_resolver_result_rejects_partial_success_fields(
+    field: str,
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH))
+    resolved_document = CONFORMANCE.load_source_json(FIXTURE_PATH)
+    document[field] = copy.deepcopy(resolved_document[field])
+
+    assert _resolver_result_schema_errors(document)
 
 
 @pytest.mark.parametrize(

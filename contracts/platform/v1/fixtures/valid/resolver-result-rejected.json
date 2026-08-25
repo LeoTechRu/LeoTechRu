@@ -1,0 +1,9 @@
+{
+  "schema_version": "ResolverResultV1",
+  "status": "rejected",
+  "error": {
+    "code": "missing_capability",
+    "message": "required capability is unavailable",
+    "details_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}
