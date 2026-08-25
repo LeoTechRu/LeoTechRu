@@ -126,6 +126,39 @@ def _add_route_binding(document: dict, resolver_input: dict) -> None:
     _refresh_lock_binding(document)
 
 
+def _add_migration_binding(document: dict, resolver_input: dict) -> None:
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    migration = {
+        "migration_id": "bridge.init",
+        "lineage_parent": None,
+        "artifact_id": "bridge.package",
+        "order": 0,
+    }
+    manifest["migrations"] = [migration]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["migration_bindings"] = [
+        {
+            "migration_id": migration["migration_id"],
+            "module_id": manifest["module_id"],
+            "lineage_parent": migration["lineage_parent"],
+            "artifact_sha256": manifest["artifacts"][0]["sha256"],
+            "order": migration["order"],
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
 def test_resolver_result_binds_canonical_lock_digest() -> None:
     document = CONFORMANCE.load_source_json(FIXTURE_PATH)
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
@@ -432,6 +465,50 @@ def test_resolved_result_rejects_duplicate_route_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^route_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_migration_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("migration_id", "bridge.other"),
+        ("module_id", "other.module"),
+        ("lineage_parent", "bridge.previous"),
+        ("artifact_sha256", "6" * 64),
+        ("order", 1),
+    ],
+)
+def test_resolved_result_rejects_migration_not_bound_to_admitted_manifest(
+    field: str, value: object
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    document["lock"]["migration_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^migration_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_migration_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    document["lock"]["migration_bindings"].append(
+        copy.deepcopy(document["lock"]["migration_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^migration_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

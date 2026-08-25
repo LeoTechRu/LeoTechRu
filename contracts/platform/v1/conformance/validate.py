@@ -745,6 +745,40 @@ def validate_resolver_result_semantics(
             for field in ("origin", "path", "runtime_unit_id")
         ):
             raise ConformanceError("route_binding", binding["route_id"])
+    migration_keys: set[tuple[str, str]] = set()
+    for binding in lock["migration_bindings"]:
+        key = (binding["module_id"], binding["migration_id"])
+        if key in migration_keys:
+            raise ConformanceError("migration_binding", "duplicate migration")
+        migration_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("migration_binding", binding["module_id"])
+        migration = next(
+            (
+                candidate
+                for candidate in manifest["migrations"]
+                if candidate["migration_id"] == binding["migration_id"]
+            ),
+            None,
+        )
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if migration is not None
+                and candidate["artifact_id"] == migration["artifact_id"]
+            ),
+            None,
+        )
+        if (
+            migration is None
+            or artifact is None
+            or binding["lineage_parent"] != migration["lineage_parent"]
+            or binding["order"] != migration["order"]
+            or binding["artifact_sha256"] != artifact["sha256"]
+        ):
+            raise ConformanceError("migration_binding", binding["migration_id"])
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
