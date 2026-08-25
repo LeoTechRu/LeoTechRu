@@ -21,6 +21,9 @@ from intdata_tooling._schemas import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[2]
+
+
 def _pretty(value: object) -> bytes:
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
@@ -127,6 +130,10 @@ def test_schema_set_v1_identity_is_exact() -> None:
         "urn:intdata:schema:platform-product-assertion:v1"
         in EXPECTED_SCHEMA_IDS
     )
+
+
+def test_tracked_schema_set_matches_tooling_profile_authority() -> None:
+    SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
 
 
 def test_schema_registry_binds_exact_canonical_type_name(tmp_path: Path) -> None:
