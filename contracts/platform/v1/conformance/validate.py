@@ -219,15 +219,31 @@ def _schema_registry() -> tuple[dict[str, Any], Registry]:
     return schemas, registry
 
 
+def _require_exact_keys(value: Any, expected: set[str], label: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != expected:
+        raise ConformanceError("schema-set", f"closed {label}")
+    return value
+
+
 def validate_schema_set(schemas: dict[str, Any]) -> None:
-    schema_set = load_source_json(SCHEMA_SET_PATH)
-    if schema_set.get("schema_set_version") != "1.0.0":
-        raise ConformanceError("schema-set", "wrong schema_set_version")
+    schema_set = _require_exact_keys(
+        load_source_json(SCHEMA_SET_PATH),
+        {"schema_set_version", "draft", "schemas", "profiles", "vectors"},
+        "registry",
+    )
+    if (
+        schema_set.get("schema_set_version") != "1.0.0"
+        or schema_set.get("draft") != "https://json-schema.org/draft/2020-12/schema"
+    ):
+        raise ConformanceError("schema-set", "wrong registry version or draft")
     entries = schema_set.get("schemas")
     if not isinstance(entries, list) or len(entries) != len(EXPECTED_SCHEMAS):
         raise ConformanceError("schema-set", "wrong schema count")
     seen: set[str] = set()
-    for entry in entries:
+    for raw_entry in entries:
+        entry = _require_exact_keys(
+            raw_entry, {"name", "version", "id", "filename", "sha256"}, "schema entry"
+        )
         schema_id = entry.get("id")
         if schema_id in seen or schema_id not in EXPECTED_SCHEMAS:
             raise ConformanceError("schema-set", "duplicate or unknown schema id")
@@ -246,7 +262,18 @@ def validate_schema_set(schemas: dict[str, Any]) -> None:
     profiles = schema_set.get("profiles")
     if not isinstance(profiles, list) or len(profiles) != 1:
         raise ConformanceError("schema-set", "wrong profile count")
-    profile = profiles[0]
+    profile = _require_exact_keys(
+        profiles[0],
+        {
+            "id",
+            "version",
+            "filename",
+            "sha256",
+            "vectors_filename",
+            "vectors_sha256",
+        },
+        "profile entry",
+    )
     expected_profile = {
         "id": URI_PROFILE_ID,
         "version": "v1",
@@ -263,14 +290,17 @@ def validate_schema_set(schemas: dict[str, Any]) -> None:
     ):
         raise ConformanceError("schema-set", "profile vectors hash mismatch")
     vectors = schema_set.get("vectors")
-    if not isinstance(vectors, list) or vectors != [
-        {
-            "id": "platform-v1-conformance",
-            "version": "1.0.0",
-            "filename": "conformance/vectors.json",
-            "sha256": hashlib.sha256(VECTORS_PATH.read_bytes()).hexdigest(),
-        }
-    ]:
+    if not isinstance(vectors, list) or len(vectors) != 1:
+        raise ConformanceError("schema-set", "conformance vector linkage mismatch")
+    vector = _require_exact_keys(
+        vectors[0], {"id", "version", "filename", "sha256"}, "vector entry"
+    )
+    if vector != {
+        "id": "platform-v1-conformance",
+        "version": "1.0.0",
+        "filename": "conformance/vectors.json",
+        "sha256": hashlib.sha256(VECTORS_PATH.read_bytes()).hexdigest(),
+    }:
         raise ConformanceError("schema-set", "conformance vector linkage mismatch")
 
 
