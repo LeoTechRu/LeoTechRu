@@ -776,6 +776,12 @@ def validate_resolver_result_semantics(
                 pending_module_ids.append(provider_module_id)
         for dependency in manifest["dependencies"]:
             dependency_id = dependency["module_id"]
+            dependency_manifest = resolved_manifests.get(dependency_id)
+            if (
+                dependency_manifest is not None
+                and dependency_manifest["version"] != dependency["version_constraint"]
+            ):
+                raise ConformanceError("version_conflict", dependency_id)
             if dependency["optional"] or dependency_id in required_module_ids:
                 continue
             required_module_ids.add(dependency_id)
