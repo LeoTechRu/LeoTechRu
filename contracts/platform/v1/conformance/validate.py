@@ -643,6 +643,11 @@ def validate_resolver_result_semantics(
         ]
         if len(identities) != len(set(identities)):
             raise ConformanceError("resolver_input_duplicate", collection)
+    origin_urls = [
+        origin["url"] for origin in resolver_input["installation"]["origins"]
+    ]
+    if len(origin_urls) != len(set(origin_urls)):
+        raise ConformanceError("resolver_input_duplicate", "origin URLs")
     if result["status"] != "resolved":
         return
     validate_registry_signer_semantics(resolver_input["registry_snapshot"])

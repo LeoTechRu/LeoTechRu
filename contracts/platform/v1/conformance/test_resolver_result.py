@@ -532,6 +532,19 @@ def test_resolver_result_rejects_duplicate_desired_state(
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+@pytest.mark.parametrize("fixture_path", [FIXTURE_PATH, REJECTED_FIXTURE_PATH])
+def test_resolver_result_rejects_duplicate_origin_url(fixture_path: Path) -> None:
+    document = CONFORMANCE.load_source_json(fixture_path)
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    resolver_input["installation"]["origins"].append(
+        {"origin_id": "secondary", "url": "https://platform.example"}
+    )
+    _refresh_embedded_digest(resolver_input, "installation")
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_input_duplicate"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_rejects_stale_input_binding() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
