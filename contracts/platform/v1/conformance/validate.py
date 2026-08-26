@@ -788,6 +788,13 @@ def validate_resolver_result_semantics(
             key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
         )[0]
         raise ConformanceError("artifact_drift", f"{module_id}:{artifact_id}")
+    expected_route_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for route in manifest["routes"]:
+            key = (module_id, route["route_id"])
+            if key in expected_route_keys:
+                raise ConformanceError("route_binding", "duplicate manifest route")
+            expected_route_keys.add(key)
     route_keys: set[tuple[str, str]] = set()
     route_endpoints: set[tuple[str, str]] = set()
     for binding in lock["route_bindings"]:
@@ -815,6 +822,12 @@ def validate_resolver_result_semantics(
         if endpoint in route_endpoints:
             raise ConformanceError("route_collision", "origin and path")
         route_endpoints.add(endpoint)
+    if route_keys != expected_route_keys:
+        module_id, route_id = sorted(
+            route_keys ^ expected_route_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("route_binding", f"{module_id}:{route_id}")
     expected_migration_keys: set[tuple[str, str]] = set()
     for module_id, manifest in resolved_manifests.items():
         migrations_by_id: dict[str, dict[str, Any]] = {}
