@@ -631,6 +631,7 @@ def validate_resolver_result_semantics(
         if resolver_input[digest_field] != actual_digest:
             raise ConformanceError("resolver_input_digest", document_field)
     for collection, identity_field in (
+        ("origins", "origin_id"),
         ("modules", "module_id"),
         ("capabilities", "capability_id"),
     ):

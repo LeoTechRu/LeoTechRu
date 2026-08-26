@@ -491,6 +491,10 @@ def test_resolver_result_rejects_false_embedded_document_digest(
     ("collection", "entry"),
     [
         (
+            "origins",
+            {"origin_id": "customer", "url": "https://platform.example"},
+        ),
+        (
             "modules",
             {
                 "module_id": "bridge.core",
