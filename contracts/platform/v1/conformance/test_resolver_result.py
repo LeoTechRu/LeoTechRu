@@ -200,6 +200,49 @@ def _add_runtime_binding(document: dict, resolver_input: dict) -> None:
     _refresh_lock_binding(document)
 
 
+def _add_mcp_binding(document: dict, resolver_input: dict) -> None:
+    _add_runtime_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    route = copy.deepcopy(CONFORMANCE.load_source_json(MODULE_FIXTURE_PATH)["routes"][0])
+    manifest["routes"] = [route]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "bridge.oauth",
+            "provider_module_id": "bridge.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    document["lock"]["route_bindings"] = [
+        {
+            "route_id": route["route_id"],
+            "module_id": manifest["module_id"],
+            "origin": route["origin"],
+            "path": route["path"],
+            "runtime_unit_id": route["runtime_unit_id"],
+        }
+    ]
+    document["lock"]["mcp_bindings"] = [
+        {
+            "capability_id": "bridge.oauth",
+            "resource_uri": "https://bridge.intdata.pro/mcp",
+            "audience": "https://bridge.intdata.pro/mcp",
+            "runtime_unit_id": "bridge.server",
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
 def test_resolver_result_binds_canonical_lock_digest() -> None:
     document = CONFORMANCE.load_source_json(FIXTURE_PATH)
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
@@ -677,6 +720,83 @@ def test_resolved_result_rejects_duplicate_runtime_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_mcp_binding_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("capability_id", "bridge.unknown"),
+        ("resource_uri", "https://bridge.intdata.pro/other"),
+        ("audience", "https://other.intdata.pro/mcp"),
+        ("runtime_unit_id", "bridge.other"),
+    ],
+)
+def test_resolved_result_rejects_mcp_binding_not_bound_to_admitted_manifest(
+    field: str, value: str
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+    document["lock"]["mcp_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^mcp_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_mcp_capability_projected_by_another_module() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    other_entry = copy.deepcopy(registry_entry)
+    other_manifest = other_entry["module"]
+    other_manifest["module_id"] = "other.core"
+    other_manifest["routes"] = []
+    other_manifest["runtime_units"] = []
+    other_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(other_manifest)
+    ).hexdigest()
+    resolver_input["registry_snapshot"]["modules"].append(other_entry)
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"].append(
+        {
+            "module_id": "other.core",
+            "version": other_manifest["version"],
+            "manifest_sha256": other_entry["manifest_sha256"],
+            "release_manifest_sha256": other_entry["release_manifest_sha256"],
+            "signature_envelope_sha256": other_entry["signature_envelope_sha256"],
+        }
+    )
+    document["lock"]["capability_bindings"][0]["provider_module_id"] = "other.core"
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^mcp_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_mcp_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+    document["lock"]["mcp_bindings"].append(
+        copy.deepcopy(document["lock"]["mcp_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^mcp_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

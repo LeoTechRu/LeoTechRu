@@ -686,11 +686,13 @@ def validate_resolver_result_semantics(
             raise ConformanceError("registry_module_binding", "multiple resolved versions")
         resolved_manifests[resolved["module_id"]] = registry_entry["module"]
     capability_ids: set[str] = set()
+    capability_modules: dict[str, str] = {}
     for binding in lock["capability_bindings"]:
         capability_id = binding["capability_id"]
         if capability_id in capability_ids:
             raise ConformanceError("capability_binding", "duplicate capability")
         capability_ids.add(capability_id)
+        capability_modules[capability_id] = binding["provider_module_id"]
         manifest = resolved_manifests.get(binding["provider_module_id"])
         if (
             manifest is None
@@ -837,6 +839,43 @@ def validate_resolver_result_semantics(
         )
         if binding["configuration_custody_refs"] != ordered_custody_refs:
             raise ConformanceError("runtime_binding", "configuration custody")
+    mcp_keys: set[tuple[str, str]] = set()
+    for binding in lock["mcp_bindings"]:
+        key = (binding["resource_uri"], binding["capability_id"])
+        if key in mcp_keys:
+            raise ConformanceError("mcp_binding", "duplicate MCP binding")
+        mcp_keys.add(key)
+        matches: list[tuple[str, dict[str, Any]]] = []
+        for module_id, manifest in resolved_manifests.items():
+            runtime_unit = next(
+                (
+                    candidate
+                    for candidate in manifest["runtime_units"]
+                    if candidate["runtime_unit_id"] == binding["runtime_unit_id"]
+                ),
+                None,
+            )
+            if runtime_unit is None or binding["capability_id"] not in runtime_unit[
+                "capabilities"
+            ]:
+                continue
+            for route in manifest["routes"]:
+                if (
+                    route["kind"] == "mcp"
+                    and route["runtime_unit_id"] == binding["runtime_unit_id"]
+                    and route["origin"] + route["path"] == binding["resource_uri"]
+                ):
+                    matches.append((module_id, route))
+        if len(matches) != 1:
+            raise ConformanceError("mcp_binding", binding["resource_uri"])
+        module_id, route = matches[0]
+        if (
+            binding["audience"] != binding["resource_uri"]
+            or capability_modules.get(binding["capability_id"]) != module_id
+            or (module_id, route["route_id"]) not in route_keys
+            or (module_id, binding["runtime_unit_id"]) not in runtime_keys
+        ):
+            raise ConformanceError("mcp_binding", binding["capability_id"])
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:
