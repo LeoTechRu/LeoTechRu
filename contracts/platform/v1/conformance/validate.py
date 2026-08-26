@@ -847,6 +847,14 @@ def validate_resolver_result_semantics(
             binding[field] != artifact[field] for field in ("sha256", "size_bytes")
         ):
             raise ConformanceError("artifact_binding", binding["artifact_id"])
+    if [
+        (binding["module_id"], binding["artifact_id"])
+        for binding in lock["artifact_bindings"]
+    ] != sorted(
+        artifact_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "artifact bindings")
     if artifact_keys != expected_artifact_keys:
         module_id, artifact_id = sorted(
             artifact_keys ^ expected_artifact_keys,
