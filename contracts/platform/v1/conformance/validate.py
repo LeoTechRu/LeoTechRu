@@ -705,6 +705,16 @@ def validate_resolver_result_semantics(
             if dependency_id in dependency_ids:
                 raise ConformanceError("module_dependency", module_id)
             dependency_ids.add(dependency_id)
+        for capability_kind in ("provides", "requires"):
+            capability_entries: set[tuple[str, str]] = set()
+            for capability in manifest["capabilities"][capability_kind]:
+                capability_entry = (
+                    capability["capability_id"],
+                    capability["version_constraint"],
+                )
+                if capability_entry in capability_entries:
+                    raise ConformanceError("module_capability", module_id)
+                capability_entries.add(capability_entry)
     resolved_order = [
         (resolved["module_id"], resolved["version"])
         for resolved in lock["resolved_modules"]
