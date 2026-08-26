@@ -685,6 +685,15 @@ def validate_resolver_result_semantics(
         if resolved["module_id"] in resolved_manifests:
             raise ConformanceError("registry_module_binding", "multiple resolved versions")
         resolved_manifests[resolved["module_id"]] = registry_entry["module"]
+    resolved_order = [
+        (resolved["module_id"], resolved["version"])
+        for resolved in lock["resolved_modules"]
+    ]
+    if resolved_order != sorted(
+        resolved_order,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "resolved modules")
     enabled_modules = [
         desire
         for desire in resolver_input["installation"]["modules"]

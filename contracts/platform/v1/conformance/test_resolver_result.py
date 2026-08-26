@@ -1677,6 +1677,22 @@ def test_resolved_result_accepts_required_transitive_module() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_noncanonical_module_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=True,
+        include_dependency=True,
+    )
+    document["lock"]["resolved_modules"].reverse()
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize("include_dependency", [False, True])
 def test_resolved_result_rejects_disabled_required_transitive_module(
     include_dependency: bool,
