@@ -1114,6 +1114,14 @@ def validate_resolver_result_semantics(
         )
         if binding["configuration_custody_refs"] != ordered_custody_refs:
             raise ConformanceError("runtime_binding", "configuration custody")
+    if [
+        (binding["module_id"], binding["runtime_unit_id"])
+        for binding in lock["runtime_bindings"]
+    ] != sorted(
+        runtime_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "runtime bindings")
     if runtime_keys != expected_runtime_keys:
         module_id, runtime_unit_id = sorted(
             runtime_keys ^ expected_runtime_keys,
