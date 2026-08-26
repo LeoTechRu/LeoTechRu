@@ -630,6 +630,16 @@ def validate_resolver_result_semantics(
         ).hexdigest()
         if resolver_input[digest_field] != actual_digest:
             raise ConformanceError("resolver_input_digest", document_field)
+    for collection, identity_field in (
+        ("modules", "module_id"),
+        ("capabilities", "capability_id"),
+    ):
+        identities = [
+            entry[identity_field]
+            for entry in resolver_input["installation"][collection]
+        ]
+        if len(identities) != len(set(identities)):
+            raise ConformanceError("resolver_input_duplicate", collection)
     if result["status"] != "resolved":
         return
     validate_registry_signer_semantics(resolver_input["registry_snapshot"])

@@ -486,6 +486,36 @@ def test_resolver_result_rejects_false_embedded_document_digest(
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+@pytest.mark.parametrize("fixture_path", [FIXTURE_PATH, REJECTED_FIXTURE_PATH])
+@pytest.mark.parametrize(
+    ("collection", "entry"),
+    [
+        (
+            "modules",
+            {
+                "module_id": "bridge.core",
+                "version_constraint": "1.0.0",
+                "state": "enabled",
+            },
+        ),
+        (
+            "capabilities",
+            {"capability_id": "bridge.oauth", "version_constraint": "1.0.0"},
+        ),
+    ],
+)
+def test_resolver_result_rejects_duplicate_desired_state(
+    fixture_path: Path, collection: str, entry: dict[str, str]
+) -> None:
+    document = CONFORMANCE.load_source_json(fixture_path)
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    resolver_input["installation"][collection] = [entry, copy.deepcopy(entry)]
+    _refresh_embedded_digest(resolver_input, "installation")
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_input_duplicate"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_rejects_stale_input_binding() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
