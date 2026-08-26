@@ -170,6 +170,16 @@ def _add_module_selection(
                 ],
             }
         )
+        dependency_artifact = dependency_manifest["artifacts"][0]
+        document["lock"]["artifact_bindings"].append(
+            {
+                "artifact_id": dependency_artifact["artifact_id"],
+                "module_id": dependency_manifest["module_id"],
+                "sha256": dependency_artifact["sha256"],
+                "size_bytes": dependency_artifact["size_bytes"],
+                "locations": ["https://artifacts.example/other-core.tar.gz"],
+            }
+        )
     _refresh_lock_binding(document)
 
 
@@ -585,6 +595,17 @@ def test_resolved_result_rejects_duplicate_artifact_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^artifact_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_unbound_manifest_artifact() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["artifact_bindings"] = []
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^artifact_drift"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
@@ -1108,6 +1129,16 @@ def test_resolved_result_rejects_mcp_capability_projected_by_another_module() ->
             "manifest_sha256": other_entry["manifest_sha256"],
             "release_manifest_sha256": other_entry["release_manifest_sha256"],
             "signature_envelope_sha256": other_entry["signature_envelope_sha256"],
+        }
+    )
+    other_artifact = other_manifest["artifacts"][0]
+    document["lock"]["artifact_bindings"].append(
+        {
+            "artifact_id": other_artifact["artifact_id"],
+            "module_id": other_manifest["module_id"],
+            "sha256": other_artifact["sha256"],
+            "size_bytes": other_artifact["size_bytes"],
+            "locations": ["https://artifacts.example/other-core.tar.gz"],
         }
     )
     document["lock"]["capability_bindings"][0]["provider_module_id"] = "other.core"
