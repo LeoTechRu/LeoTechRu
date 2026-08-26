@@ -1764,6 +1764,43 @@ def test_resolved_result_rejects_duplicate_mcp_binding() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_noncanonical_mcp_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    second_capability = "bridge.zeta"
+    manifest["capabilities"]["provides"].append(
+        {"capability_id": second_capability, "version_constraint": "1.0.0"}
+    )
+    manifest["runtime_units"][0]["capabilities"].append(second_capability)
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["capability_bindings"].append(
+        {
+            "capability_id": second_capability,
+            "provider_module_id": manifest["module_id"],
+            "provider_version": manifest["version"],
+        }
+    )
+    second_binding = copy.deepcopy(document["lock"]["mcp_bindings"][0])
+    second_binding["capability_id"] = second_capability
+    document["lock"]["mcp_bindings"].insert(0, second_binding)
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_rejects_missing_enabled_module() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

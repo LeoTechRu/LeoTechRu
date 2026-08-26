@@ -1186,6 +1186,14 @@ def validate_resolver_result_semantics(
             or (module_id, binding["runtime_unit_id"]) not in runtime_keys
         ):
             raise ConformanceError("mcp_binding", binding["capability_id"])
+    if [
+        (binding["resource_uri"], binding["capability_id"])
+        for binding in lock["mcp_bindings"]
+    ] != sorted(
+        mcp_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "MCP bindings")
     if mcp_keys != expected_mcp_keys:
         resource_uri, capability_id = sorted(
             mcp_keys ^ expected_mcp_keys,
