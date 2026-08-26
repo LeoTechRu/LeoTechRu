@@ -518,6 +518,17 @@ def test_resolver_result_rejects_acceptance_payload_for_different_lock() -> None
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolver_result_rejects_noncanonical_acceptance_signature_base64() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
+    signature = document["acceptance_signature"]["envelope"]["signatures"][0]
+    signature["sig"] = signature["sig"][:-3] + "B=="
+
+    assert base64.b64decode(signature["sig"], validate=True) == bytes(64)
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^acceptance_signature"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_treats_acceptance_keyid_as_hint() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)

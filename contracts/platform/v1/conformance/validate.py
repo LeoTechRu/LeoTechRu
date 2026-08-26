@@ -1120,8 +1120,20 @@ def validate_resolver_result_semantics(
         )
     except (ValueError, binascii.Error) as error:
         raise ConformanceError("acceptance_payload") from error
+    if base64.b64encode(signed_payload).decode("ascii") != envelope["payload"]:
+        raise ConformanceError("acceptance_payload")
     if signed_payload != lock_bytes:
         raise ConformanceError("acceptance_payload")
+    for signature in envelope["signatures"]:
+        try:
+            signature_bytes = base64.b64decode(signature["sig"], validate=True)
+        except (ValueError, binascii.Error) as error:
+            raise ConformanceError("acceptance_signature") from error
+        if (
+            len(signature_bytes) != 64
+            or base64.b64encode(signature_bytes).decode("ascii") != signature["sig"]
+        ):
+            raise ConformanceError("acceptance_signature")
 
 
 def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:
