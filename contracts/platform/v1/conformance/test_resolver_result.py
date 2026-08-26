@@ -979,6 +979,41 @@ def test_resolved_result_accepts_runtime_from_admitted_manifest() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_unprojected_manifest_runtime_unit() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    document["lock"]["runtime_bindings"] = []
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_manifest_runtime_unit_id() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_runtime_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    duplicate_runtime = copy.deepcopy(registry_entry["module"]["runtime_units"][0])
+    duplicate_runtime["entrypoint"] = "bin/bridge-worker"
+    registry_entry["module"]["runtime_units"].append(duplicate_runtime)
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [

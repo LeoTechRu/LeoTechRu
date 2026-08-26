@@ -901,6 +901,13 @@ def validate_resolver_result_semantics(
         if custody["configuration_key"] in custody_by_key:
             raise ConformanceError("runtime_binding", "duplicate configuration custody")
         custody_by_key[custody["configuration_key"]] = custody
+    expected_runtime_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for runtime_unit in manifest["runtime_units"]:
+            key = (module_id, runtime_unit["runtime_unit_id"])
+            if key in expected_runtime_keys:
+                raise ConformanceError("runtime_binding", "duplicate manifest runtime unit")
+            expected_runtime_keys.add(key)
     runtime_keys: set[tuple[str, str]] = set()
     for binding in lock["runtime_bindings"]:
         key = (binding["module_id"], binding["runtime_unit_id"])
@@ -954,6 +961,12 @@ def validate_resolver_result_semantics(
         )
         if binding["configuration_custody_refs"] != ordered_custody_refs:
             raise ConformanceError("runtime_binding", "configuration custody")
+    if runtime_keys != expected_runtime_keys:
+        module_id, runtime_unit_id = sorted(
+            runtime_keys ^ expected_runtime_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("runtime_binding", f"{module_id}:{runtime_unit_id}")
     mcp_keys: set[tuple[str, str]] = set()
     for binding in lock["mcp_bindings"]:
         key = (binding["resource_uri"], binding["capability_id"])
