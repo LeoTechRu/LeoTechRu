@@ -1015,6 +1015,27 @@ def validate_resolver_result_semantics(
             key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
         )[0]
         raise ConformanceError("runtime_binding", f"{module_id}:{runtime_unit_id}")
+    expected_mcp_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for route in manifest["routes"]:
+            if route["kind"] != "mcp":
+                continue
+            runtime_unit = next(
+                (
+                    candidate
+                    for candidate in manifest["runtime_units"]
+                    if candidate["runtime_unit_id"] == route["runtime_unit_id"]
+                ),
+                None,
+            )
+            if runtime_unit is None:
+                continue
+            resource_uri = route["origin"] + route["path"]
+            expected_mcp_keys.update(
+                (resource_uri, capability_id)
+                for capability_id in runtime_unit["capabilities"]
+                if capability_modules.get(capability_id) == module_id
+            )
     mcp_keys: set[tuple[str, str]] = set()
     for binding in lock["mcp_bindings"]:
         key = (binding["resource_uri"], binding["capability_id"])
@@ -1052,6 +1073,14 @@ def validate_resolver_result_semantics(
             or (module_id, binding["runtime_unit_id"]) not in runtime_keys
         ):
             raise ConformanceError("mcp_binding", binding["capability_id"])
+    if mcp_keys != expected_mcp_keys:
+        resource_uri, capability_id = sorted(
+            mcp_keys ^ expected_mcp_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError(
+            "mcp_binding_missing", f"{resource_uri}:{capability_id}"
+        )
     lock_bytes = jcs_canonical(result["lock"])
     actual = hashlib.sha256(lock_bytes).hexdigest()
     if result["lock_sha256"] != actual:

@@ -1226,6 +1226,17 @@ def test_resolved_result_accepts_mcp_binding_from_admitted_manifest() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_missing_mcp_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_mcp_binding(document, resolver_input)
+    document["lock"]["mcp_bindings"] = []
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^mcp_binding_missing"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
