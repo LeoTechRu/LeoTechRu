@@ -213,6 +213,37 @@ def _add_route_binding(document: dict, resolver_input: dict) -> None:
     _refresh_lock_binding(document)
 
 
+def _add_web_module_binding(document: dict, resolver_input: dict) -> None:
+    _add_route_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    web_module = {
+        "web_module_id": "bridge.console",
+        "entrypoint_artifact_id": "bridge.package",
+        "route_id": "bridge.mcp",
+    }
+    manifest["web_modules"] = [web_module]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["web_module_bindings"] = [
+        {
+            "web_module_id": web_module["web_module_id"],
+            "module_id": manifest["module_id"],
+            "entrypoint_artifact_sha256": manifest["artifacts"][0]["sha256"],
+            "route_id": web_module["route_id"],
+        }
+    ]
+    _refresh_lock_binding(document)
+
+
 def _add_second_route_binding(
     document: dict, resolver_input: dict, *, path: str
 ) -> None:
@@ -968,6 +999,60 @@ def test_resolved_result_rejects_duplicate_migration_binding() -> None:
     _refresh_lock_binding(document)
 
     with pytest.raises(CONFORMANCE.ConformanceError, match=r"^migration_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_web_module_from_admitted_manifest() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_web_module_binding(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_unprojected_manifest_web_module() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_web_module_binding(document, resolver_input)
+    document["lock"]["web_module_bindings"] = []
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^web_module_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("web_module_id", "bridge.other"),
+        ("module_id", "other.module"),
+        ("entrypoint_artifact_sha256", "6" * 64),
+        ("route_id", "bridge.other"),
+    ],
+)
+def test_resolved_result_rejects_web_module_not_bound_to_admitted_manifest(
+    field: str, value: str
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_web_module_binding(document, resolver_input)
+    document["lock"]["web_module_bindings"][0][field] = value
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^web_module_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_web_module_binding() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_web_module_binding(document, resolver_input)
+    document["lock"]["web_module_bindings"].append(
+        copy.deepcopy(document["lock"]["web_module_bindings"][0])
+    )
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^web_module_binding"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 

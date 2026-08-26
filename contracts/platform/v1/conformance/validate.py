@@ -828,6 +828,54 @@ def validate_resolver_result_semantics(
             key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
         )[0]
         raise ConformanceError("route_binding", f"{module_id}:{route_id}")
+    expected_web_module_keys: set[tuple[str, str]] = set()
+    web_module_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for web_module in manifest["web_modules"]:
+            key = (module_id, web_module["web_module_id"])
+            if key in expected_web_module_keys:
+                raise ConformanceError("web_module_binding", "duplicate manifest web module")
+            expected_web_module_keys.add(key)
+    for binding in lock["web_module_bindings"]:
+        key = (binding["module_id"], binding["web_module_id"])
+        if key in web_module_keys:
+            raise ConformanceError("web_module_binding", "duplicate web module")
+        web_module_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("web_module_binding", binding["module_id"])
+        web_module = next(
+            (
+                candidate
+                for candidate in manifest["web_modules"]
+                if candidate["web_module_id"] == binding["web_module_id"]
+            ),
+            None,
+        )
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if web_module is not None
+                and candidate["artifact_id"] == web_module["entrypoint_artifact_id"]
+            ),
+            None,
+        )
+        route_ids = {route["route_id"] for route in manifest["routes"]}
+        if (
+            web_module is None
+            or artifact is None
+            or web_module["route_id"] not in route_ids
+            or binding["entrypoint_artifact_sha256"] != artifact["sha256"]
+            or binding["route_id"] != web_module["route_id"]
+        ):
+            raise ConformanceError("web_module_binding", binding["web_module_id"])
+    if web_module_keys != expected_web_module_keys:
+        module_id, web_module_id = sorted(
+            web_module_keys ^ expected_web_module_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("web_module_binding", f"{module_id}:{web_module_id}")
     expected_migration_keys: set[tuple[str, str]] = set()
     for module_id, manifest in resolved_manifests.items():
         migrations_by_id: dict[str, dict[str, Any]] = {}

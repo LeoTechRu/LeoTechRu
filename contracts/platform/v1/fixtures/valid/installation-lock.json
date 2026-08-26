@@ -52,6 +52,7 @@
       "runtime_unit_id": "bridge.server"
     }
   ],
+  "web_module_bindings": [],
   "migration_bindings": [],
   "mcp_bindings": [
     {

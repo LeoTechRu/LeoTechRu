@@ -42,7 +42,7 @@
       "version": "v1",
       "id": "urn:intdata:schema:installation-lock:v1",
       "filename": "schemas/installation-lock.schema.json",
-      "sha256": "62b8d5f77ae1c6b316b8915950892c258dd1be977fd25d40aa802d5059efe58c"
+      "sha256": "f72dc2aee3e9d8def04b2a002388a67c8cbf391b7b17a1c400c4129e3c7d1f59"
     },
     {
       "name": "ReleaseManifestV1",
