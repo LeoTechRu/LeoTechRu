@@ -832,6 +832,10 @@ def validate_resolver_result_semantics(
         if key in artifact_keys:
             raise ConformanceError("artifact_binding", "duplicate artifact")
         artifact_keys.add(key)
+        if binding["locations"] != sorted(
+            binding["locations"], key=lambda item: item.encode("utf-8")
+        ):
+            raise ConformanceError("resolver_order", "artifact locations")
         manifest = resolved_manifests.get(binding["module_id"])
         if manifest is None:
             raise ConformanceError("artifact_binding", binding["module_id"])

@@ -1871,6 +1871,20 @@ def test_resolved_result_rejects_noncanonical_artifact_order() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_noncanonical_artifact_location_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    document["lock"]["artifact_bindings"][0]["locations"] = [
+        "https://mirror.example/bridge-core.tar.gz",
+        "https://artifacts.example/bridge-core.tar.gz",
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize("include_dependency", [False, True])
 def test_resolved_result_rejects_disabled_required_transitive_module(
     include_dependency: bool,
