@@ -38,7 +38,7 @@
         "source": "git-subdir",
         "url": "https://github.com/LeoTechPro/intData-tools.git",
         "path": "./codex/plugins/intdev",
-        "ref": "e57a862785ae43a9b1b5c461fcfab24c233a2b85"
+        "ref": "497ff628eb03b2bbee86e729ad4f2268d78ba900"
       },
       "policy": {
         "installation": "NOT_AVAILABLE",
