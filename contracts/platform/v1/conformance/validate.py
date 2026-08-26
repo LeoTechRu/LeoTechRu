@@ -685,17 +685,22 @@ def validate_resolver_result_semantics(
         if resolved["module_id"] in resolved_manifests:
             raise ConformanceError("registry_module_binding", "multiple resolved versions")
         resolved_manifests[resolved["module_id"]] = registry_entry["module"]
-    enabled_module_ids = {
-        desire["module_id"]
+    enabled_modules = [
+        desire
         for desire in resolver_input["installation"]["modules"]
         if desire["state"] == "enabled"
-    }
+    ]
+    enabled_module_ids = {desire["module_id"] for desire in enabled_modules}
     missing_enabled = enabled_module_ids - set(resolved_manifests)
     if missing_enabled:
         missing_module_id = sorted(
             missing_enabled, key=lambda item: item.encode("utf-8")
         )[0]
         raise ConformanceError("resolver_module_selection", missing_module_id)
+    for desire in enabled_modules:
+        module_id = desire["module_id"]
+        if resolved_manifests[module_id]["version"] != desire["version_constraint"]:
+            raise ConformanceError("version_conflict", module_id)
     capability_ids: set[str] = set()
     capability_modules: dict[str, str] = {}
     capability_versions: dict[str, set[str]] = {}

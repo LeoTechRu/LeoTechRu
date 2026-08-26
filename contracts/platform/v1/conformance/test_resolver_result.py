@@ -605,6 +605,21 @@ def test_resolved_result_rejects_module_digest_not_admitted_by_registry(
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_incompatible_enabled_module_version() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    resolver_input["installation"]["modules"][0]["version_constraint"] = "2.0.0"
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^version_conflict"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
