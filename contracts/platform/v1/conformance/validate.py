@@ -648,9 +648,9 @@ def validate_resolver_result_semantics(
     ]
     if len(origin_urls) != len(set(origin_urls)):
         raise ConformanceError("resolver_input_duplicate", "origin URLs")
+    validate_registry_signer_semantics(resolver_input["registry_snapshot"])
     if result["status"] != "resolved":
         return
-    validate_registry_signer_semantics(resolver_input["registry_snapshot"])
     lock = result["lock"]
     expected_bindings = {
         "installation_id": resolver_input["installation"]["installation_id"],

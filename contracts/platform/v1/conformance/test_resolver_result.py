@@ -545,6 +545,16 @@ def test_resolver_result_rejects_duplicate_origin_url(fixture_path: Path) -> Non
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_rejected_result_rejects_invalid_registry_signer_roles() -> None:
+    document = CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH)
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    resolver_input["registry_snapshot"]["accepted_signers"].reverse()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^accepted_signer_roles"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_rejects_stale_input_binding() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)
