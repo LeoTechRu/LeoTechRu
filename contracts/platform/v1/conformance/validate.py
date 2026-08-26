@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import copy
 import hashlib
 import importlib.util
@@ -53,6 +54,26 @@ EXPECTED_SCHEMAS = {
     "urn:intdata:schema:platform-product-assertion:v1": (
         "schemas/platform-product-assertion.schema.json"
     ),
+}
+
+EXPECTED_SCHEMA_NAMES = {
+    "urn:intdata:schema:module-manifest:v1": "ModuleManifestV1",
+    "urn:intdata:schema:installation-manifest:v1": "InstallationManifestV1",
+    "urn:intdata:schema:registry-snapshot:v1": "RegistrySnapshotV1",
+    "urn:intdata:schema:resolver-input:v1": "ResolverInputV1",
+    "urn:intdata:schema:resolver-result:v1": "ResolverResultV1",
+    "urn:intdata:schema:installation-lock:v1": "InstallationLockV1",
+    "urn:intdata:schema:release-manifest:v1": "ReleaseManifestV1",
+    "urn:intdata:schema:signature-envelope:v1": "SignatureEnvelopeV1",
+    "urn:intdata:schema:trust-bundle:v1": "TrustBundleV1",
+    "urn:intdata:schema:scan-attestation:v1": "ScanAttestationV1",
+    "urn:intdata:schema:bridge-oauth-registration-approval-receipt:v1": (
+        "BridgeOAuthRegistrationApprovalReceiptV1"
+    ),
+    "urn:intdata:schema:release-verification-key-set:v1": (
+        "ReleaseVerificationKeySetV1"
+    ),
+    "urn:intdata:schema:platform-product-assertion:v1": "PlatformProductAssertionV1",
 }
 
 
@@ -198,21 +219,38 @@ def _schema_registry() -> tuple[dict[str, Any], Registry]:
     return schemas, registry
 
 
+def _require_exact_keys(value: Any, expected: set[str], label: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != expected:
+        raise ConformanceError("schema-set", f"closed {label}")
+    return value
+
+
 def validate_schema_set(schemas: dict[str, Any]) -> None:
-    schema_set = load_source_json(SCHEMA_SET_PATH)
-    if schema_set.get("schema_set_version") != "1.0.0":
-        raise ConformanceError("schema-set", "wrong schema_set_version")
+    schema_set = _require_exact_keys(
+        load_source_json(SCHEMA_SET_PATH),
+        {"schema_set_version", "draft", "schemas", "profiles", "vectors"},
+        "registry",
+    )
+    if (
+        schema_set.get("schema_set_version") != "1.0.0"
+        or schema_set.get("draft") != "https://json-schema.org/draft/2020-12/schema"
+    ):
+        raise ConformanceError("schema-set", "wrong registry version or draft")
     entries = schema_set.get("schemas")
     if not isinstance(entries, list) or len(entries) != len(EXPECTED_SCHEMAS):
         raise ConformanceError("schema-set", "wrong schema count")
     seen: set[str] = set()
-    for entry in entries:
+    for raw_entry in entries:
+        entry = _require_exact_keys(
+            raw_entry, {"name", "version", "id", "filename", "sha256"}, "schema entry"
+        )
         schema_id = entry.get("id")
         if schema_id in seen or schema_id not in EXPECTED_SCHEMAS:
             raise ConformanceError("schema-set", "duplicate or unknown schema id")
         seen.add(schema_id)
         if (
-            entry.get("version") != "v1"
+            entry.get("name") != EXPECTED_SCHEMA_NAMES[schema_id]
+            or entry.get("version") != "v1"
             or entry.get("filename") != EXPECTED_SCHEMAS[schema_id]
         ):
             raise ConformanceError("schema-set", f"metadata mismatch for {schema_id}")
@@ -224,7 +262,18 @@ def validate_schema_set(schemas: dict[str, Any]) -> None:
     profiles = schema_set.get("profiles")
     if not isinstance(profiles, list) or len(profiles) != 1:
         raise ConformanceError("schema-set", "wrong profile count")
-    profile = profiles[0]
+    profile = _require_exact_keys(
+        profiles[0],
+        {
+            "id",
+            "version",
+            "filename",
+            "sha256",
+            "vectors_filename",
+            "vectors_sha256",
+        },
+        "profile entry",
+    )
     expected_profile = {
         "id": URI_PROFILE_ID,
         "version": "v1",
@@ -241,14 +290,17 @@ def validate_schema_set(schemas: dict[str, Any]) -> None:
     ):
         raise ConformanceError("schema-set", "profile vectors hash mismatch")
     vectors = schema_set.get("vectors")
-    if not isinstance(vectors, list) or vectors != [
-        {
-            "id": "platform-v1-conformance",
-            "version": "1.0.0",
-            "filename": "conformance/vectors.json",
-            "sha256": hashlib.sha256(VECTORS_PATH.read_bytes()).hexdigest(),
-        }
-    ]:
+    if not isinstance(vectors, list) or len(vectors) != 1:
+        raise ConformanceError("schema-set", "conformance vector linkage mismatch")
+    vector = _require_exact_keys(
+        vectors[0], {"id", "version", "filename", "sha256"}, "vector entry"
+    )
+    if vector != {
+        "id": "platform-v1-conformance",
+        "version": "1.0.0",
+        "filename": "conformance/vectors.json",
+        "sha256": hashlib.sha256(VECTORS_PATH.read_bytes()).hexdigest(),
+    }:
         raise ConformanceError("schema-set", "conformance vector linkage mismatch")
 
 
@@ -486,16 +538,16 @@ def validate_delegated_vector_sets(vectors: dict[str, Any]) -> dict[str, int]:
         (
             "urn:intdata:conformance:platform-product-assertion:v1",
             "conformance/platform-product-assertion-v1.vectors.json",
-            "36431fc32257713473059bffefe76caa5fd93aaa36c39c0da17cd6dbfb996304",
+            "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46",
             "conformance/terminal-dependency-digests.json",
-            "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27",
+            "000e868d2b972d8ad11af021f7df052fbf81fb3d60f09ed1373ed114e273a9e4",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-uri:v1",
             "conformance/bridge-oauth-registration-uri-v1.vectors.json",
             "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
             "conformance/terminal-dependency-digests.json",
-            "4389a70a1c6d7af47f9d66884c1da5267bd62ba361059e0d8ee4b0742e4f3d27",
+            "000e868d2b972d8ad11af021f7df052fbf81fb3d60f09ed1373ed114e273a9e4",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
@@ -538,7 +590,9 @@ def validate_delegated_vector_sets(vectors: dict[str, Any]) -> dict[str, int]:
         "approval_receipt_positive_vectors": positives,
         "approval_receipt_adverse_vectors": adverses,
         "delegated_artifact_digests": (
-            terminal_checked["artifact_digests"] + receipt.validate_digests()
+            terminal_checked["ppa_artifact_digests"]
+            + terminal_checked["terminal_artifact_digests"]
+            + receipt.validate_digests()
         ),
     }
 
@@ -564,23 +618,699 @@ def validate_release_manifest_semantics(
         raise ConformanceError("role")
 
 
+def validate_resolver_result_semantics(
+    result: dict[str, Any], resolver_input: dict[str, Any]
+) -> None:
+    for document_field, digest_field in (
+        ("installation", "installation_sha256"),
+        ("registry_snapshot", "registry_snapshot_sha256"),
+    ):
+        actual_digest = hashlib.sha256(
+            jcs_canonical(resolver_input[document_field])
+        ).hexdigest()
+        if resolver_input[digest_field] != actual_digest:
+            raise ConformanceError("resolver_input_digest", document_field)
+    for collection, identity_field in (
+        ("origins", "origin_id"),
+        ("modules", "module_id"),
+        ("capabilities", "capability_id"),
+        ("policies", "policy_id"),
+        ("configuration_custody", "configuration_key"),
+    ):
+        identities = [
+            entry[identity_field]
+            for entry in resolver_input["installation"][collection]
+        ]
+        if len(identities) != len(set(identities)):
+            raise ConformanceError("resolver_input_duplicate", collection)
+    origin_urls = [
+        origin["url"] for origin in resolver_input["installation"]["origins"]
+    ]
+    if len(origin_urls) != len(set(origin_urls)):
+        raise ConformanceError("resolver_input_duplicate", "origin URLs")
+    validate_registry_signer_semantics(resolver_input["registry_snapshot"])
+    if result["status"] != "resolved":
+        return
+    lock = result["lock"]
+    expected_bindings = {
+        "installation_id": resolver_input["installation"]["installation_id"],
+        "installation_revision": resolver_input["installation"]["revision"],
+        "installation_sha256": resolver_input["installation_sha256"],
+        "registry_id": resolver_input["registry_snapshot"]["registry_id"],
+        "registry_version": resolver_input["registry_snapshot"]["version"],
+        "registry_sha256": resolver_input["registry_snapshot_sha256"],
+        "resolver_version": resolver_input["resolver_version"],
+        "solver_policy_version": resolver_input["solver_policy_version"],
+        "policy_input_sha256": resolver_input["policy_input_sha256"],
+    }
+    actual_bindings = {
+        "installation_id": lock["installation"]["installation_id"],
+        "installation_revision": lock["installation"]["revision"],
+        "installation_sha256": lock["installation"]["sha256"],
+        "registry_id": lock["registry_snapshot"]["registry_id"],
+        "registry_version": lock["registry_snapshot"]["version"],
+        "registry_sha256": lock["registry_snapshot"]["sha256"],
+        "resolver_version": lock["resolver_version"],
+        "solver_policy_version": lock["solver_policy_version"],
+        "policy_input_sha256": lock["policy_input_sha256"],
+    }
+    for field, expected in expected_bindings.items():
+        if actual_bindings[field] != expected:
+            raise ConformanceError("resolver_input_binding", field)
+    registry_modules: dict[tuple[str, str], dict[str, Any]] = {}
+    for entry in resolver_input["registry_snapshot"]["modules"]:
+        key = (entry["module"]["module_id"], entry["module"]["version"])
+        if key in registry_modules:
+            raise ConformanceError("registry_module_binding", "duplicate registry module")
+        registry_modules[key] = entry
+    resolved_keys: set[tuple[str, str]] = set()
+    resolved_manifests: dict[str, dict[str, Any]] = {}
+    for resolved in lock["resolved_modules"]:
+        key = (resolved["module_id"], resolved["version"])
+        if key in resolved_keys:
+            raise ConformanceError("registry_module_binding", "duplicate resolved module")
+        resolved_keys.add(key)
+        registry_entry = registry_modules.get(key)
+        if registry_entry is None or any(
+            resolved[field] != registry_entry[field]
+            for field in (
+                "manifest_sha256",
+                "release_manifest_sha256",
+                "signature_envelope_sha256",
+            )
+        ):
+            raise ConformanceError("registry_module_binding", resolved["module_id"])
+        if resolved["module_id"] in resolved_manifests:
+            raise ConformanceError("registry_module_binding", "multiple resolved versions")
+        resolved_manifests[resolved["module_id"]] = registry_entry["module"]
+    for module_id, manifest in resolved_manifests.items():
+        dependency_ids: set[str] = set()
+        for dependency in manifest["dependencies"]:
+            dependency_id = dependency["module_id"]
+            if dependency_id == module_id:
+                raise ConformanceError("module_dependency", module_id)
+            if dependency_id in dependency_ids:
+                raise ConformanceError("module_dependency", module_id)
+            dependency_ids.add(dependency_id)
+        for capability_kind in ("provides", "requires"):
+            capability_entries: set[tuple[str, str]] = set()
+            for capability in manifest["capabilities"][capability_kind]:
+                capability_entry = (
+                    capability["capability_id"],
+                    capability["version_constraint"],
+                )
+                if capability_entry in capability_entries:
+                    raise ConformanceError("module_capability", module_id)
+                capability_entries.add(capability_entry)
+    resolved_order = [
+        (resolved["module_id"], resolved["version"])
+        for resolved in lock["resolved_modules"]
+    ]
+    if resolved_order != sorted(
+        resolved_order,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "resolved modules")
+    enabled_modules = [
+        desire
+        for desire in resolver_input["installation"]["modules"]
+        if desire["state"] == "enabled"
+    ]
+    enabled_module_ids = {desire["module_id"] for desire in enabled_modules}
+    missing_enabled = enabled_module_ids - set(resolved_manifests)
+    if missing_enabled:
+        missing_module_id = sorted(
+            missing_enabled, key=lambda item: item.encode("utf-8")
+        )[0]
+        raise ConformanceError("resolver_module_selection", missing_module_id)
+    for desire in enabled_modules:
+        module_id = desire["module_id"]
+        if resolved_manifests[module_id]["version"] != desire["version_constraint"]:
+            raise ConformanceError("version_conflict", module_id)
+    capability_ids: set[str] = set()
+    capability_modules: dict[str, str] = {}
+    capability_versions: dict[str, set[str]] = {}
+    for binding in lock["capability_bindings"]:
+        capability_id = binding["capability_id"]
+        if capability_id in capability_ids:
+            raise ConformanceError("capability_binding", "duplicate capability")
+        capability_ids.add(capability_id)
+        capability_modules[capability_id] = binding["provider_module_id"]
+        manifest = resolved_manifests.get(binding["provider_module_id"])
+        provided_versions = (
+            {
+                provided["version_constraint"]
+                for provided in manifest["capabilities"]["provides"]
+                if provided["capability_id"] == capability_id
+            }
+            if manifest is not None
+            else set()
+        )
+        if (
+            manifest is None
+            or binding["provider_version"] != manifest["version"]
+            or not provided_versions
+        ):
+            raise ConformanceError("capability_binding", capability_id)
+        capability_versions[capability_id] = provided_versions
+    capability_order = [
+        (binding["capability_id"], binding["provider_module_id"], binding["provider_version"])
+        for binding in lock["capability_bindings"]
+    ]
+    if capability_order != sorted(
+        capability_order,
+        key=lambda item: tuple(part.encode("utf-8") for part in item),
+    ):
+        raise ConformanceError("resolver_order", "capability bindings")
+    desired_capabilities = resolver_input["installation"]["capabilities"]
+    desired_capability_ids = {
+        desire["capability_id"] for desire in desired_capabilities
+    }
+    missing_desired = desired_capability_ids - capability_ids
+    if missing_desired:
+        missing_capability_id = sorted(
+            missing_desired, key=lambda item: item.encode("utf-8")
+        )[0]
+        raise ConformanceError("resolver_capability_selection", missing_capability_id)
+    for desire in desired_capabilities:
+        capability_id = desire["capability_id"]
+        if desire["version_constraint"] not in capability_versions[capability_id]:
+            raise ConformanceError("version_conflict", capability_id)
+    disabled_module_ids = {
+        desire["module_id"]
+        for desire in resolver_input["installation"]["modules"]
+        if desire["state"] == "disabled"
+    }
+    required_module_ids = set(enabled_module_ids)
+    required_module_ids.update(
+        capability_modules[capability_id]
+        for capability_id in desired_capability_ids
+    )
+    pending_module_ids = sorted(required_module_ids, key=lambda item: item.encode("utf-8"))
+    while pending_module_ids:
+        module_id = pending_module_ids.pop(0)
+        if module_id in disabled_module_ids:
+            raise ConformanceError("reverse_dependency_disable", module_id)
+        manifest = resolved_manifests.get(module_id)
+        if manifest is None:
+            raise ConformanceError("resolver_module_selection", module_id)
+        for requirement in sorted(
+            manifest["capabilities"]["requires"],
+            key=lambda item: item["capability_id"].encode("utf-8"),
+        ):
+            capability_id = requirement["capability_id"]
+            if (
+                capability_id not in capability_ids
+                or requirement["version_constraint"]
+                not in capability_versions[capability_id]
+            ):
+                raise ConformanceError("missing_capability", capability_id)
+            provider_module_id = capability_modules[capability_id]
+            if provider_module_id not in required_module_ids:
+                required_module_ids.add(provider_module_id)
+                pending_module_ids.append(provider_module_id)
+        for dependency in manifest["dependencies"]:
+            dependency_id = dependency["module_id"]
+            dependency_manifest = resolved_manifests.get(dependency_id)
+            if (
+                dependency_manifest is not None
+                and dependency_manifest["version"] != dependency["version_constraint"]
+            ):
+                raise ConformanceError("version_conflict", dependency_id)
+            if dependency["optional"] or dependency_id in required_module_ids:
+                continue
+            required_module_ids.add(dependency_id)
+            pending_module_ids.append(dependency_id)
+        pending_module_ids.sort(key=lambda item: item.encode("utf-8"))
+    if set(resolved_manifests) != required_module_ids:
+        unexpected_module_id = sorted(
+            set(resolved_manifests) - required_module_ids,
+            key=lambda item: item.encode("utf-8"),
+        )[0]
+        raise ConformanceError("resolver_module_selection", unexpected_module_id)
+    for module_id in sorted(resolved_manifests, key=lambda item: item.encode("utf-8")):
+        conflicts = set(resolved_manifests[module_id]["conflicts"])
+        selected_conflicts = conflicts & set(resolved_manifests)
+        if selected_conflicts:
+            conflicting_module_id = sorted(
+                selected_conflicts, key=lambda item: item.encode("utf-8")
+            )[0]
+            raise ConformanceError(
+                "version_conflict", f"{module_id}:{conflicting_module_id}"
+            )
+    expected_artifact_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        artifact_paths: set[str] = set()
+        for artifact in manifest["artifacts"]:
+            key = (module_id, artifact["artifact_id"])
+            if key in expected_artifact_keys:
+                raise ConformanceError("artifact_binding", "duplicate manifest artifact")
+            if artifact["path"] in artifact_paths:
+                raise ConformanceError("artifact_path_collision", module_id)
+            expected_artifact_keys.add(key)
+            artifact_paths.add(artifact["path"])
+    artifact_keys: set[tuple[str, str]] = set()
+    for binding in lock["artifact_bindings"]:
+        key = (binding["module_id"], binding["artifact_id"])
+        if key in artifact_keys:
+            raise ConformanceError("artifact_binding", "duplicate artifact")
+        artifact_keys.add(key)
+        if binding["locations"] != sorted(
+            binding["locations"], key=lambda item: item.encode("utf-8")
+        ):
+            raise ConformanceError("resolver_order", "artifact locations")
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("artifact_binding", binding["module_id"])
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if candidate["artifact_id"] == binding["artifact_id"]
+            ),
+            None,
+        )
+        if artifact is None or any(
+            binding[field] != artifact[field] for field in ("sha256", "size_bytes")
+        ):
+            raise ConformanceError("artifact_binding", binding["artifact_id"])
+    if [
+        (binding["module_id"], binding["artifact_id"])
+        for binding in lock["artifact_bindings"]
+    ] != sorted(
+        artifact_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "artifact bindings")
+    if artifact_keys != expected_artifact_keys:
+        module_id, artifact_id = sorted(
+            artifact_keys ^ expected_artifact_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("artifact_drift", f"{module_id}:{artifact_id}")
+    expected_route_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        runtime_unit_ids = {
+            runtime_unit["runtime_unit_id"] for runtime_unit in manifest["runtime_units"]
+        }
+        for route in manifest["routes"]:
+            key = (module_id, route["route_id"])
+            if key in expected_route_keys:
+                raise ConformanceError("route_binding", "duplicate manifest route")
+            if route["runtime_unit_id"] not in runtime_unit_ids:
+                raise ConformanceError("route_runtime_binding", route["route_id"])
+            expected_route_keys.add(key)
+    route_keys: set[tuple[str, str]] = set()
+    route_endpoints: set[tuple[str, str]] = set()
+    for binding in lock["route_bindings"]:
+        key = (binding["module_id"], binding["route_id"])
+        if key in route_keys:
+            raise ConformanceError("route_binding", "duplicate route")
+        route_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("route_binding", binding["module_id"])
+        route = next(
+            (
+                candidate
+                for candidate in manifest["routes"]
+                if candidate["route_id"] == binding["route_id"]
+            ),
+            None,
+        )
+        if route is None or any(
+            binding[field] != route[field]
+            for field in ("origin", "path", "runtime_unit_id")
+        ):
+            raise ConformanceError("route_binding", binding["route_id"])
+        endpoint = (binding["origin"], binding["path"])
+        if endpoint in route_endpoints:
+            raise ConformanceError("route_collision", "origin and path")
+        route_endpoints.add(endpoint)
+    if [
+        (binding["module_id"], binding["route_id"])
+        for binding in lock["route_bindings"]
+    ] != sorted(
+        route_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "route bindings")
+    if route_keys != expected_route_keys:
+        module_id, route_id = sorted(
+            route_keys ^ expected_route_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("route_binding", f"{module_id}:{route_id}")
+    expected_web_module_keys: set[tuple[str, str]] = set()
+    web_module_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for web_module in manifest["web_modules"]:
+            key = (module_id, web_module["web_module_id"])
+            if key in expected_web_module_keys:
+                raise ConformanceError("web_module_binding", "duplicate manifest web module")
+            expected_web_module_keys.add(key)
+    for binding in lock["web_module_bindings"]:
+        key = (binding["module_id"], binding["web_module_id"])
+        if key in web_module_keys:
+            raise ConformanceError("web_module_binding", "duplicate web module")
+        web_module_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("web_module_binding", binding["module_id"])
+        web_module = next(
+            (
+                candidate
+                for candidate in manifest["web_modules"]
+                if candidate["web_module_id"] == binding["web_module_id"]
+            ),
+            None,
+        )
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if web_module is not None
+                and candidate["artifact_id"] == web_module["entrypoint_artifact_id"]
+            ),
+            None,
+        )
+        route_ids = {route["route_id"] for route in manifest["routes"]}
+        if (
+            web_module is None
+            or artifact is None
+            or web_module["route_id"] not in route_ids
+            or binding["entrypoint_artifact_sha256"] != artifact["sha256"]
+            or binding["route_id"] != web_module["route_id"]
+        ):
+            raise ConformanceError("web_module_binding", binding["web_module_id"])
+    if [
+        (binding["module_id"], binding["web_module_id"])
+        for binding in lock["web_module_bindings"]
+    ] != sorted(
+        web_module_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "web module bindings")
+    if web_module_keys != expected_web_module_keys:
+        module_id, web_module_id = sorted(
+            web_module_keys ^ expected_web_module_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("web_module_binding", f"{module_id}:{web_module_id}")
+    expected_migration_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        migrations_by_id: dict[str, dict[str, Any]] = {}
+        migration_orders: set[int] = set()
+        for migration in manifest["migrations"]:
+            migration_id = migration["migration_id"]
+            if (
+                migration_id in migrations_by_id
+                or migration["order"] in migration_orders
+            ):
+                raise ConformanceError("migration_lineage_broken", migration_id)
+            migrations_by_id[migration_id] = migration
+            migration_orders.add(migration["order"])
+            expected_migration_keys.add((module_id, migration_id))
+        roots = [
+            migration
+            for migration in manifest["migrations"]
+            if migration["lineage_parent"] is None
+        ]
+        if migrations_by_id and len(roots) != 1:
+            raise ConformanceError("migration_lineage_broken", module_id)
+        for migration in manifest["migrations"]:
+            parent_id = migration["lineage_parent"]
+            if parent_id is None:
+                continue
+            parent = migrations_by_id.get(parent_id)
+            if parent is None or parent["order"] >= migration["order"]:
+                raise ConformanceError("migration_lineage_broken", migration["migration_id"])
+    migration_keys: set[tuple[str, str]] = set()
+    for binding in lock["migration_bindings"]:
+        key = (binding["module_id"], binding["migration_id"])
+        if key in migration_keys:
+            raise ConformanceError("migration_binding", "duplicate migration")
+        migration_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("migration_binding", binding["module_id"])
+        migration = next(
+            (
+                candidate
+                for candidate in manifest["migrations"]
+                if candidate["migration_id"] == binding["migration_id"]
+            ),
+            None,
+        )
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if migration is not None
+                and candidate["artifact_id"] == migration["artifact_id"]
+            ),
+            None,
+        )
+        if (
+            migration is None
+            or artifact is None
+            or binding["lineage_parent"] != migration["lineage_parent"]
+            or binding["order"] != migration["order"]
+            or binding["artifact_sha256"] != artifact["sha256"]
+        ):
+            raise ConformanceError("migration_binding", binding["migration_id"])
+    if [
+        (binding["module_id"], binding["order"], binding["migration_id"])
+        for binding in lock["migration_bindings"]
+    ] != sorted(
+        (
+            (binding["module_id"], binding["order"], binding["migration_id"])
+            for binding in lock["migration_bindings"]
+        ),
+        key=lambda item: (item[0].encode("utf-8"), item[1], item[2].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "migration bindings")
+    if migration_keys != expected_migration_keys:
+        missing_key = sorted(
+            expected_migration_keys - migration_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("migration_binding", missing_key[1])
+    custody_by_key: dict[str, dict[str, Any]] = {}
+    for custody in resolver_input["installation"]["configuration_custody"]:
+        custody_by_key[custody["configuration_key"]] = custody
+    expected_runtime_keys: set[tuple[str, str]] = set()
+    requirements_by_module: dict[str, dict[str, dict[str, Any]]] = {}
+    for module_id, manifest in resolved_manifests.items():
+        requirements_by_key: dict[str, dict[str, Any]] = {}
+        for requirement in manifest["configuration_requirements"]:
+            configuration_key = requirement["key"]
+            if configuration_key in requirements_by_key:
+                raise ConformanceError(
+                    "runtime_binding", "duplicate configuration requirement"
+                )
+            requirements_by_key[configuration_key] = requirement
+        requirements_by_module[module_id] = requirements_by_key
+        for runtime_unit in manifest["runtime_units"]:
+            key = (module_id, runtime_unit["runtime_unit_id"])
+            if key in expected_runtime_keys:
+                raise ConformanceError("runtime_binding", "duplicate manifest runtime unit")
+            expected_runtime_keys.add(key)
+    runtime_keys: set[tuple[str, str]] = set()
+    for binding in lock["runtime_bindings"]:
+        key = (binding["module_id"], binding["runtime_unit_id"])
+        if key in runtime_keys:
+            raise ConformanceError("runtime_binding", "duplicate runtime unit")
+        runtime_keys.add(key)
+        manifest = resolved_manifests.get(binding["module_id"])
+        if manifest is None:
+            raise ConformanceError("runtime_binding", binding["module_id"])
+        runtime_unit = next(
+            (
+                candidate
+                for candidate in manifest["runtime_units"]
+                if candidate["runtime_unit_id"] == binding["runtime_unit_id"]
+            ),
+            None,
+        )
+        if runtime_unit is None:
+            raise ConformanceError("runtime_binding", binding["runtime_unit_id"])
+        artifact = next(
+            (
+                candidate
+                for candidate in manifest["artifacts"]
+                if candidate["artifact_id"] == runtime_unit["artifact_id"]
+            ),
+            None,
+        )
+        if artifact is None or binding["artifact_sha256"] != artifact["sha256"]:
+            raise ConformanceError("runtime_binding", binding["runtime_unit_id"])
+        expected_custody_refs: set[str] = set()
+        requirements_by_key = requirements_by_module[binding["module_id"]]
+        for configuration_key in runtime_unit["configuration_keys"]:
+            requirement = requirements_by_key.get(configuration_key)
+            if requirement is None:
+                raise ConformanceError("runtime_binding", configuration_key)
+            custody = custody_by_key.get(configuration_key)
+            if custody is None or not custody["present"]:
+                if requirement["required"]:
+                    raise ConformanceError("secret_custody_missing", configuration_key)
+                continue
+            expected_custody_refs.add(custody["custody_ref"])
+        ordered_custody_refs = sorted(
+            expected_custody_refs, key=lambda item: item.encode("utf-8")
+        )
+        if binding["configuration_custody_refs"] != ordered_custody_refs:
+            raise ConformanceError("runtime_binding", "configuration custody")
+    if [
+        (binding["module_id"], binding["runtime_unit_id"])
+        for binding in lock["runtime_bindings"]
+    ] != sorted(
+        runtime_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "runtime bindings")
+    if runtime_keys != expected_runtime_keys:
+        module_id, runtime_unit_id = sorted(
+            runtime_keys ^ expected_runtime_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("runtime_binding", f"{module_id}:{runtime_unit_id}")
+    expected_mcp_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for route in manifest["routes"]:
+            if route["kind"] != "mcp":
+                continue
+            runtime_unit = next(
+                (
+                    candidate
+                    for candidate in manifest["runtime_units"]
+                    if candidate["runtime_unit_id"] == route["runtime_unit_id"]
+                ),
+                None,
+            )
+            if runtime_unit is None:
+                continue
+            resource_uri = route["origin"] + route["path"]
+            expected_mcp_keys.update(
+                (resource_uri, capability_id)
+                for capability_id in runtime_unit["capabilities"]
+                if capability_modules.get(capability_id) == module_id
+            )
+    mcp_keys: set[tuple[str, str]] = set()
+    for binding in lock["mcp_bindings"]:
+        key = (binding["resource_uri"], binding["capability_id"])
+        if key in mcp_keys:
+            raise ConformanceError("mcp_binding", "duplicate MCP binding")
+        mcp_keys.add(key)
+        matches: list[tuple[str, dict[str, Any]]] = []
+        for module_id, manifest in resolved_manifests.items():
+            runtime_unit = next(
+                (
+                    candidate
+                    for candidate in manifest["runtime_units"]
+                    if candidate["runtime_unit_id"] == binding["runtime_unit_id"]
+                ),
+                None,
+            )
+            if runtime_unit is None or binding["capability_id"] not in runtime_unit[
+                "capabilities"
+            ]:
+                continue
+            for route in manifest["routes"]:
+                if (
+                    route["kind"] == "mcp"
+                    and route["runtime_unit_id"] == binding["runtime_unit_id"]
+                    and route["origin"] + route["path"] == binding["resource_uri"]
+                ):
+                    matches.append((module_id, route))
+        if len(matches) != 1:
+            raise ConformanceError("mcp_binding", binding["resource_uri"])
+        module_id, route = matches[0]
+        if (
+            binding["audience"] != binding["resource_uri"]
+            or capability_modules.get(binding["capability_id"]) != module_id
+            or (module_id, route["route_id"]) not in route_keys
+            or (module_id, binding["runtime_unit_id"]) not in runtime_keys
+        ):
+            raise ConformanceError("mcp_binding", binding["capability_id"])
+    if [
+        (binding["resource_uri"], binding["capability_id"])
+        for binding in lock["mcp_bindings"]
+    ] != sorted(
+        mcp_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "MCP bindings")
+    if mcp_keys != expected_mcp_keys:
+        resource_uri, capability_id = sorted(
+            mcp_keys ^ expected_mcp_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError(
+            "mcp_binding_missing", f"{resource_uri}:{capability_id}"
+        )
+    lock_bytes = jcs_canonical(result["lock"])
+    actual = hashlib.sha256(lock_bytes).hexdigest()
+    if result["lock_sha256"] != actual:
+        raise ConformanceError("lock_digest")
+    envelope = result["acceptance_signature"]["envelope"]
+    if envelope["payloadType"] != "application/vnd.intdata.installation-lock.v1+json":
+        raise ConformanceError("acceptance_payload_type")
+    try:
+        signed_payload = base64.b64decode(
+            envelope["payload"], validate=True
+        )
+    except (ValueError, binascii.Error) as error:
+        raise ConformanceError("acceptance_payload") from error
+    if base64.b64encode(signed_payload).decode("ascii") != envelope["payload"]:
+        raise ConformanceError("acceptance_payload")
+    if signed_payload != lock_bytes:
+        raise ConformanceError("acceptance_payload")
+    for signature in envelope["signatures"]:
+        try:
+            signature_bytes = base64.b64decode(signature["sig"], validate=True)
+        except (ValueError, binascii.Error) as error:
+            raise ConformanceError("acceptance_signature") from error
+        if (
+            len(signature_bytes) != 64
+            or base64.b64encode(signature_bytes).decode("ascii") != signature["sig"]
+        ):
+            raise ConformanceError("acceptance_signature")
+
+
 def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:
     expected_roles = ["installation-actor", "module", "registry", "scan"]
     entries = snapshot["accepted_signers"]
     roles = [entry["role"] for entry in entries]
     if roles != expected_roles:
         raise ConformanceError("accepted_signer_roles")
+    admitted_key_ids: set[str] = set()
     for entry in entries:
         key_ids = entry["key_ids"]
         if key_ids != sorted(set(key_ids), key=lambda item: item.encode("utf-8")):
             raise ConformanceError("accepted_signer_key_ids")
+        if admitted_key_ids.intersection(key_ids):
+            raise ConformanceError("accepted_signer_key_roles")
+        admitted_key_ids.update(key_ids)
+    module_keys: set[tuple[str, str]] = set()
+    for entry in snapshot["modules"]:
+        module_key = (entry["module"]["module_id"], entry["module"]["version"])
+        if module_key in module_keys:
+            raise ConformanceError("registry_module_duplicate")
+        module_keys.add(module_key)
+        manifest_sha256 = hashlib.sha256(jcs_canonical(entry["module"])).hexdigest()
+        if entry["manifest_sha256"] != manifest_sha256:
+            raise ConformanceError("registry_module_digest")
 
 
 def run() -> dict[str, int]:
     schemas, registry = _schema_registry()
     validate_schema_set(schemas)
     vectors = load_source_json(VECTORS_PATH, enforce_data_policy=False)
+    resolver_input = load_source_json(ROOT / "fixtures/valid/resolver-input.json")
     schema_count = 0
+    resolver_result_count = 0
     for fixture in vectors["schema_fixtures"]:
         document = load_source_json(ROOT / fixture["path"])
         errors = list(
@@ -588,6 +1318,12 @@ def run() -> dict[str, int]:
         )
         if bool(errors) == fixture["valid"]:
             raise ConformanceError("fixture", fixture["path"])
+        if (
+            fixture["schema_id"] == "urn:intdata:schema:resolver-result:v1"
+            and not errors
+        ):
+            validate_resolver_result_semantics(document, resolver_input)
+            resolver_result_count += 1
         schema_count += 1
     mutation_count = 0
     for vector in vectors["schema_mutations"]:
@@ -718,6 +1454,7 @@ def run() -> dict[str, int]:
         "release_keyset_vectors": keyset_count,
         "bootstrap_root_vectors": bootstrap_adverse_count + 1,
         "release_manifest_vectors": release_manifest_count,
+        "resolver_result_vectors": resolver_result_count,
         "registry_signer_vectors": registry_signer_count,
         "priority_artifact_digests": validate_priority_digests(),
     }

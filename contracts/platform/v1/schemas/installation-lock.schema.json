@@ -20,6 +20,7 @@
     "capability_bindings",
     "artifact_bindings",
     "route_bindings",
+    "web_module_bindings",
     "migration_bindings",
     "mcp_bindings",
     "runtime_bindings"
@@ -63,6 +64,11 @@
       "type": "array",
       "maxItems": 2048,
       "items": { "$ref": "#/$defs/route_binding" }
+    },
+    "web_module_bindings": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/web_module_binding" }
     },
     "migration_bindings": {
       "type": "array",
@@ -166,6 +172,17 @@
         "origin": { "type": "string", "format": "uri", "pattern": "^https://[^/]+$" },
         "path": { "type": "string", "pattern": "^/(?:[A-Za-z0-9._~-]+/?)*$", "maxLength": 512 },
         "runtime_unit_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "web_module_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web_module_id", "module_id", "entrypoint_artifact_sha256", "route_id"],
+      "properties": {
+        "web_module_id": { "$ref": "#/$defs/identifier" },
+        "module_id": { "$ref": "#/$defs/identifier" },
+        "entrypoint_artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "route_id": { "$ref": "#/$defs/identifier" }
       }
     },
     "migration_binding": {

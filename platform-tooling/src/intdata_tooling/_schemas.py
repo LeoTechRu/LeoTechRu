@@ -128,7 +128,10 @@ EXPECTED_PROFILE_DOCUMENT: dict[str, Any] = {
     },
     "scheme_and_authority": {
         "https": "allowed",
-        "http": "allowed-only-for-exact-127.0.0.1-or-bracketed-ipv6-loopback",
+        "http": (
+            "allowed-only-for-exact-127.0.0.1-or-bracketed-ipv6-loopback-with-an-"
+            "explicit-non-default-port"
+        ),
         "dns": "lowercase-ldh-without-empty-labels-leading-or-trailing-hyphen-or-trailing-dot",
         "ip": "canonical-text",
         "port": "absent-or-canonical-decimal-1-through-65535",
@@ -146,7 +149,7 @@ EXPECTED_PROFILE_DOCUMENT: dict[str, Any] = {
         ],
     },
     "percent_encoding": {
-        "hex_output": "uppercase",
+        "hex_output": "input-and-output-uppercase-only",
         "forbid_encoded": [
             "ascii-unreserved",
             "slash",
@@ -155,7 +158,7 @@ EXPECTED_PROFILE_DOCUMENT: dict[str, Any] = {
             "control",
         ],
         "utf8": "percent-octets-must-form-valid-utf8",
-        "reserved": "preserve-byte-exact-apart-from-uppercase-hex",
+        "reserved": "preserve-byte-and-uppercase-escape-exact",
     },
     "query": {
         "order": "preserve-exact",

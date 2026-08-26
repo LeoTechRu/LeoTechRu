@@ -8,12 +8,12 @@
     "installation": {
       "installation_id": "acme.platform",
       "revision": 7,
-      "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      "sha256": "9e182f199b8d7461ddca9e372e9c2629955452b0b7263ad03245876fecf3440e"
     },
     "registry_snapshot": {
       "registry_id": "intdata.registry",
       "version": "2026.08.11",
-      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+      "sha256": "033d2429df883d70721420083ced60510b685a8144ee7691a8037e61b226fdf7"
     },
     "resolver_version": "1.0.0",
     "solver_policy_version": "1.0.0",
@@ -25,16 +25,17 @@
     "capability_bindings": [],
     "artifact_bindings": [],
     "route_bindings": [],
+    "web_module_bindings": [],
     "migration_bindings": [],
     "mcp_bindings": [],
     "runtime_bindings": []
   },
-  "lock_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "lock_sha256": "9ae77dfc872d83113f10724a72472d9b2456c02b79eb65068e31d3bbe8862344",
   "acceptance_signature": {
     "role": "installation-actor",
     "envelope": {
       "payloadType": "application/vnd.intdata.installation-lock.v1+json",
-      "payload": "e30=",
+      "payload": "eyJhcnRpZmFjdF9iaW5kaW5ncyI6W10sImJvb3RzdHJhcF9yb290X3NldF9kaWdlc3QiOiI5N2VmMmNjOWI0MzkwOGE2YmU2ZTdiM2M5MTY4MGY3NWY5ZTRjYmVjMTU4MjgwNTZiZWM2ZjAyNGQ5NjZlNTMxIiwiYnJpZGdlX29hdXRoX3JlZ2lzdHJhdGlvbl9hcHByb3ZhbF9hdWRpZW5jZSI6Imh0dHBzOi8vYXBpLmludGRhdGEucHJvL2ludGVybmFsL3BsYXRmb3JtLWlkZW50aXR5L3YxL2JyaWRnZS9zb2Z0d2FyZS1zdGF0ZW1lbnRzIiwiYnJpZGdlX29hdXRoX3JlZ2lzdHJhdGlvbl9hcHByb3ZhbF9pc3N1ZXIiOiJodHRwczovL2JyaWRnZS5pbnRkYXRhLnByby9vYXV0aCIsImNhcGFiaWxpdHlfYmluZGluZ3MiOltdLCJnZW5lcmF0ZWRfYXQiOiIyMDI2LTA4LTExVDEyOjAzOjAwWiIsImluc3RhbGxhdGlvbiI6eyJpbnN0YWxsYXRpb25faWQiOiJhY21lLnBsYXRmb3JtIiwicmV2aXNpb24iOjcsInNoYTI1NiI6IjllMTgyZjE5OWI4ZDc0NjFkZGNhOWUzNzJlOWMyNjI5OTU1NDUyYjBiNzI2M2FkMDMyNDU4NzZmZWNmMzQ0MGUifSwibG9ja19pZCI6ImVtcHR5LmxvY2suMSIsIm1jcF9iaW5kaW5ncyI6W10sIm1pZ3JhdGlvbl9iaW5kaW5ncyI6W10sInBvbGljeV9pbnB1dF9zaGEyNTYiOiI1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1IiwicmVnaXN0cnlfc25hcHNob3QiOnsicmVnaXN0cnlfaWQiOiJpbnRkYXRhLnJlZ2lzdHJ5Iiwic2hhMjU2IjoiMDMzZDI0MjlkZjg4M2Q3MDcyMTQyMDA4M2NlZDYwNTEwYjY4NWE4MTQ0ZWU3NjkxYTgwMzdlNjFiMjI2ZmRmNyIsInZlcnNpb24iOiIyMDI2LjA4LjExIn0sInJlc29sdmVkX21vZHVsZXMiOltdLCJyZXNvbHZlcl92ZXJzaW9uIjoiMS4wLjAiLCJyb3V0ZV9iaW5kaW5ncyI6W10sInJ1bnRpbWVfYmluZGluZ3MiOltdLCJzY2hlbWFfdmVyc2lvbiI6Ikluc3RhbGxhdGlvbkxvY2tWMSIsInNvbHZlcl9wb2xpY3lfdmVyc2lvbiI6IjEuMC4wIiwid2ViX21vZHVsZV9iaW5kaW5ncyI6W119",
       "signatures": [
         {
           "keyid": "key.installation",

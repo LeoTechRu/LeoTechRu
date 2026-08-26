@@ -2,6 +2,14 @@
 
 Этот файл фиксирует понятные записи по каждому локальному commit репозитория `/int/tools`. Запись готовится перед commit и входит в тот же commit.
 
+## 2026-08-22
+### Публичный каталог и совместимость пакетов восстановлены
+- Каталог публичной поверхности синхронизирован с фактическими top-level модулями; отсутствующий `openclaw` удалён, а contracts, validators, tests, OpenSpec и MCP-контуры классифицированы явно.
+- Catalog gate теперь допускает публичные `AGENTS.md` и product-local OpenSpec, но по-прежнему блокирует private `.codex`-артефакты.
+- MCP-пакеты на legacy `mcp.server.fastmcp` ограничены совместимой major-версией `mcp<2`; metadata amoCRM MCP приведена к актуальному PEP 639/setuptools.
+- Python carrier connector contracts стабильно выбирает actionable schema error внутри `oneOf`/`anyOf` на актуальных `jsonschema`, сохраняя закрытые reason/path envelopes.
+- DBA корректно формирует Windows `PATH` и каталог `psql` независимо от ОС, на которой выполняется regression suite.
+
 ## 2026-07-19
 ### amoCRM MCP: agent-agnostic root и полный публичный HTTP API registry
 - Канонический source перенесён из `codex/tools/amocrm-mcp/` в top-level [amocrm-mcp/](/int/tools/amocrm-mcp), чтобы один пакет использовался Codex, Hermes и другими MCP-host'ами.
@@ -124,8 +132,7 @@
   - `/int/brain/mcp/intbrain/bin/mcp-intbrain --stdio`
   - `python /int/brain/mcp/intbrain/bin/mcp-intbrain.py`
 - `/int/tools/codex/bin/mcp-intdata-cli.py --profile intbrain` is now a thin compatibility wrapper that delegates to `/int/brain`.
-- `/int/tools/codex/plugins/intbrain/.mcp.json` now points to `D:\int\brain\mcp\intbrain\bin\mcp-intbrain.py`.
-- IntBrain Codex plugin source and skills source-of-truth moved to `/int/brain/codex/plugins/intbrain/`.
+- IntBrain Codex plugin source, skills and private catalog moved to `/int/brain/codex/plugins/intbrain/`; `/int/tools` retains no private product payload.
 
 ### finalize: закрыт pending server-state по `mcp-intbrain` и `mcp-memory-bank`
 - В `codex/bin/mcp-intbrain.py` добавлена нормализация PM date-алиасов (`today|tomorrow|yesterday`) с учётом timezone для `pm/*` инструментов (`dashboard/tasks/health/constraints/task_create/task_patch`).

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "intData" }]
-dependencies = ["httpx>=0.27", "mcp>=1.0"]
+dependencies = ["httpx>=0.27", "mcp>=1.0,<2"]
 
 [project.scripts]
 vakas-mcp = "vakas_mcp.server:main"

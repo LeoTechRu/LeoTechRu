@@ -123,16 +123,6 @@
       "migration_action": "Classify each file and move to owner tool or delete after approval."
     },
     {
-      "id": "openclaw",
-      "root": "openclaw",
-      "status": "public-adapter",
-      "owner": "intData",
-      "public_surface": "Generalized integration helpers, templates, and public runbook material only.",
-      "runtime_state": "OpenClaw home, workspace, secrets, and private runtime policy stay outside tracked source.",
-      "target_home": "D:/int/tools/openclaw for generalized helpers; user/runtime homes for live state.",
-      "migration_action": "Audit and split private runtime parts before cleanup."
-    },
-    {
       "id": "intdata-platform-ppa-validator",
       "root": "packages",
       "status": "public-tool",
@@ -231,6 +221,76 @@
       "runtime_state": "No runtime state or source checkout is stored in intData-tools.",
       "target_home": "External upstream: https://github.com/hilash/cabinet",
       "migration_action": "Converted from master read-only submodule to catalog link; use upstream directly unless a future owned fork is explicitly approved."
+    },
+    {
+      "id": "platform-contracts",
+      "root": "contracts",
+      "status": "public-adapter",
+      "owner": "intData",
+      "public_surface": "Offline language-neutral schemas, fixtures and conformance bundles for public intData platform and connector contracts.",
+      "runtime_state": "No credentials, private signing material, provider runtime or network dependency is stored here.",
+      "target_home": "D:/int/tools/contracts",
+      "migration_action": "Keep as the public contract source paired with deterministic validators and exact digest manifests."
+    },
+    {
+      "id": "graphify-out",
+      "root": "graphify-out",
+      "status": "public-adapter",
+      "owner": "intData",
+      "public_surface": "Generated repository knowledge graph and navigation documentation for the public source tree.",
+      "runtime_state": "Generated from tracked public repository content; no host-local runtime state or secrets are permitted.",
+      "target_home": "D:/int/tools/graphify-out",
+      "migration_action": "Keep synchronized with tracked source through graphify update and review generated diffs before publication."
+    },
+    {
+      "id": "tools-openspec",
+      "root": "openspec",
+      "status": "public-adapter",
+      "owner": "intData",
+      "public_surface": "Public product requirements, acceptance contracts and active change packages owned by intData-tools.",
+      "runtime_state": "Execution transcripts, private governance, secrets and host-local state remain outside this repository.",
+      "target_home": "D:/int/tools/openspec",
+      "migration_action": "Keep Tools-owned public specifications here; shared or cross-repository governance remains in the /int root repository."
+    },
+    {
+      "id": "platform-tooling",
+      "root": "platform-tooling",
+      "status": "public-tool",
+      "owner": "intData",
+      "public_surface": "MIT-licensed offline Python CLI for strict platform schema validation, RFC 8785 canonicalization and digest verification.",
+      "runtime_state": "Offline validation only; no network fallback, credentials, production keys or tracked runtime state.",
+      "target_home": "D:/int/tools/platform-tooling",
+      "migration_action": "Keep and publish only from reviewed committed bytes with bundled licenses and notices."
+    },
+    {
+      "id": "punkt-b-admin-mcp",
+      "root": "punkt-b-admin-mcp",
+      "status": "master-private",
+      "owner": "Punkt B",
+      "public_surface": "No general public surface in its current admin-gateway form.",
+      "runtime_state": "Private authorization, service adapters, protected configuration and VDS-only runtime remain outside public distribution.",
+      "target_home": "Owning Punkt B/private platform contour unless a reusable secret-free subset is split out.",
+      "migration_action": "Do not publish as a general public MCP; retain only until ownership and migration destination are approved."
+    },
+    {
+      "id": "repository-tests",
+      "root": "tests",
+      "status": "public-adapter",
+      "owner": "intData",
+      "public_surface": "Repository-level deterministic regression and conformance checks for public catalog and contract surfaces.",
+      "runtime_state": "Test outputs and temporary environments remain outside tracked source.",
+      "target_home": "D:/int/tools/tests",
+      "migration_action": "Keep public-safe cross-package tests; package-specific tests remain with their owning tools."
+    },
+    {
+      "id": "unisender-mcp",
+      "root": "unisender-mcp",
+      "status": "public-adapter",
+      "owner": "Punkt B",
+      "public_surface": "Bounded MCP adapter for Unisender reads and explicitly confirmed single-email sending.",
+      "runtime_state": "API keys and native credential-store launchers remain external; no key or customer data is tracked.",
+      "target_home": "D:/int/tools/unisender-mcp while maintained as a sanitized product adapter.",
+      "migration_action": "Audit product coupling and package metadata before any general public release."
     }
   ]
 }

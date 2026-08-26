@@ -22,6 +22,7 @@
   "capability_bindings": [],
   "artifact_bindings": [],
   "route_bindings": [],
+  "web_module_bindings": [],
   "migration_bindings": [],
   "mcp_bindings": [],
   "runtime_bindings": []

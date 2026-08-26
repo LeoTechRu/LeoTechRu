@@ -60,7 +60,9 @@ def _forbidden_artifacts(tracked: list[str]) -> list[str]:
     forbidden: list[str] = []
     for item in tracked:
         name = item.split("/")[-1]
-        if item == "AGENTS.md" or item.startswith(".codex/") or item.startswith("openspec/"):
+        # Public repo instructions and product-local OpenSpec are allowed;
+        # private/shared governance remains owned by the /int root repository.
+        if item.startswith(".codex/"):
             forbidden.append(item)
         elif "/node_modules/" in f"/{item}/":
             forbidden.append(item)
