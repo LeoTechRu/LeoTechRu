@@ -1211,6 +1211,18 @@ def test_resolved_result_accepts_ordered_migration_lineage() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_noncanonical_migration_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    document["lock"]["migration_bindings"].reverse()
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 @pytest.mark.parametrize(
     ("lineage_parent", "order"),
     [("bridge.missing", 1), ("bridge.next", 1), ("bridge.init", 0)],

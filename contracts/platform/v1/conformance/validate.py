@@ -1032,6 +1032,17 @@ def validate_resolver_result_semantics(
             or binding["artifact_sha256"] != artifact["sha256"]
         ):
             raise ConformanceError("migration_binding", binding["migration_id"])
+    if [
+        (binding["module_id"], binding["order"], binding["migration_id"])
+        for binding in lock["migration_bindings"]
+    ] != sorted(
+        (
+            (binding["module_id"], binding["order"], binding["migration_id"])
+            for binding in lock["migration_bindings"]
+        ),
+        key=lambda item: (item[0].encode("utf-8"), item[1], item[2].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "migration bindings")
     if migration_keys != expected_migration_keys:
         missing_key = sorted(
             expected_migration_keys - migration_keys,
