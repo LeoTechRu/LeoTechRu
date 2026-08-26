@@ -1,9 +1,9 @@
 ---
-name: ui-ux-pro-max
-description: "Reference-first UI component discovery and code reuse. Browse Beautiful UI, beUI, Rare UI, Transitions.dev, and shadcn/ui; retrieve component code and integrate it into an existing frontend."
+name: intdata-ui-ux
+description: "intData reference-first UI component discovery and code reuse. Browse Beautiful UI, beUI, Rare UI, Transitions.dev, and shadcn/ui; retrieve component code and integrate it into an existing frontend."
 ---
 
-# UI/UX Pro Max — Component Reference Catalog
+# intData UI/UX — Component Reference Catalog
 
 Use this skill to find strong existing UI components, inspect their live examples, retrieve their source code, and adapt or copy that code into a frontend.
 
@@ -22,7 +22,7 @@ The skill is a reference browser and implementation aid. It does not impose a vi
 The same catalog is searchable through the bundled CLI:
 
 ```bash
-python3 skills/ui-ux-pro-max/scripts/search.py "agent approval animated table" --domain reference -n 5
+python3 skills/intdata-ui-ux/scripts/search.py "agent approval animated table" --domain reference -n 5
 ```
 
 ## Reference-first workflow
@@ -40,7 +40,7 @@ python3 skills/ui-ux-pro-max/scripts/search.py "agent approval animated table" -
 The bundled search command returns matching component sources and their code-retrieval paths:
 
 ```bash
-python3 skills/ui-ux-pro-max/scripts/search.py "animated React agent interface" --domain reference -n 5
+python3 skills/intdata-ui-ux/scripts/search.py "animated React agent interface" --domain reference -n 5
 ```
 
 Its output is a shortlist for opening, copying and editing.
