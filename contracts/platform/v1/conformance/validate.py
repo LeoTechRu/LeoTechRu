@@ -811,10 +811,15 @@ def validate_resolver_result_semantics(
         raise ConformanceError("artifact_drift", f"{module_id}:{artifact_id}")
     expected_route_keys: set[tuple[str, str]] = set()
     for module_id, manifest in resolved_manifests.items():
+        runtime_unit_ids = {
+            runtime_unit["runtime_unit_id"] for runtime_unit in manifest["runtime_units"]
+        }
         for route in manifest["routes"]:
             key = (module_id, route["route_id"])
             if key in expected_route_keys:
                 raise ConformanceError("route_binding", "duplicate manifest route")
+            if route["runtime_unit_id"] not in runtime_unit_ids:
+                raise ConformanceError("route_runtime_binding", route["route_id"])
             expected_route_keys.add(key)
     route_keys: set[tuple[str, str]] = set()
     route_endpoints: set[tuple[str, str]] = set()
