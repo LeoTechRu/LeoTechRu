@@ -952,6 +952,37 @@ def test_resolved_result_accepts_required_transitive_module() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+@pytest.mark.parametrize("include_dependency", [False, True])
+def test_resolved_result_rejects_disabled_required_transitive_module(
+    include_dependency: bool,
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=True,
+        include_dependency=include_dependency,
+    )
+    resolver_input["installation"]["modules"].append(
+        {
+            "module_id": "other.core",
+            "version_constraint": "1.0.0",
+            "state": "disabled",
+        }
+    )
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^reverse_dependency_disable"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_rejects_missing_required_transitive_module() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

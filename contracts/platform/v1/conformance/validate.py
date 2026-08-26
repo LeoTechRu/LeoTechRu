@@ -725,6 +725,11 @@ def validate_resolver_result_semantics(
             missing_desired, key=lambda item: item.encode("utf-8")
         )[0]
         raise ConformanceError("resolver_capability_selection", missing_capability_id)
+    disabled_module_ids = {
+        desire["module_id"]
+        for desire in resolver_input["installation"]["modules"]
+        if desire["state"] == "disabled"
+    }
     required_module_ids = set(enabled_module_ids)
     required_module_ids.update(
         capability_modules[capability_id]
@@ -733,6 +738,8 @@ def validate_resolver_result_semantics(
     pending_module_ids = sorted(required_module_ids, key=lambda item: item.encode("utf-8"))
     while pending_module_ids:
         module_id = pending_module_ids.pop(0)
+        if module_id in disabled_module_ids:
+            raise ConformanceError("reverse_dependency_disable", module_id)
         manifest = resolved_manifests.get(module_id)
         if manifest is None:
             raise ConformanceError("resolver_module_selection", module_id)
