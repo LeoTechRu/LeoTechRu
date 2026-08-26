@@ -843,11 +843,15 @@ def validate_resolver_result_semantics(
             )
     expected_artifact_keys: set[tuple[str, str]] = set()
     for module_id, manifest in resolved_manifests.items():
+        artifact_paths: set[str] = set()
         for artifact in manifest["artifacts"]:
             key = (module_id, artifact["artifact_id"])
             if key in expected_artifact_keys:
                 raise ConformanceError("artifact_binding", "duplicate manifest artifact")
+            if artifact["path"] in artifact_paths:
+                raise ConformanceError("artifact_path_collision", module_id)
             expected_artifact_keys.add(key)
+            artifact_paths.add(artifact["path"])
     artifact_keys: set[tuple[str, str]] = set()
     for binding in lock["artifact_bindings"]:
         key = (binding["module_id"], binding["artifact_id"])
