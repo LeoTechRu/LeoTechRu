@@ -776,6 +776,86 @@ def test_resolved_result_accepts_required_capability_provider() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_accepts_matching_nonfirst_capability_version() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=False,
+        include_dependency=True,
+    )
+    bridge_entry, provider_entry = resolver_input["registry_snapshot"]["modules"]
+    bridge_entry["module"]["capabilities"]["requires"] = [
+        {"capability_id": "other.service", "version_constraint": "2.0.0"}
+    ]
+    provider_entry["module"]["capabilities"]["provides"] = [
+        {"capability_id": "other.service", "version_constraint": "1.0.0"},
+        {"capability_id": "other.service", "version_constraint": "2.0.0"},
+    ]
+    for entry in (bridge_entry, provider_entry):
+        entry["manifest_sha256"] = hashlib.sha256(
+            CONFORMANCE.jcs_canonical(entry["module"])
+        ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    for resolved in document["lock"]["resolved_modules"]:
+        entry = bridge_entry if resolved["module_id"] == "bridge.core" else provider_entry
+        resolved["manifest_sha256"] = entry["manifest_sha256"]
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "other.service",
+            "provider_module_id": "other.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    _refresh_lock_binding(document)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_incompatible_required_capability_provider() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=False,
+        include_dependency=True,
+    )
+    bridge_entry, provider_entry = resolver_input["registry_snapshot"]["modules"]
+    bridge_entry["module"]["capabilities"]["requires"] = [
+        {"capability_id": "other.service", "version_constraint": "2.0.0"}
+    ]
+    provider_entry["module"]["capabilities"]["provides"] = [
+        {"capability_id": "other.service", "version_constraint": "1.0.0"}
+    ]
+    for entry in (bridge_entry, provider_entry):
+        entry["manifest_sha256"] = hashlib.sha256(
+            CONFORMANCE.jcs_canonical(entry["module"])
+        ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    for resolved in document["lock"]["resolved_modules"]:
+        entry = bridge_entry if resolved["module_id"] == "bridge.core" else provider_entry
+        resolved["manifest_sha256"] = entry["manifest_sha256"]
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "other.service",
+            "provider_module_id": "other.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^missing_capability"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_rejects_missing_required_capability_provider() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

@@ -698,6 +698,7 @@ def validate_resolver_result_semantics(
         raise ConformanceError("resolver_module_selection", missing_module_id)
     capability_ids: set[str] = set()
     capability_modules: dict[str, str] = {}
+    capability_versions: dict[str, set[str]] = {}
     for binding in lock["capability_bindings"]:
         capability_id = binding["capability_id"]
         if capability_id in capability_ids:
@@ -705,16 +706,22 @@ def validate_resolver_result_semantics(
         capability_ids.add(capability_id)
         capability_modules[capability_id] = binding["provider_module_id"]
         manifest = resolved_manifests.get(binding["provider_module_id"])
+        provided_versions = (
+            {
+                provided["version_constraint"]
+                for provided in manifest["capabilities"]["provides"]
+                if provided["capability_id"] == capability_id
+            }
+            if manifest is not None
+            else set()
+        )
         if (
             manifest is None
             or binding["provider_version"] != manifest["version"]
-            or capability_id
-            not in {
-                provided["capability_id"]
-                for provided in manifest["capabilities"]["provides"]
-            }
+            or not provided_versions
         ):
             raise ConformanceError("capability_binding", capability_id)
+        capability_versions[capability_id] = provided_versions
     desired_capability_ids = {
         desire["capability_id"]
         for desire in resolver_input["installation"]["capabilities"]
@@ -748,7 +755,11 @@ def validate_resolver_result_semantics(
             key=lambda item: item["capability_id"].encode("utf-8"),
         ):
             capability_id = requirement["capability_id"]
-            if capability_id not in capability_ids:
+            if (
+                capability_id not in capability_ids
+                or requirement["version_constraint"]
+                not in capability_versions[capability_id]
+            ):
                 raise ConformanceError("missing_capability", capability_id)
             provider_module_id = capability_modules[capability_id]
             if provider_module_id not in required_module_ids:
