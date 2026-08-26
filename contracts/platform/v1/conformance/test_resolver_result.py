@@ -510,6 +510,14 @@ def test_resolver_result_rejects_false_embedded_document_digest(
             "policies",
             {"policy_id": "platform.default", "version": "1.0.0", "sha256": "5" * 64},
         ),
+        (
+            "configuration_custody",
+            {
+                "configuration_key": "database.url",
+                "custody_ref": "vault.database.url",
+                "present": True,
+            },
+        ),
     ],
 )
 def test_resolver_result_rejects_duplicate_desired_state(

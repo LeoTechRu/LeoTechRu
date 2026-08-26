@@ -635,6 +635,7 @@ def validate_resolver_result_semantics(
         ("modules", "module_id"),
         ("capabilities", "capability_id"),
         ("policies", "policy_id"),
+        ("configuration_custody", "configuration_key"),
     ):
         identities = [
             entry[identity_field]
@@ -1067,8 +1068,6 @@ def validate_resolver_result_semantics(
         raise ConformanceError("migration_binding", missing_key[1])
     custody_by_key: dict[str, dict[str, Any]] = {}
     for custody in resolver_input["installation"]["configuration_custody"]:
-        if custody["configuration_key"] in custody_by_key:
-            raise ConformanceError("runtime_binding", "duplicate configuration custody")
         custody_by_key[custody["configuration_key"]] = custody
     expected_runtime_keys: set[tuple[str, str]] = set()
     for module_id, manifest in resolved_manifests.items():
