@@ -674,6 +674,30 @@ def test_resolved_result_accepts_capability_from_admitted_manifest() -> None:
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_incompatible_desired_capability_provider() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    resolver_input["installation"]["capabilities"] = [
+        {"capability_id": "bridge.oauth", "version_constraint": "2.0.0"}
+    ]
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    document["lock"]["capability_bindings"] = [
+        {
+            "capability_id": "bridge.oauth",
+            "provider_module_id": "bridge.core",
+            "provider_version": "1.0.0",
+        }
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^version_conflict"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_rejects_missing_desired_capability_binding() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

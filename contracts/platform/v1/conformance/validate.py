@@ -722,9 +722,9 @@ def validate_resolver_result_semantics(
         ):
             raise ConformanceError("capability_binding", capability_id)
         capability_versions[capability_id] = provided_versions
+    desired_capabilities = resolver_input["installation"]["capabilities"]
     desired_capability_ids = {
-        desire["capability_id"]
-        for desire in resolver_input["installation"]["capabilities"]
+        desire["capability_id"] for desire in desired_capabilities
     }
     missing_desired = desired_capability_ids - capability_ids
     if missing_desired:
@@ -732,6 +732,10 @@ def validate_resolver_result_semantics(
             missing_desired, key=lambda item: item.encode("utf-8")
         )[0]
         raise ConformanceError("resolver_capability_selection", missing_capability_id)
+    for desire in desired_capabilities:
+        capability_id = desire["capability_id"]
+        if desire["version_constraint"] not in capability_versions[capability_id]:
+            raise ConformanceError("version_conflict", capability_id)
     disabled_module_ids = {
         desire["module_id"]
         for desire in resolver_input["installation"]["modules"]
