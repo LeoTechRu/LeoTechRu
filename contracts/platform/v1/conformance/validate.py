@@ -834,11 +834,13 @@ def validate_resolver_result_semantics(
             raise ConformanceError(
                 "version_conflict", f"{module_id}:{conflicting_module_id}"
             )
-    expected_artifact_keys = {
-        (module_id, artifact["artifact_id"])
-        for module_id, manifest in resolved_manifests.items()
-        for artifact in manifest["artifacts"]
-    }
+    expected_artifact_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        for artifact in manifest["artifacts"]:
+            key = (module_id, artifact["artifact_id"])
+            if key in expected_artifact_keys:
+                raise ConformanceError("artifact_binding", "duplicate manifest artifact")
+            expected_artifact_keys.add(key)
     artifact_keys: set[tuple[str, str]] = set()
     for binding in lock["artifact_bindings"]:
         key = (binding["module_id"], binding["artifact_id"])
