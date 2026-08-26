@@ -778,6 +778,7 @@ def validate_resolver_result_semantics(
         ):
             raise ConformanceError("artifact_binding", binding["artifact_id"])
     route_keys: set[tuple[str, str]] = set()
+    route_endpoints: set[tuple[str, str]] = set()
     for binding in lock["route_bindings"]:
         key = (binding["module_id"], binding["route_id"])
         if key in route_keys:
@@ -799,6 +800,10 @@ def validate_resolver_result_semantics(
             for field in ("origin", "path", "runtime_unit_id")
         ):
             raise ConformanceError("route_binding", binding["route_id"])
+        endpoint = (binding["origin"], binding["path"])
+        if endpoint in route_endpoints:
+            raise ConformanceError("route_collision", "origin and path")
+        route_endpoints.add(endpoint)
     migration_keys: set[tuple[str, str]] = set()
     for binding in lock["migration_bindings"]:
         key = (binding["module_id"], binding["migration_id"])
