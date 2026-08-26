@@ -736,6 +736,15 @@ def validate_resolver_result_semantics(
         ):
             raise ConformanceError("capability_binding", capability_id)
         capability_versions[capability_id] = provided_versions
+    capability_order = [
+        (binding["capability_id"], binding["provider_module_id"], binding["provider_version"])
+        for binding in lock["capability_bindings"]
+    ]
+    if capability_order != sorted(
+        capability_order,
+        key=lambda item: tuple(part.encode("utf-8") for part in item),
+    ):
+        raise ConformanceError("resolver_order", "capability bindings")
     desired_capabilities = resolver_input["installation"]["capabilities"]
     desired_capability_ids = {
         desire["capability_id"] for desire in desired_capabilities
