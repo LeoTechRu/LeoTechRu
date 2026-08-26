@@ -812,6 +812,37 @@ def test_resolved_result_rejects_manifest_artifact_path_collision() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_duplicate_configuration_requirement_without_runtime() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    requirement = {
+        "key": "bridge.api-token",
+        "value_type": "string",
+        "required": True,
+        "secret": True,
+    }
+    registry_entry["module"]["configuration_requirements"] = [
+        requirement,
+        copy.deepcopy(requirement),
+    ]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^runtime_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_rejects_unbound_manifest_artifact() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

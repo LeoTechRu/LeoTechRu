@@ -1083,7 +1083,17 @@ def validate_resolver_result_semantics(
     for custody in resolver_input["installation"]["configuration_custody"]:
         custody_by_key[custody["configuration_key"]] = custody
     expected_runtime_keys: set[tuple[str, str]] = set()
+    requirements_by_module: dict[str, dict[str, dict[str, Any]]] = {}
     for module_id, manifest in resolved_manifests.items():
+        requirements_by_key: dict[str, dict[str, Any]] = {}
+        for requirement in manifest["configuration_requirements"]:
+            configuration_key = requirement["key"]
+            if configuration_key in requirements_by_key:
+                raise ConformanceError(
+                    "runtime_binding", "duplicate configuration requirement"
+                )
+            requirements_by_key[configuration_key] = requirement
+        requirements_by_module[module_id] = requirements_by_key
         for runtime_unit in manifest["runtime_units"]:
             key = (module_id, runtime_unit["runtime_unit_id"])
             if key in expected_runtime_keys:
@@ -1119,14 +1129,7 @@ def validate_resolver_result_semantics(
         if artifact is None or binding["artifact_sha256"] != artifact["sha256"]:
             raise ConformanceError("runtime_binding", binding["runtime_unit_id"])
         expected_custody_refs: set[str] = set()
-        requirement_keys: set[str] = set()
-        requirements_by_key = {}
-        for requirement in manifest["configuration_requirements"]:
-            configuration_key = requirement["key"]
-            if configuration_key in requirement_keys:
-                raise ConformanceError("runtime_binding", "duplicate configuration requirement")
-            requirement_keys.add(configuration_key)
-            requirements_by_key[configuration_key] = requirement
+        requirements_by_key = requirements_by_module[binding["module_id"]]
         for configuration_key in runtime_unit["configuration_keys"]:
             requirement = requirements_by_key.get(configuration_key)
             if requirement is None:
