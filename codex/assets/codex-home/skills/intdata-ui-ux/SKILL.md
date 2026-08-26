@@ -1,6 +1,6 @@
 ---
 name: intdata-ui-ux
-description: "intData reference-first UI component discovery and code reuse. Browse Beautiful UI, beUI, Rare UI, Transitions.dev, and shadcn/ui; retrieve component code and integrate it into an existing frontend."
+description: "intData UI/UX design intelligence and reference-first component reuse. Search maintained design, accessibility, stack and component catalogs; inspect live Beautiful UI, beUI, Rare UI, Transitions.dev and shadcn/ui sources; adapt the strongest bounded result."
 ---
 
 # intData UI/UX — Component Reference Catalog
@@ -44,6 +44,48 @@ python3 skills/intdata-ui-ux/scripts/search.py "animated React agent interface" 
 ```
 
 Its output is a shortlist for opening, copying and editing.
+
+## Maintained design intelligence
+
+The bundled data tables remain part of this skill. Use them when the task needs
+design-system reasoning, accessibility guidance, product patterns, typography,
+color, charts, landing structure or stack-specific implementation advice.
+
+Generate a cross-domain design-system recommendation:
+
+```bash
+python3 skills/intdata-ui-ux/scripts/search.py "healthcare SaaS dashboard" --design-system -p "Project Name"
+```
+
+Search a focused domain when one decision needs more evidence:
+
+```bash
+python3 skills/intdata-ui-ux/scripts/search.py "keyboard focus reduced motion" --domain ux -n 5
+python3 skills/intdata-ui-ux/scripts/search.py "responsive data table" --domain web -n 5
+python3 skills/intdata-ui-ux/scripts/search.py "editorial dashboard" --domain typography -n 5
+```
+
+Use stack guidance for the project's actual framework:
+
+```bash
+python3 skills/intdata-ui-ux/scripts/search.py "form validation loading states" --stack react -n 5
+```
+
+Supported domains are `reference`, `style`, `prompt`, `color`, `chart`,
+`landing`, `product`, `ux`, `typography`, `icons`, `react` and `web`. Supported
+stacks are `html-tailwind`, `react`, `nextjs`, `vue`, `nuxtjs`, `nuxt-ui`,
+`svelte`, `swiftui`, `react-native`, `flutter`, `shadcn` and
+`jetpack-compose`.
+
+## Integration constraints
+
+- Preserve keyboard access, visible focus, semantic labels and sufficient contrast.
+- Respect reduced-motion preferences and avoid layout-shifting hover effects.
+- Keep responsive behavior and the target framework's component conventions.
+- Reuse installed dependencies when they fit; add a dependency only when the
+  selected reference materially requires it.
+- Treat copied code as project-owned code: review imports, licenses, data flow,
+  error states and security boundaries before integration.
 
 ## Expected output from the agent
 
