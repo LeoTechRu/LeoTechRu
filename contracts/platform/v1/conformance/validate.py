@@ -725,6 +725,30 @@ def validate_resolver_result_semantics(
             missing_desired, key=lambda item: item.encode("utf-8")
         )[0]
         raise ConformanceError("resolver_capability_selection", missing_capability_id)
+    required_module_ids = set(enabled_module_ids)
+    required_module_ids.update(
+        capability_modules[capability_id]
+        for capability_id in desired_capability_ids
+    )
+    pending_module_ids = sorted(required_module_ids, key=lambda item: item.encode("utf-8"))
+    while pending_module_ids:
+        module_id = pending_module_ids.pop(0)
+        manifest = resolved_manifests.get(module_id)
+        if manifest is None:
+            raise ConformanceError("resolver_module_selection", module_id)
+        for dependency in manifest["dependencies"]:
+            dependency_id = dependency["module_id"]
+            if dependency["optional"] or dependency_id in required_module_ids:
+                continue
+            required_module_ids.add(dependency_id)
+            pending_module_ids.append(dependency_id)
+        pending_module_ids.sort(key=lambda item: item.encode("utf-8"))
+    if set(resolved_manifests) != required_module_ids:
+        unexpected_module_id = sorted(
+            set(resolved_manifests) - required_module_ids,
+            key=lambda item: item.encode("utf-8"),
+        )[0]
+        raise ConformanceError("resolver_module_selection", unexpected_module_id)
     artifact_keys: set[tuple[str, str]] = set()
     for binding in lock["artifact_bindings"]:
         key = (binding["module_id"], binding["artifact_id"])

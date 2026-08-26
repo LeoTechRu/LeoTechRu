@@ -93,6 +93,83 @@ def _add_registry_module_and_artifact_binding(document: dict, resolver_input: di
             "locations": ["https://artifacts.example/bridge-core.tar.gz"],
         }
     ]
+    resolver_input["installation"]["modules"] = [
+        {
+            "module_id": module["module_id"],
+            "version_constraint": module["version"],
+            "state": "enabled",
+        }
+    ]
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+
+def _add_module_selection(
+    document: dict,
+    resolver_input: dict,
+    *,
+    required_dependency: bool,
+    include_dependency: bool,
+) -> None:
+    _add_registry_module_and_artifact_binding(document, resolver_input)
+    bridge_entry = resolver_input["registry_snapshot"]["modules"][0]
+    bridge_manifest = bridge_entry["module"]
+    dependency_entry = copy.deepcopy(bridge_entry)
+    dependency_manifest = dependency_entry["module"]
+    dependency_manifest["module_id"] = "other.core"
+    dependency_manifest["capabilities"]["provides"] = []
+    dependency_manifest["artifacts"][0]["artifact_id"] = "other.package"
+    dependency_manifest["dependencies"] = []
+    dependency_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(dependency_manifest)
+    ).hexdigest()
+    resolver_input["registry_snapshot"]["modules"].append(dependency_entry)
+    if required_dependency:
+        bridge_manifest["dependencies"] = [
+            {
+                "module_id": "other.core",
+                "version_constraint": "1.0.0",
+                "optional": False,
+            }
+        ]
+        bridge_entry["manifest_sha256"] = hashlib.sha256(
+            CONFORMANCE.jcs_canonical(bridge_manifest)
+        ).hexdigest()
+        document["lock"]["resolved_modules"][0]["manifest_sha256"] = bridge_entry[
+            "manifest_sha256"
+        ]
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    resolver_input["installation"]["modules"] = [
+        {
+            "module_id": "bridge.core",
+            "version_constraint": "1.0.0",
+            "state": "enabled",
+        }
+    ]
+    _refresh_embedded_digest(resolver_input, "installation")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
+    if include_dependency:
+        document["lock"]["resolved_modules"].append(
+            {
+                "module_id": dependency_manifest["module_id"],
+                "version": dependency_manifest["version"],
+                "manifest_sha256": dependency_entry["manifest_sha256"],
+                "release_manifest_sha256": dependency_entry[
+                    "release_manifest_sha256"
+                ],
+                "signature_envelope_sha256": dependency_entry[
+                    "signature_envelope_sha256"
+                ],
+            }
+        )
     _refresh_lock_binding(document)
 
 
@@ -793,7 +870,18 @@ def test_resolved_result_rejects_mcp_capability_projected_by_another_module() ->
         CONFORMANCE.jcs_canonical(other_manifest)
     ).hexdigest()
     resolver_input["registry_snapshot"]["modules"].append(other_entry)
+    resolver_input["installation"]["modules"].append(
+        {
+            "module_id": "other.core",
+            "version_constraint": other_manifest["version"],
+            "state": "enabled",
+        }
+    )
+    _refresh_embedded_digest(resolver_input, "installation")
     _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["installation"]["sha256"] = resolver_input[
+        "installation_sha256"
+    ]
     document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
         "registry_snapshot_sha256"
     ]
@@ -848,6 +936,47 @@ def test_resolved_result_rejects_missing_enabled_module() -> None:
     with pytest.raises(
         CONFORMANCE.ConformanceError, match=r"^resolver_module_selection"
     ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_required_transitive_module() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=True,
+        include_dependency=True,
+    )
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_missing_required_transitive_module() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=True,
+        include_dependency=False,
+    )
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_module_selection"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_unrequested_module() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_module_selection(
+        document,
+        resolver_input,
+        required_dependency=False,
+        include_dependency=True,
+    )
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_module_selection"):
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
