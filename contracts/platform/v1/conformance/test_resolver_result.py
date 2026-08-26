@@ -555,6 +555,20 @@ def test_rejected_result_rejects_invalid_registry_signer_roles() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_rejected_result_rejects_duplicate_registry_module() -> None:
+    document = CONFORMANCE.load_source_json(REJECTED_FIXTURE_PATH)
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    registry_entry = CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH)["modules"][0]
+    resolver_input["registry_snapshot"]["modules"] = [
+        registry_entry,
+        copy.deepcopy(registry_entry),
+    ]
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^registry_module_duplicate"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolver_result_rejects_stale_input_binding() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH)

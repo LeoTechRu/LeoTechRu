@@ -1291,7 +1291,12 @@ def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:
         if admitted_key_ids.intersection(key_ids):
             raise ConformanceError("accepted_signer_key_roles")
         admitted_key_ids.update(key_ids)
+    module_keys: set[tuple[str, str]] = set()
     for entry in snapshot["modules"]:
+        module_key = (entry["module"]["module_id"], entry["module"]["version"])
+        if module_key in module_keys:
+            raise ConformanceError("registry_module_duplicate")
+        module_keys.add(module_key)
         manifest_sha256 = hashlib.sha256(jcs_canonical(entry["module"])).hexdigest()
         if entry["manifest_sha256"] != manifest_sha256:
             raise ConformanceError("registry_module_digest")
