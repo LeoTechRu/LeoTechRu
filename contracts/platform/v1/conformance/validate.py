@@ -743,6 +743,17 @@ def validate_resolver_result_semantics(
         manifest = resolved_manifests.get(module_id)
         if manifest is None:
             raise ConformanceError("resolver_module_selection", module_id)
+        for requirement in sorted(
+            manifest["capabilities"]["requires"],
+            key=lambda item: item["capability_id"].encode("utf-8"),
+        ):
+            capability_id = requirement["capability_id"]
+            if capability_id not in capability_ids:
+                raise ConformanceError("missing_capability", capability_id)
+            provider_module_id = capability_modules[capability_id]
+            if provider_module_id not in required_module_ids:
+                required_module_ids.add(provider_module_id)
+                pending_module_ids.append(provider_module_id)
         for dependency in manifest["dependencies"]:
             dependency_id = dependency["module_id"]
             if dependency["optional"] or dependency_id in required_module_ids:
