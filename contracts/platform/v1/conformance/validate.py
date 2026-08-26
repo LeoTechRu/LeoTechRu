@@ -634,6 +634,7 @@ def validate_resolver_result_semantics(
         ("origins", "origin_id"),
         ("modules", "module_id"),
         ("capabilities", "capability_id"),
+        ("policies", "policy_id"),
     ):
         identities = [
             entry[identity_field]

@@ -506,6 +506,10 @@ def test_resolver_result_rejects_false_embedded_document_digest(
             "capabilities",
             {"capability_id": "bridge.oauth", "version_constraint": "1.0.0"},
         ),
+        (
+            "policies",
+            {"policy_id": "platform.default", "version": "1.0.0", "sha256": "5" * 64},
+        ),
     ],
 )
 def test_resolver_result_rejects_duplicate_desired_state(
