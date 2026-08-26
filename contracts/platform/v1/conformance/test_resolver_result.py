@@ -1426,6 +1426,34 @@ def test_resolved_result_rejects_duplicate_web_module_binding() -> None:
         CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
+def test_resolved_result_rejects_noncanonical_web_module_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_web_module_binding(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    second_web_module = copy.deepcopy(manifest["web_modules"][0])
+    second_web_module["web_module_id"] = "bridge.admin"
+    manifest["web_modules"].append(second_web_module)
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    second_binding = copy.deepcopy(document["lock"]["web_module_bindings"][0])
+    second_binding["web_module_id"] = second_web_module["web_module_id"]
+    document["lock"]["web_module_bindings"].append(second_binding)
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
 def test_resolved_result_accepts_runtime_from_admitted_manifest() -> None:
     document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
     resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))

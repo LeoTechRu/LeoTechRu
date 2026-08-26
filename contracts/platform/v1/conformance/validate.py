@@ -956,6 +956,14 @@ def validate_resolver_result_semantics(
             or binding["route_id"] != web_module["route_id"]
         ):
             raise ConformanceError("web_module_binding", binding["web_module_id"])
+    if [
+        (binding["module_id"], binding["web_module_id"])
+        for binding in lock["web_module_bindings"]
+    ] != sorted(
+        web_module_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "web module bindings")
     if web_module_keys != expected_web_module_keys:
         module_id, web_module_id = sorted(
             web_module_keys ^ expected_web_module_keys,
