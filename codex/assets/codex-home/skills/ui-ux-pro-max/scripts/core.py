@@ -15,6 +15,11 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 MAX_RESULTS = 3
 
 CSV_CONFIG = {
+    "reference": {
+        "file": "references.csv",
+        "search_cols": ["Source", "Keywords", "Material", "Retrieval", "Integration"],
+        "output_cols": ["Source", "URL", "Material", "Retrieval", "Integration"]
+    },
     "style": {
         "file": "styles.csv",
         "search_cols": ["Style Category", "Keywords", "Best For", "Type"],
@@ -196,6 +201,7 @@ def detect_domain(query):
     query_lower = query.lower()
 
     domain_keywords = {
+        "reference": ["reference", "component", "components", "copy", "source", "beautifului", "beui", "rareui", "transitions", "shadcn"],
         "color": ["color", "palette", "hex", "#", "rgb"],
         "chart": ["chart", "graph", "visualization", "trend", "bar", "pie", "scatter", "heatmap", "funnel"],
         "landing": ["landing", "page", "cta", "conversion", "hero", "testimonial", "pricing", "section"],
