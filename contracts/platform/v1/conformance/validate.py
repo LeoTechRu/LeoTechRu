@@ -1268,10 +1268,14 @@ def validate_registry_signer_semantics(snapshot: dict[str, Any]) -> None:
     roles = [entry["role"] for entry in entries]
     if roles != expected_roles:
         raise ConformanceError("accepted_signer_roles")
+    admitted_key_ids: set[str] = set()
     for entry in entries:
         key_ids = entry["key_ids"]
         if key_ids != sorted(set(key_ids), key=lambda item: item.encode("utf-8")):
             raise ConformanceError("accepted_signer_key_ids")
+        if admitted_key_ids.intersection(key_ids):
+            raise ConformanceError("accepted_signer_key_roles")
+        admitted_key_ids.update(key_ids)
     for entry in snapshot["modules"]:
         manifest_sha256 = hashlib.sha256(jcs_canonical(entry["module"])).hexdigest()
         if entry["manifest_sha256"] != manifest_sha256:

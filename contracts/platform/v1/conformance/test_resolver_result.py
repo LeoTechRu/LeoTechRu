@@ -611,6 +611,16 @@ def test_registry_snapshot_binds_embedded_module_manifest_digest() -> None:
     CONFORMANCE.validate_registry_signer_semantics(snapshot)
 
 
+def test_registry_snapshot_rejects_key_reused_across_signer_roles() -> None:
+    snapshot = copy.deepcopy(CONFORMANCE.load_source_json(REGISTRY_FIXTURE_PATH))
+    snapshot["accepted_signers"][1]["key_ids"] = copy.deepcopy(
+        snapshot["accepted_signers"][0]["key_ids"]
+    )
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^accepted_signer_key_roles"):
+        CONFORMANCE.validate_registry_signer_semantics(snapshot)
+
+
 @pytest.mark.parametrize("mutate_manifest", [False, True])
 def test_registry_snapshot_rejects_stale_module_manifest_digest(
     mutate_manifest: bool,
