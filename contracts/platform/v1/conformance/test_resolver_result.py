@@ -267,6 +267,38 @@ def _add_migration_binding(document: dict, resolver_input: dict) -> None:
     _refresh_lock_binding(document)
 
 
+def _add_child_migration(document: dict, resolver_input: dict) -> None:
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    manifest = registry_entry["module"]
+    migration = {
+        "migration_id": "bridge.next",
+        "lineage_parent": "bridge.init",
+        "artifact_id": "bridge.package",
+        "order": 1,
+    }
+    manifest["migrations"].append(migration)
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(manifest)
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    document["lock"]["migration_bindings"].append(
+        {
+            "migration_id": migration["migration_id"],
+            "module_id": manifest["module_id"],
+            "lineage_parent": migration["lineage_parent"],
+            "artifact_sha256": manifest["artifacts"][0]["sha256"],
+            "order": migration["order"],
+        }
+    )
+    _refresh_lock_binding(document)
+
+
 def _add_runtime_binding(document: dict, resolver_input: dict) -> None:
     _add_registry_module_and_artifact_binding(document, resolver_input)
     registry_entry = resolver_input["registry_snapshot"]["modules"][0]
@@ -711,6 +743,140 @@ def test_resolved_result_accepts_migration_from_admitted_manifest() -> None:
     _add_migration_binding(document, resolver_input)
 
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_accepts_ordered_migration_lineage() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+
+    CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+@pytest.mark.parametrize(
+    ("lineage_parent", "order"),
+    [("bridge.missing", 1), ("bridge.next", 1), ("bridge.init", 0)],
+)
+def test_resolved_result_rejects_broken_migration_lineage(
+    lineage_parent: str, order: int
+) -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    migration = resolver_input["registry_snapshot"]["modules"][0]["module"][
+        "migrations"
+    ][1]
+    migration["lineage_parent"] = lineage_parent
+    migration["order"] = order
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^migration_lineage_broken"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_unprojected_manifest_migration() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    document["lock"]["migration_bindings"].pop()
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^migration_binding"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_disconnected_migration_root() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["module"]["migrations"][1]["lineage_parent"] = None
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^migration_lineage_broken"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_duplicate_migration_id() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    migrations = resolver_input["registry_snapshot"]["modules"][0]["module"][
+        "migrations"
+    ]
+    migrations[1]["migration_id"] = migrations[0]["migration_id"]
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^migration_lineage_broken"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_nonpreceding_migration_parent() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_migration_binding(document, resolver_input)
+    _add_child_migration(document, resolver_input)
+    registry_entry = resolver_input["registry_snapshot"]["modules"][0]
+    registry_entry["module"]["migrations"][0]["order"] = 2
+    registry_entry["manifest_sha256"] = hashlib.sha256(
+        CONFORMANCE.jcs_canonical(registry_entry["module"])
+    ).hexdigest()
+    _refresh_embedded_digest(resolver_input, "registry_snapshot")
+    document["lock"]["registry_snapshot"]["sha256"] = resolver_input[
+        "registry_snapshot_sha256"
+    ]
+    document["lock"]["resolved_modules"][0]["manifest_sha256"] = registry_entry[
+        "manifest_sha256"
+    ]
+    _refresh_lock_binding(document)
+
+    with pytest.raises(
+        CONFORMANCE.ConformanceError, match=r"^migration_lineage_broken"
+    ):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
 @pytest.mark.parametrize(

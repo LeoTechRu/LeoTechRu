@@ -804,6 +804,34 @@ def validate_resolver_result_semantics(
         if endpoint in route_endpoints:
             raise ConformanceError("route_collision", "origin and path")
         route_endpoints.add(endpoint)
+    expected_migration_keys: set[tuple[str, str]] = set()
+    for module_id, manifest in resolved_manifests.items():
+        migrations_by_id: dict[str, dict[str, Any]] = {}
+        migration_orders: set[int] = set()
+        for migration in manifest["migrations"]:
+            migration_id = migration["migration_id"]
+            if (
+                migration_id in migrations_by_id
+                or migration["order"] in migration_orders
+            ):
+                raise ConformanceError("migration_lineage_broken", migration_id)
+            migrations_by_id[migration_id] = migration
+            migration_orders.add(migration["order"])
+            expected_migration_keys.add((module_id, migration_id))
+        roots = [
+            migration
+            for migration in manifest["migrations"]
+            if migration["lineage_parent"] is None
+        ]
+        if migrations_by_id and len(roots) != 1:
+            raise ConformanceError("migration_lineage_broken", module_id)
+        for migration in manifest["migrations"]:
+            parent_id = migration["lineage_parent"]
+            if parent_id is None:
+                continue
+            parent = migrations_by_id.get(parent_id)
+            if parent is None or parent["order"] >= migration["order"]:
+                raise ConformanceError("migration_lineage_broken", migration["migration_id"])
     migration_keys: set[tuple[str, str]] = set()
     for binding in lock["migration_bindings"]:
         key = (binding["module_id"], binding["migration_id"])
@@ -838,6 +866,12 @@ def validate_resolver_result_semantics(
             or binding["artifact_sha256"] != artifact["sha256"]
         ):
             raise ConformanceError("migration_binding", binding["migration_id"])
+    if migration_keys != expected_migration_keys:
+        missing_key = sorted(
+            expected_migration_keys - migration_keys,
+            key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+        )[0]
+        raise ConformanceError("migration_binding", missing_key[1])
     custody_by_key: dict[str, dict[str, Any]] = {}
     for custody in resolver_input["installation"]["configuration_custody"]:
         if custody["configuration_key"] in custody_by_key:
