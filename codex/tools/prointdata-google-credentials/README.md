@@ -42,7 +42,7 @@ Get-Content -Raw $tokenPath |
 # VDS status.
 ./prointdata-google status
 
-# The VDS defaults include the main Hermes home and existing intbrain/intprobe
+# The VDS defaults include the main Hermes home and existing intbrain/intbridge
 # profile homes. Explicit --hermes-home values replace that default set.
 ./prointdata-google apply
 ```

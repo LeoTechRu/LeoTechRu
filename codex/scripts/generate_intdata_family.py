@@ -47,7 +47,7 @@ EXPECTED_SKILLS = {
         "firefox-devtools-testing", "vault-maintenance",
     ),
     "intdev": (
-        "approval-guidance", "coordctl", "delivery-acceptance", "issues",
+        "approval-guidance", "delivery-acceptance", "issues",
         "openspec-read", "openspec-mutation", "review-find", "review-fix",
         "routing", "scope-drift-router",
     ),

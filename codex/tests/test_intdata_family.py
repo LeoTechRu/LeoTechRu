@@ -482,7 +482,8 @@ def test_canonical_family_membership_and_skill_map() -> None:
     plugins = {entry["id"]: entry for entry in manifest["plugins"]}
 
     assert set(plugins) == {"intbridge", "intagent", "intdev"}
-    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent", "intdev")] == [10, 9, 10]
+    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent", "intdev")] == [10, 9, 9]
+    assert "coordctl" not in plugins["intdev"]["skills"]
     assert plugins["intbridge"]["display_name"] == "intData Bridge"
     assert plugins["intbridge"]["owner"] == "intData Bridge"
     assert plugins["intbridge"]["runtime_access"] == "component-gated"

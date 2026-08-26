@@ -369,7 +369,7 @@
       "oauth_resource": null,
       "maturity": "planned",
       "availability": "unavailable",
-      "skills": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"],
+      "skills": ["approval-guidance", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"],
       "components": [],
       "provenance": {
         "repository": "https://github.com/LeoTechPro/intData-tools.git",

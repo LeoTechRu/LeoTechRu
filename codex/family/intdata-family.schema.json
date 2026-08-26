@@ -347,7 +347,7 @@
         },
         {
           "if": {"required": ["id"], "properties": {"id": {"const": "intdev"}}},
-          "then": {"properties": {"skills": {"const": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"]}}}
+          "then": {"properties": {"skills": {"const": ["approval-guidance", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"]}}}
         }
       ],
       "properties": {

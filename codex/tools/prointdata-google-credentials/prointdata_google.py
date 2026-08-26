@@ -44,7 +44,7 @@ DEFAULT_SERVICES = (
     "chat",
     "classroom",
 )
-DEFAULT_HERMES_PROFILES = ("intbrain", "intprobe")
+DEFAULT_HERMES_PROFILES = ("intbrain", "intbridge")
 
 
 class CredentialError(RuntimeError):

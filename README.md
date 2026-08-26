@@ -34,7 +34,7 @@ machine-readable registry remains `tools.catalog.v1.json`.
 - `getcourse-mcp/` - agent-agnostic manifest-backed MCP connector for the documented GetCourse Import/Export API with guarded writes and bounded exports.
 - `vakas-mcp/` - agent-agnostic manifest-backed MCP connector for guarded Vakas ingress webhooks; cabinet management remains browser-only.
 - `dba/` - `intDBA`, a public first-party CLI for guarded Postgres/Supabase operator workflows.
-- `lockctl/` - removed; fully retired, historical coordination state was migrated before coordctl moved to intData Node.
+- `lockctl/` - removed; fully retired, historical coordination state was migrated to intData Node.
 - `connectors/` - reusable connector SDK and cookbook examples salvaged from retired `intNexus`.
 - `agent_plane/` - reusable tool-plane runtime, policy-aware dispatch, and local harness.
 - `repo-ops/` - reusable repository operations helpers.
@@ -115,7 +115,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ## Полезные команды
 
-- `coordctl --help` — справка по Git-aware coordination sessions, hunk intents, cleanup и merge dry-run;
+- `intnode coord --help` — справка по Git-aware coordination sessions, intents, cleanup и merge dry-run;
 - `python /int/tools/vault/installers/vault_sanitize.py --dry-run --profile strict` — dry-run санитарной миграции vault;
 - `python /int/tools/vault/installers/runtime_vault_gc.py --dry-run --brain-root /int/brain` — dry-run архивации и очистки canonical runtime-root (`/int/.tmp/brain-runtime-vault`);
 - `python /int/tools/vault/installers/runtime_vault_gc.py --dry-run --runtime-root /int/brain/runtime/vault` — compatibility-режим для legacy runtime-path (с deprecation warning);
@@ -179,7 +179,7 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 - Packaged plugins live in `codex/plugins/<plugin>/` and use `INSTALLED_BY_DEFAULT` + `ON_INSTALL`.
 - Local marketplace identity: `intdata` / `intData`.
 - Public marketplace family is defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
-- `coordctl` is the canonical coordination runtime/tool family, now owned by `/int/node`; intData-tools no longer exposes coordctl MCP tools or a standalone plugin.
+- Coordination is available only through the external `intnode coord` CLI owned by `/int/node`; intData-tools exposes no coordination plugin skill, alias, MCP tool, or standalone runtime.
 - Active plugin category: `Developer Tools`.
 - Removed active plugin IDs: `coordctl`, `agent-plane`, `dba`, `intprobe`, `intdba`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
 - Cabinet-related inventory/import tooling is outside public intData-tools; old standalone local product directories are not deleted without count-check and owner acceptance.
@@ -476,7 +476,7 @@ bash /int/tools/codex/tools/obsidian-desktop/install.sh
 ###### Дополнительно
 
 - Общие сниппеты (`/etc/nginx/snippets/ssl-params.conf`) должны содержать жёсткие TLS-настройки и заголовки безопасности.
-- Временное использование портов и сервисов фиксируйте в issue/worklog и сопровождайте machine-wide `coordctl` session/intent по изменяемым файлам. При оффлайне допускается запись в `AGENTS/issues.json` (`offline_queue`); после синхронизации с GitHub удалите черновик и отметьте время `Synced on <UTC>`. Постоянные изменения инфраструктуры отражайте в паспорте объектов `AGENTS/object_passport.yaml`.
+- Временное использование портов и сервисов фиксируйте в issue/worklog и сопровождайте machine-wide `intnode coord` session/intent по изменяемым файлам. При оффлайне допускается запись в `AGENTS/issues.json` (`offline_queue`); после синхронизации с GitHub удалите черновик и отметьте время `Synced on <UTC>`. Постоянные изменения инфраструктуры отражайте в паспорте объектов `AGENTS/object_passport.yaml`.
 
 ###### Перевыпуск сертификатов через snap `certbot`
 
@@ -938,36 +938,28 @@ curl -X POST http://127.0.0.1:11434/v1/chat/completions \
 ### `lockctl/` (removed)
 
 `lockctl` has been fully retired and removed from this repository. Its runtime
-history was imported into the Node-owned `coordctl` runtime before the tool
-moved out of this repository. Active coordination is `coordctl` only. Do not
-reintroduce lockctl wrappers, MCP tools or runtime surfaces.
+history was imported into the Node-owned coordination runtime. Active
+coordination is available only through `intnode coord`. Do not reintroduce
+lockctl wrappers, MCP tools or runtime surfaces.
 
-### `coordctl` (moved to intData Node)
+### Coordination (external intData Node CLI)
 
-#### coordctl
+#### `intnode coord`
 
-`coordctl` is the Git-aware coordination runtime for parallel Codex/OpenClaw
-agent edits. It is now owned by `/int/node` and exposed as a system CLI
-compatibility command.
+`intnode coord` is the Git-aware coordination runtime for parallel agent edits.
+It is owned by `/int/node` and is not part of any intData marketplace plugin.
 
 ##### Shell UX
 
-Use the public shell entrypoint:
+Use the canonical Node entrypoint:
 
 ```bash
-coordctl
-coordctl --help
-coordctl help intent-acquire
+intnode coord
+intnode coord --help
 ```
 
-Implementation/core lives in `/int/node/internal/coordctl`.
-CLI entrypoints on this host:
-
-- Public compatibility command: `coordctl`
-- Canonical Node command: `/int/node/probe coord`
-
-`/int/tools` no longer owns coordctl source, installers, standalone plugin, or
-MCP tools.
+Implementation/core lives in `/int/node/internal/coordctl`. `/int/tools` owns
+no coordination source, installer, plugin skill, alias, or MCP tool.
 
 ##### Runtime model
 
@@ -979,22 +971,14 @@ MCP tools.
 - Cleanup is explicit: `cleanup --dry-run` first, then `--apply` only for known final states.
 - `delete-worktree` and `delete-branch` are opt-in cleanup actions, never implicit.
 
-Runtime files:
-
-- `COORDCTL_STATE_DIR` (если явно задан)
-- иначе compatibility state: `$XDG_STATE_HOME/intprobe-client/coordctl` или `~/.local/state/intprobe-client/coordctl` на Linux/VDS, `%LOCALAPPDATA%\intProbe\coordctl` на Windows
-- SQLite: `<state_dir>/coord.sqlite`
-- Event log: `<state_dir>/events.jsonl`
-
 ##### Common examples
 
 ```bash
-coordctl session-start --repo-root /int/tools --owner codex:task --branch agent/task/a --base main --format json
-coordctl intent-acquire --repo-root /int/tools --path README.md --owner codex:task --base main --region-kind hunk --region-id 12:18 --format json
-coordctl status --repo-root /int/tools --format json
-coordctl merge-dry-run --repo-root /int/tools --target main --branch agent/task/a --format json
-coordctl cleanup --session-id <session-id> --final-state released --dry-run --format json
-coordctl cleanup --session-id <session-id> --final-state merged --delete-worktree --delete-branch --apply --format json
+intnode coord begin --path README.md
+intnode coord intent --path README.md
+intnode coord status
+intnode coord commit-scope-check
+intnode coord release --mine
 ```
 
 ### `openclaw/`

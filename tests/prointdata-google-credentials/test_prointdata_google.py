@@ -87,7 +87,7 @@ class BundleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             main = pathlib.Path(directory) / ".hermes"
             (main / "profiles" / "intbrain").mkdir(parents=True)
-            (main / "profiles" / "intprobe").mkdir(parents=True)
+            (main / "profiles" / "intbridge").mkdir(parents=True)
             with (
                 mock.patch.object(MODULE, "default_hermes_home", return_value=main),
                 mock.patch.object(MODULE.os, "name", "posix"),
@@ -97,7 +97,7 @@ class BundleTests(unittest.TestCase):
                     [
                         main,
                         main / "profiles" / "intbrain",
-                        main / "profiles" / "intprobe",
+                        main / "profiles" / "intbridge",
                     ],
                 )
 

@@ -1,7 +1,7 @@
 {
   "name": "intdev",
   "version": "1.0.0-dev.1",
-  "description": "Публичный набор из десяти fail-closed workflow-навыков для issues, specifications, coordination, review, routing и delivery acceptance.",
+  "description": "Публичный набор из девяти fail-closed workflow-навыков для issues, specifications, review, routing и delivery acceptance. Coordination предоставляется только внешним intnode coord.",
   "author": {
     "name": "intData",
     "email": "owner@intdata.pro"
@@ -19,7 +19,7 @@
     "websiteURL": "https://intdata.pro/mcp",
     "defaultPrompt": [
       "Определить work item и требуемый уровень specification.",
-      "Проверить coordination scope перед изменениями.",
+      "Проверить coordination scope внешней командой intnode coord перед изменениями.",
       "Провести evidence-based acceptance или review по настроенной policy."
     ]
   }
