@@ -756,6 +756,16 @@ def validate_resolver_result_semantics(
             key=lambda item: item.encode("utf-8"),
         )[0]
         raise ConformanceError("resolver_module_selection", unexpected_module_id)
+    for module_id in sorted(resolved_manifests, key=lambda item: item.encode("utf-8")):
+        conflicts = set(resolved_manifests[module_id]["conflicts"])
+        selected_conflicts = conflicts & set(resolved_manifests)
+        if selected_conflicts:
+            conflicting_module_id = sorted(
+                selected_conflicts, key=lambda item: item.encode("utf-8")
+            )[0]
+            raise ConformanceError(
+                "version_conflict", f"{module_id}:{conflicting_module_id}"
+            )
     expected_artifact_keys = {
         (module_id, artifact["artifact_id"])
         for module_id, manifest in resolved_manifests.items()
