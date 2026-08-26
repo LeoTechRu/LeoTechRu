@@ -707,6 +707,8 @@ def validate_resolver_result_semantics(
         dependency_ids: set[str] = set()
         for dependency in manifest["dependencies"]:
             dependency_id = dependency["module_id"]
+            if dependency_id == module_id:
+                raise ConformanceError("module_dependency", module_id)
             if dependency_id in dependency_ids:
                 raise ConformanceError("module_dependency", module_id)
             dependency_ids.add(dependency_id)
