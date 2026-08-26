@@ -715,6 +715,16 @@ def validate_resolver_result_semantics(
             }
         ):
             raise ConformanceError("capability_binding", capability_id)
+    desired_capability_ids = {
+        desire["capability_id"]
+        for desire in resolver_input["installation"]["capabilities"]
+    }
+    missing_desired = desired_capability_ids - capability_ids
+    if missing_desired:
+        missing_capability_id = sorted(
+            missing_desired, key=lambda item: item.encode("utf-8")
+        )[0]
+        raise ConformanceError("resolver_capability_selection", missing_capability_id)
     artifact_keys: set[tuple[str, str]] = set()
     for binding in lock["artifact_bindings"]:
         key = (binding["module_id"], binding["artifact_id"])
