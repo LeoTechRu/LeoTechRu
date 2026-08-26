@@ -31,20 +31,6 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
-    },
-    {
-      "name": "intdev",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/LeoTechPro/intData-tools.git",
-        "path": "./codex/plugins/intdev",
-        "ref": "e57a862785ae43a9b1b5c461fcfab24c233a2b85"
-      },
-      "policy": {
-        "installation": "NOT_AVAILABLE",
-        "authentication": "ON_USE"
-      },
-      "category": "Developer Tools"
     }
   ]
 }

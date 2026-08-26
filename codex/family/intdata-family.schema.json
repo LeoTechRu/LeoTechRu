@@ -247,8 +247,8 @@
     },
     "plugin_collection": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
+      "minItems": 2,
+      "maxItems": 2,
       "items": {"$ref": "#/$defs/plugin"},
       "allOf": [
         {
@@ -258,11 +258,6 @@
         },
         {
           "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intagent"}}},
-          "minContains": 1,
-          "maxContains": 1
-        },
-        {
-          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intdev"}}},
           "minContains": 1,
           "maxContains": 1
         }
@@ -335,7 +330,7 @@
         {
           "if": {
             "required": ["id"],
-            "properties": {"id": {"enum": ["intagent", "intdev"]}}
+            "properties": {"id": {"const": "intagent"}}
           },
           "then": {
             "properties": {"components": {"maxItems": 0}}
@@ -344,14 +339,10 @@
         {
           "if": {"required": ["id"], "properties": {"id": {"const": "intagent"}}},
           "then": {"properties": {"skills": {"const": ["agent-control", "environment-detection", "mode-resolution", "mode-router", "host-diagnostics", "hypothesis-diagnosis", "ssh", "firefox-devtools-testing", "vault-maintenance"]}}}
-        },
-        {
-          "if": {"required": ["id"], "properties": {"id": {"const": "intdev"}}},
-          "then": {"properties": {"skills": {"const": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"]}}}
         }
       ],
       "properties": {
-        "id": {"enum": ["intbridge", "intagent", "intdev"]},
+        "id": {"enum": ["intbridge", "intagent"]},
         "display_name": {"type": "string", "minLength": 1},
         "release_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"},
         "owner": {"type": "string", "minLength": 1},

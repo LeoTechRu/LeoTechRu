@@ -46,11 +46,6 @@ EXPECTED_SKILLS = {
         "host-diagnostics", "hypothesis-diagnosis", "ssh",
         "firefox-devtools-testing", "vault-maintenance",
     ),
-    "intdev": (
-        "approval-guidance", "coordctl", "delivery-acceptance", "issues",
-        "openspec-read", "openspec-mutation", "review-find", "review-fix",
-        "routing", "scope-drift-router",
-    ),
 }
 EXPECTED_COMPONENTS = {
     "intbridge": (
@@ -87,27 +82,23 @@ EXPECTED_COMPONENTS = {
         },
     ),
     "intagent": (),
-    "intdev": (),
 }
-LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdata-control", "intdata-runtime"}
+LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdev", "intdata-control", "intdata-runtime"}
 EXPECTED_RESOURCE_IDS = {"platform", "punkt-b", "crm", "cms", "brain", "probe", "lms", "agent"}
 PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intdev": ("public", "public", "authenticated", None),
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
     "intagent": "https://github.com/LeoTechPro/intData-agent.git",
-    "intdev": "https://github.com/LeoTechPro/intData-tools.git",
 }
 EXPECTED_PLUGIN_MANIFEST_PATHS = {
     plugin_id: f"{subdir}/.codex-plugin/plugin.json"
     for plugin_id, subdir in {
         "intbridge": "plugins/intbridge",
         "intagent": "plugins/intagent",
-        "intdev": "codex/plugins/intdev",
     }.items()
 }
 EXPECTED_PLUGIN_LICENSE_PATHS = {

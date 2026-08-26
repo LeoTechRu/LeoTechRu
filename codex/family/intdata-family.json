@@ -355,33 +355,6 @@
         "license_path": "plugins/intagent/LICENSE",
         "license_sha256": "471f75bc6ef38333696dd6549c4355adef05291a74135649131f0a5728f5a45c"
       }
-    },
-    {
-      "id": "intdev",
-      "display_name": "intDev",
-      "release_version": "1.0.0-dev.1",
-      "owner": "intData Root Governance",
-      "category": "Developer Tools",
-      "visibility": "public",
-      "source_access": "public",
-      "install_access": "public",
-      "runtime_access": "authenticated",
-      "oauth_resource": null,
-      "maturity": "planned",
-      "availability": "unavailable",
-      "skills": ["approval-guidance", "coordctl", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"],
-      "components": [],
-      "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-tools.git",
-        "subdir": "codex/plugins/intdev",
-        "manifest_path": "codex/plugins/intdev/.codex-plugin/plugin.json",
-        "commit": "e57a862785ae43a9b1b5c461fcfab24c233a2b85",
-        "tree_sha256": "3eb9bd8dea5a159857f29954589e00139fb466e5bbb9e3471c29e0eb5be397ff",
-        "manifest_sha256": "c1d69a244acec49bf5db48f1e01e8df904195804f6c41538efd2906cf3f71abe",
-        "license": "MIT",
-        "license_path": "codex/plugins/intdev/LICENSE",
-        "license_sha256": "695ec7ab63de97b6205e8c41be4e6009088e9b3050286d6b3e1d62bf500169a1"
-      }
     }
   ]
 }

@@ -293,8 +293,6 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
     for plugin in release["plugins"]:
         plugin["maturity"] = "dev"
         plugin["availability"] = "available"
-        if plugin["id"] == "intdev":
-            plugin["provenance"]["license"] = "MIT"
     entries = [*release["mcp_resources"], *release["plugins"]]
     repositories = sorted({entry["provenance"]["repository"] for entry in entries})
     source_roots: dict[str, Path] = {}
@@ -400,7 +398,6 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
     assert [entry["name"] for entry in marketplace["plugins"]] == [
         "intagent",
         "intbridge",
-        "intdev",
     ]
     assert all(
         entry["policy"]["installation"] == "NOT_AVAILABLE"
@@ -452,13 +449,11 @@ def test_resource_license_paths_are_scoped_without_relicensing_repositories() ->
     }
 
 
-def test_intdev_source_and_install_are_public_but_runtime_stays_authenticated() -> None:
+def test_intdev_is_retired_and_absent_from_the_family() -> None:
     manifest, _ = load_inputs()
-    intdev = next(entry for entry in manifest["plugins"] if entry["id"] == "intdev")
 
-    assert intdev["source_access"] == "public"
-    assert intdev["install_access"] == "public"
-    assert intdev["runtime_access"] == "authenticated"
+    assert "intdev" in family.LEGACY_PLUGIN_IDS
+    assert "intdev" not in {entry["id"] for entry in manifest["plugins"]}
 
 
 def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path: Path) -> None:
@@ -481,8 +476,8 @@ def test_canonical_family_membership_and_skill_map() -> None:
     family.validate_manifest(manifest, schema, require_release=False)
     plugins = {entry["id"]: entry for entry in manifest["plugins"]}
 
-    assert set(plugins) == {"intbridge", "intagent", "intdev"}
-    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent", "intdev")] == [10, 9, 10]
+    assert set(plugins) == {"intbridge", "intagent"}
+    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent")] == [10, 9]
     assert plugins["intbridge"]["display_name"] == "intData Bridge"
     assert plugins["intbridge"]["owner"] == "intData Bridge"
     assert plugins["intbridge"]["runtime_access"] == "component-gated"
@@ -516,7 +511,6 @@ def test_canonical_family_membership_and_skill_map() -> None:
         },
     ]
     assert plugins["intagent"]["components"] == []
-    assert plugins["intdev"]["components"] == []
     assert "probe-operator" in plugins["intbridge"]["skills"]
     assert "intprobe-operator" not in plugins["intbridge"]["skills"]
     assert "dba" not in plugins
@@ -630,7 +624,7 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
         first["intdata.family-release-lock.v1.json"]
     )
     assert marketplace["name"] == "intdata"
-    assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge", "intdev"]
+    assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge"]
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
     assert all(
@@ -644,7 +638,6 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert authentication == {
         "intagent": "ON_INSTALL",
         "intbridge": "ON_INSTALL",
-        "intdev": "ON_USE",
     }
 
 
@@ -701,7 +694,7 @@ def test_release_accepts_commit_reachable_from_advertised_descendant(
     tmp_path: Path,
 ) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
-    entry = next(item for item in release["plugins"] if item["id"] == "intdev")
+    entry = next(item for item in release["plugins"] if item["id"] == "intagent")
     repo = source_roots[entry["provenance"]["repository"]]
     (repo / "published-after-source.txt").write_text("descendant\n", encoding="utf-8")
     run_git(repo, "add", "published-after-source.txt")
@@ -973,8 +966,6 @@ def test_commit_bound_plugin_display_name_must_match_family(
         ("intbridge", "runtime_access", "public"),
         ("intagent", "install_access", "public"),
         ("intagent", "oauth_resource", "https://intdata.pro/mcp/probe"),
-        ("intdev", "runtime_access", "public"),
-        ("intdev", "oauth_resource", "https://intdata.pro/mcp/agent"),
     ],
 )
 def test_plugin_access_contracts_cannot_be_weakened(
@@ -1020,21 +1011,6 @@ def test_released_plugins_must_be_installable_and_beyond_planned_maturity() -> N
     release["release_state"] = "released"
 
     with pytest.raises(family.FamilyManifestError, match="must be installable"):
-        family.validate_manifest(release, schema, require_release=True)
-
-
-def test_public_install_plugin_requires_redistribution_permitting_license() -> None:
-    manifest, schema = load_inputs()
-    release = copy.deepcopy(manifest)
-    release["release_state"] = "released"
-    for plugin in release["plugins"]:
-        plugin["maturity"] = "dev"
-        plugin["availability"] = "available"
-    next(
-        plugin for plugin in release["plugins"] if plugin["id"] == "intdev"
-    )["provenance"]["license"] = "Proprietary"
-
-    with pytest.raises(family.FamilyManifestError, match="redistribution-permitting"):
         family.validate_manifest(release, schema, require_release=True)
 
 
