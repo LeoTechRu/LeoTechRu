@@ -900,6 +900,14 @@ def validate_resolver_result_semantics(
         if endpoint in route_endpoints:
             raise ConformanceError("route_collision", "origin and path")
         route_endpoints.add(endpoint)
+    if [
+        (binding["module_id"], binding["route_id"])
+        for binding in lock["route_bindings"]
+    ] != sorted(
+        route_keys,
+        key=lambda item: (item[0].encode("utf-8"), item[1].encode("utf-8")),
+    ):
+        raise ConformanceError("resolver_order", "route bindings")
     if route_keys != expected_route_keys:
         module_id, route_id = sorted(
             route_keys ^ expected_route_keys,

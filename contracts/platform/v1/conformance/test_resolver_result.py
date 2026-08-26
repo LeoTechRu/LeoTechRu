@@ -272,6 +272,12 @@ def _add_second_route_binding(
             "runtime_unit_id": second_route["runtime_unit_id"],
         }
     )
+    document["lock"]["route_bindings"].sort(
+        key=lambda item: (
+            item["module_id"].encode("utf-8"),
+            item["route_id"].encode("utf-8"),
+        )
+    )
     _refresh_lock_binding(document)
 
 
@@ -1103,6 +1109,18 @@ def test_resolved_result_accepts_routes_with_distinct_endpoints() -> None:
     _add_second_route_binding(document, resolver_input, path="/admin")
 
     CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
+
+
+def test_resolved_result_rejects_noncanonical_route_order() -> None:
+    document = copy.deepcopy(CONFORMANCE.load_source_json(FIXTURE_PATH))
+    resolver_input = copy.deepcopy(CONFORMANCE.load_source_json(INPUT_FIXTURE_PATH))
+    _add_route_binding(document, resolver_input)
+    _add_second_route_binding(document, resolver_input, path="/admin")
+    document["lock"]["route_bindings"].reverse()
+    _refresh_lock_binding(document)
+
+    with pytest.raises(CONFORMANCE.ConformanceError, match=r"^resolver_order"):
+        CONFORMANCE.validate_resolver_result_semantics(document, resolver_input)
 
 
 def test_resolved_result_rejects_route_with_missing_runtime_unit() -> None:
