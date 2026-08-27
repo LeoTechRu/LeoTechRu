@@ -1,0 +1,28 @@
+{
+  "name": "intnode",
+  "version": "1.0.0-dev.1",
+  "description": "Node-owned coordination workflow for the canonical intnode coord command.",
+  "author": {
+    "name": "intData",
+    "url": "https://intdata.pro"
+  },
+  "repository": "https://github.com/LeoTechPro/intData-node",
+  "license": "Proprietary",
+  "keywords": ["intnode", "coordination", "leases", "commit-scope"],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "intData Node",
+    "shortDescription": "Host-local coordination through intnode coord",
+    "longDescription": "Node-owned workflow for host-local coordination, path intents, overlap checks and commit-scope verification through the canonical intnode coord command.",
+    "developerName": "intData",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://intdata.pro",
+    "defaultPrompt": [
+      "Проверить локальные coordination overlaps.",
+      "Зарегистрировать точные path intents.",
+      "Проверить commit scope перед commit."
+    ],
+    "brandColor": "#1D4ED8"
+  }
+}

@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -1274,3 +1275,82 @@ def test_multiple_origin_urls_are_rejected_as_ambiguous(tmp_path: Path) -> None:
     )
     with pytest.raises(family.FamilyManifestError, match="exactly one origin"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
+
+
+def intnode_snapshot_errors(root: Path, monkeypatch: pytest.MonkeyPatch) -> list[dict]:
+    monkeypatch.setattr(plugin_verifier, "ROOT", root)
+    report: dict = {"intnode_snapshot_errors": []}
+    plugin_verifier.verify_intnode_public_snapshot(report)
+    return report["intnode_snapshot_errors"]
+
+
+@pytest.fixture
+def intnode_snapshot_root(tmp_path: Path) -> Path:
+    target = tmp_path / "codex" / "plugins" / "intnode"
+    shutil.copytree(ROOT / "codex" / "plugins" / "intnode", target)
+    return tmp_path
+
+
+def test_intnode_public_snapshot_is_exact_and_discoverable(
+    intnode_snapshot_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert intnode_snapshot_errors(intnode_snapshot_root, monkeypatch) == []
+
+
+@pytest.mark.parametrize(
+    ("mutate", "error_key"),
+    [
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / "unexpected.txt").write_text(
+                "extra\n", encoding="utf-8"
+            ),
+            "snapshot_files",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / "LICENSE").unlink(),
+            "missing_snapshot_file",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / "LICENSE").write_text(
+                "tampered\n", encoding="utf-8"
+            ),
+            "snapshot_digest",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json").write_text(
+                '{"name":"wrong","skills":"./skills"}\n', encoding="utf-8"
+            ),
+            "manifest_name",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json").write_text(
+                '{"name":"intnode","skills":"./wrong"}\n', encoding="utf-8"
+            ),
+            "manifest_skills",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json").write_text(
+                '{"name":"intnode","skills":"./skills","mcpServers":{}}\n', encoding="utf-8"
+            ),
+            "forbidden_manifest_declaration",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / "skills" / "coord" / "SKILL.md").write_text(
+                "---\nname: wrong\n---\n", encoding="utf-8"
+            ),
+            "skill_namespace",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / "skills" / "coord" / "SKILL.md").write_text(
+                "---\nname: coord\n---\ncoordctl\n", encoding="utf-8"
+            ),
+            "forbidden_snapshot_content",
+        ),
+    ],
+)
+def test_intnode_public_snapshot_rejects_any_contract_deviation(
+    intnode_snapshot_root: Path, monkeypatch: pytest.MonkeyPatch, mutate, error_key: str
+) -> None:
+    mutate(intnode_snapshot_root)
+    errors = intnode_snapshot_errors(intnode_snapshot_root, monkeypatch)
+    assert any(error_key in error for error in errors)

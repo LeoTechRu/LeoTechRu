@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import re
 import subprocess
@@ -28,6 +29,23 @@ EXPECTED_COUNTS = {
 PLUGIN_DIRS = {
     "intbrain": ROOT / "codex" / "plugins" / "intbrain",
 }
+
+INTNODE_SNAPSHOT_FILES = {
+    ".codex-plugin/plugin.json": {
+        "sha256": "beb99bdf69ba94c3fd8cf3df942aa0b0310f574b16e30695bf9edc7c34c19571",
+        "size_bytes": 1116,
+    },
+    "LICENSE": {
+        "sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0",
+        "size_bytes": 258,
+    },
+    "skills/coord/SKILL.md": {
+        "sha256": "f27ec2f58a8ebef0fdcfc07e864c97c43df5c628094ab12979564d3fb1dbc2ae",
+        "size_bytes": 1728,
+    },
+}
+INTNODE_FORBIDDEN_CONTENT = ("coordctl", "intprobe", "intdev", "openspec-")
+INTNODE_FORBIDDEN_DECLARATIONS = {"mcp", "mcpserver", "mcpservers", "runtime", "binary", "binaries"}
 
 TOOL_SKILLS = {
     "intbrain": {
@@ -302,6 +320,79 @@ def verify_retired_standalone_plugin_surfaces(report: dict[str, Any]) -> None:
         )
 
 
+def manifest_has_forbidden_intnode_declaration(value: Any) -> bool:
+    if isinstance(value, dict):
+        return any(
+            str(key).replace("_", "").replace("-", "").lower() in INTNODE_FORBIDDEN_DECLARATIONS
+            or manifest_has_forbidden_intnode_declaration(child)
+            for key, child in value.items()
+        )
+    if isinstance(value, list):
+        return any(manifest_has_forbidden_intnode_declaration(item) for item in value)
+    return False
+
+
+def verify_intnode_public_snapshot(report: dict[str, Any]) -> None:
+    errors = report["intnode_snapshot_errors"]
+    plugin_dir = ROOT / "codex" / "plugins" / "intnode"
+    if not plugin_dir.is_dir():
+        errors.append({"missing_snapshot_directory": display_path(plugin_dir)})
+        return
+
+    actual_files = {
+        path.relative_to(plugin_dir).as_posix()
+        for path in plugin_dir.rglob("*")
+        if path.is_file()
+    }
+    expected_files = set(INTNODE_SNAPSHOT_FILES)
+    if actual_files != expected_files:
+        errors.append({"snapshot_files": sorted(actual_files), "expected": sorted(expected_files)})
+
+    for relative_path, expected in INTNODE_SNAPSHOT_FILES.items():
+        path = plugin_dir / relative_path
+        if not path.is_file():
+            errors.append({"missing_snapshot_file": relative_path})
+            continue
+        payload = path.read_bytes()
+        actual = {"sha256": hashlib.sha256(payload).hexdigest(), "size_bytes": len(payload)}
+        if actual != expected:
+            errors.append({"snapshot_digest": relative_path, "actual": actual, "expected": expected})
+
+    manifest_path = plugin_dir / ".codex-plugin" / "plugin.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        errors.append({"manifest": display_path(manifest_path), "error": str(exc)})
+    else:
+        if manifest.get("name") != "intnode":
+            errors.append({"manifest_name": manifest.get("name"), "expected": "intnode"})
+        if manifest.get("skills") != "./skills":
+            errors.append({"manifest_skills": manifest.get("skills"), "expected": "./skills"})
+        if manifest_has_forbidden_intnode_declaration(manifest):
+            errors.append({"forbidden_manifest_declaration": display_path(manifest_path)})
+
+    skill_path = plugin_dir / "skills" / "coord" / "SKILL.md"
+    try:
+        skill = skill_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append({"skill": display_path(skill_path), "error": str(exc)})
+    else:
+        frontmatter = re.match(r"\A---\r?\n(.*?)\r?\n---\r?\n", skill, re.DOTALL)
+        if not frontmatter or not re.search(r"(?m)^name:\s*coord\s*$", frontmatter.group(1)):
+            errors.append({"skill_namespace": "not discoverable as intnode:coord"})
+
+    for relative_path in sorted(actual_files):
+        path = plugin_dir / relative_path
+        try:
+            text = path.read_text(encoding="utf-8").lower()
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append({"snapshot_text": relative_path, "error": str(exc)})
+            continue
+        forbidden = [token for token in INTNODE_FORBIDDEN_CONTENT if token in text]
+        if forbidden:
+            errors.append({"forbidden_snapshot_content": relative_path, "tokens": forbidden})
+
+
 def extract_card(body: str, tool_name: str) -> str | None:
     marker = f"### {tool_name}"
     start = body.find(marker)
@@ -469,10 +560,12 @@ def build_report(skip_guards: bool) -> dict[str, Any]:
         "doc_guard_errors": [],
         "doc_guard_warnings": [],
         "retired_surface_errors": [],
+        "intnode_snapshot_errors": [],
         "matrix": [],
     }
     verify_manifests(report)
     verify_retired_standalone_plugin_surfaces(report)
+    verify_intnode_public_snapshot(report)
     for profile, expected in EXPECTED_COUNTS.items():
         tools = tools_for(profile)
         names = {tool["name"] for tool in tools}
@@ -503,6 +596,7 @@ def build_report(skip_guards: bool) -> dict[str, Any]:
         or report["skill_frontmatter_errors"]
         or report["doc_guard_errors"]
         or report["retired_surface_errors"]
+        or report["intnode_snapshot_errors"]
         or missing_count
     )
     return report
