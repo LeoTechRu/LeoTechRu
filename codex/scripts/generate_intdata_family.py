@@ -915,6 +915,14 @@ def build_catalog(manifest: dict[str, Any], family_hash: str) -> dict[str, Any]:
     }
 
 
+def marketplace_source_url(plugin: dict[str, Any]) -> str:
+    repository = plugin["provenance"]["repository"]
+    if plugin["source_access"] != "private":
+        return repository
+    _host, owner, repo = canonical_remote(repository)
+    return f"git@github.com:{owner}/{repo}.git"
+
+
 def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
     entries = []
     for plugin in sorted(manifest["plugins"], key=lambda item: item["id"]):
@@ -924,7 +932,7 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                 "name": plugin["id"],
                 "source": {
                     "source": "git-subdir",
-                    "url": provenance["repository"],
+                    "url": marketplace_source_url(plugin),
                     "path": f"./{provenance['subdir']}",
                     "ref": provenance["commit"],
                 },

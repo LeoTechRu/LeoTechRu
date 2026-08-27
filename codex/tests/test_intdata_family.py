@@ -409,6 +409,10 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
         "intbridge": "NOT_AVAILABLE",
         "intnode": "AVAILABLE",
     }
+    assert all(
+        entry["source"]["url"].startswith("git@github.com:LeoTechPro/")
+        for entry in marketplace["plugins"]
+    )
     assert not LEGACY_MARKETPLACE.exists()
 
 
