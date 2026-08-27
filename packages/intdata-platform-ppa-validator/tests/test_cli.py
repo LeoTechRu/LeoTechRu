@@ -20,7 +20,7 @@ sys.path.insert(0, str(SOURCE_ROOT))
 EXPECTED = {
     "checked": {
         "ppa_artifact_digests": 2,
-        "ppa_vectors": 108,
+        "ppa_vectors": 109,
         "terminal_artifact_digests": 4,
         "uri_vectors": 35,
     },
