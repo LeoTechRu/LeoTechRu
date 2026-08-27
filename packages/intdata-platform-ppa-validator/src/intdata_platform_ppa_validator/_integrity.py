@@ -9,20 +9,20 @@ from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 PLATFORM_ROOT = PACKAGE_ROOT / "platform"
-PPA_AGGREGATE_SHA256 = "b89295772258809538d01fe27d14f4147a685c3495a5c4021cb4603486f90229"
-TERMINAL_AGGREGATE_SHA256 = "e0642d0843c435a05e9e3397a7211136f7e0e73563e138e9f691bac8d68ccba6"
+PPA_AGGREGATE_SHA256 = "968b42e2a14995f37f4b74bcbca841b861002864d39e05ed3d856b3176d7d1dc"
+TERMINAL_AGGREGATE_SHA256 = "a1125f44984203c3231ecaa4ea6e9ea77624d0d003eb9e1cef09edd5f60b5f0f"
 AGGREGATE_ENCODING = (
     "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, "
     "path, LF; SHA-256 the concatenated UTF-8 bytes."
 )
 RAW_SHA256 = {
     "schemas/platform-product-assertion.schema.json": "449498ec8705c29b0aa8729d32a458f447118027c511b12b211fff9b453dc4b7",
-    "conformance/platform-product-assertion-v1.vectors.json": "f0fb8958a80b7b8340d5af172a3e43e96014d026056d98f7fb07a9068deb2775",
-    "conformance/platform-product-assertion-v1.digests.json": "53714020301e01c4c6043923288111d6a78b6a6cff472187da000ea132bff5bb",
+    "conformance/platform-product-assertion-v1.vectors.json": "f2a75d414428aeed9b18a3d4ee4a8f6e6daa2b397644bb0a7f5372a68ac75ebd",
+    "conformance/platform-product-assertion-v1.digests.json": "4b435607939fd194a902c58aec315aaf8affd0140d53ba09bdc2003a7fed9a8f",
     "conformance/bridge-oauth-registration-uri-v1.profile.json": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070",
     "conformance/bridge-oauth-registration-uri-v1.vectors.json": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
-    "conformance/terminal-dependency-digests.json": "4f7939a6891d12866012e51e6fe0ed7cd225ef1fd5189ececfad33980c460959",
-    "conformance/validate-terminal-dependencies.py": "1ea531bc9cd886298a76900ec988d6508dd77dd49988803b86effce8a05f74d8",
+    "conformance/terminal-dependency-digests.json": "e8f76456fd50faf89788f47c3c79b47ed18bb9f92c0983f4e68f7ceb2d9ac63c",
+    "conformance/validate-terminal-dependencies.py": "4a007f921eeae3e790974d901eae8d7f3b46143dca584b6dec6d4444b83d51df",
 }
 
 
