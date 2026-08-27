@@ -9,20 +9,20 @@ from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 PLATFORM_ROOT = PACKAGE_ROOT / "platform"
-PPA_AGGREGATE_SHA256 = "22ee523b85409e3e1d1deac390d3aa1adc78b9e39a093b4f70add346d14954b7"
-TERMINAL_AGGREGATE_SHA256 = "dfaf9b971f6d08eeecd3fb259e4ca054730317a0a3f4cfc2bea5385943f6c7ca"
+PPA_AGGREGATE_SHA256 = "b89295772258809538d01fe27d14f4147a685c3495a5c4021cb4603486f90229"
+TERMINAL_AGGREGATE_SHA256 = "e0642d0843c435a05e9e3397a7211136f7e0e73563e138e9f691bac8d68ccba6"
 AGGREGATE_ENCODING = (
     "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, "
     "path, LF; SHA-256 the concatenated UTF-8 bytes."
 )
 RAW_SHA256 = {
     "schemas/platform-product-assertion.schema.json": "449498ec8705c29b0aa8729d32a458f447118027c511b12b211fff9b453dc4b7",
-    "conformance/platform-product-assertion-v1.vectors.json": "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46",
-    "conformance/platform-product-assertion-v1.digests.json": "16cfbe2bd35839c432e6f6a7bfb7637006412650620567a406a36c1b65798ae0",
+    "conformance/platform-product-assertion-v1.vectors.json": "f0fb8958a80b7b8340d5af172a3e43e96014d026056d98f7fb07a9068deb2775",
+    "conformance/platform-product-assertion-v1.digests.json": "53714020301e01c4c6043923288111d6a78b6a6cff472187da000ea132bff5bb",
     "conformance/bridge-oauth-registration-uri-v1.profile.json": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070",
     "conformance/bridge-oauth-registration-uri-v1.vectors.json": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
-    "conformance/terminal-dependency-digests.json": "d8b3beab610e738dfa0ab93a226a0d20e594346331b5d41b87cee57acdef8f54",
-    "conformance/validate-terminal-dependencies.py": "b61acb188e1109cf3730ebdb1a76ee91132e33cc5d2c5a3df7ea20ce83ab72ee",
+    "conformance/terminal-dependency-digests.json": "4f7939a6891d12866012e51e6fe0ed7cd225ef1fd5189ececfad33980c460959",
+    "conformance/validate-terminal-dependencies.py": "1ea531bc9cd886298a76900ec988d6508dd77dd49988803b86effce8a05f74d8",
 }
 
 

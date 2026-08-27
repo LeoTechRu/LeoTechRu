@@ -956,16 +956,16 @@
                                   {
                                       "id":  "urn:intdata:conformance:platform-product-assertion:v1",
                                       "vectors_path":  "conformance/platform-product-assertion-v1.vectors.json",
-                                      "vectors_sha256":  "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46",
+                                      "vectors_sha256":  "f0fb8958a80b7b8340d5af172a3e43e96014d026056d98f7fb07a9068deb2775",
                                       "digest_manifest_path":  "conformance/terminal-dependency-digests.json",
-                                      "digest_manifest_sha256":  "d8b3beab610e738dfa0ab93a226a0d20e594346331b5d41b87cee57acdef8f54"
+                                      "digest_manifest_sha256":  "4f7939a6891d12866012e51e6fe0ed7cd225ef1fd5189ececfad33980c460959"
                                   },
                                   {
                                       "id":  "urn:intdata:conformance:bridge-oauth-registration-uri:v1",
                                       "vectors_path":  "conformance/bridge-oauth-registration-uri-v1.vectors.json",
                                       "vectors_sha256":  "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
                                       "digest_manifest_path":  "conformance/terminal-dependency-digests.json",
-                                      "digest_manifest_sha256":  "d8b3beab610e738dfa0ab93a226a0d20e594346331b5d41b87cee57acdef8f54"
+                                      "digest_manifest_sha256":  "4f7939a6891d12866012e51e6fe0ed7cd225ef1fd5189ececfad33980c460959"
                                   },
                                   {
                                       "id":  "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
