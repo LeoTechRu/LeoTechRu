@@ -184,6 +184,14 @@ def test_unknown_field_is_rejected_by_closed_schema(tmp_path: Path) -> None:
         schema_set.validate_raw(b'{"known":"ok","unknown":true}', schema["$id"])
 
 
+def test_validate_value_rejects_floating_point_integer(tmp_path: Path) -> None:
+    schema = _schema("module-manifest", type="integer")
+    schema_set = SchemaSet.load(_write_set(tmp_path, [("module-manifest", schema)]))
+
+    with pytest.raises(SchemaSetError, match="floating-point value"):
+        schema_set.validate_value(1.0, schema["$id"])
+
+
 def test_validation_error_order_is_deterministic(tmp_path: Path) -> None:
     messages = []
     for directory, required in (
