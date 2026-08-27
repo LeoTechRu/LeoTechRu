@@ -4,17 +4,30 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 
 from jsonschema import Draft202012Validator
-from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import SchemaError, ValidationError
 from referencing import Registry, Resource
 from referencing.exceptions import NoSuchResource
 from referencing.jsonschema import DRAFT202012
 
 from ._json import canonical_sha256, canonicalize, strict_loads
+
+
+def _validation_error_key(error: ValidationError) -> tuple[object, ...]:
+    def path_key(path: Iterable[object]) -> tuple[tuple[str, str], ...]:
+        return tuple((type(part).__name__, str(part)) for part in path)
+
+    return (
+        path_key(error.absolute_path),
+        path_key(error.absolute_schema_path),
+        str(error.validator),
+        error.message,
+    )
 
 DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 SCHEMA_SET_VERSION = "1.0.0"
@@ -616,7 +629,7 @@ class SchemaSet:
         try:
             errors = sorted(
                 validator.iter_errors(value),
-                key=lambda item: tuple(str(part) for part in item.path),
+                key=_validation_error_key,
             )
         except Exception as error:
             raise SchemaSetError(

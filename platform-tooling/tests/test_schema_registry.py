@@ -184,6 +184,35 @@ def test_unknown_field_is_rejected_by_closed_schema(tmp_path: Path) -> None:
         schema_set.validate_raw(b'{"known":"ok","unknown":true}', schema["$id"])
 
 
+def test_validation_error_order_is_deterministic(tmp_path: Path) -> None:
+    messages = []
+    for directory, required in (
+        ("forward", ["zeta", "alpha"]),
+        ("reverse", ["alpha", "zeta"]),
+    ):
+        root = tmp_path / directory
+        root.mkdir()
+        schema = _schema(
+            "module-manifest",
+            type="object",
+            additionalProperties=False,
+            required=required,
+            properties={
+                "alpha": {"type": "string"},
+                "zeta": {"type": "string"},
+            },
+        )
+        schema_set = SchemaSet.load(
+            _write_set(root, [("module-manifest", schema)])
+        )
+        with pytest.raises(SchemaSetError) as caught:
+            schema_set.validate_raw(b"{}", schema["$id"])
+        messages.append(str(caught.value))
+
+    assert messages[0] == messages[1]
+    assert messages[0].endswith("'alpha' is a required property")
+
+
 def test_unknown_or_remote_reference_fails_before_network(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
