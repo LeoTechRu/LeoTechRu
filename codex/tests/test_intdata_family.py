@@ -16,7 +16,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "codex" / "scripts" / "generate_intdata_family.py"
 MANIFEST = ROOT / "codex" / "family" / "intdata-family.json"
 SCHEMA = ROOT / "codex" / "family" / "intdata-family.schema.json"
-CHECKED_MARKETPLACE = ROOT / ".codex" / "plugins" / "marketplace.json"
+CHECKED_MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
+LEGACY_MARKETPLACE = ROOT / ".codex" / "plugins" / "marketplace.json"
 
 SPEC = importlib.util.spec_from_file_location("generate_intdata_family", SCRIPT)
 assert SPEC and SPEC.loader
@@ -408,6 +409,7 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
         "intbridge": "NOT_AVAILABLE",
         "intnode": "AVAILABLE",
     }
+    assert not LEGACY_MARKETPLACE.exists()
 
 
 def test_resource_repository_identities_match_current_owning_repositories() -> None:
@@ -763,7 +765,7 @@ def test_duplicate_json_keys_fail_closed(tmp_path: Path) -> None:
 def test_plugin_verifier_strictly_rejects_duplicate_marketplace_keys(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    marketplace_path = tmp_path / ".codex" / "plugins" / "marketplace.json"
+    marketplace_path = tmp_path / ".agents" / "plugins" / "marketplace.json"
     marketplace_path.parent.mkdir(parents=True)
     duplicate = CHECKED_MARKETPLACE.read_text(encoding="utf-8").replace(
         '  "name": "intdata",',

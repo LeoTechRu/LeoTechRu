@@ -175,7 +175,7 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 
 ## intData Codex Plugins
 
-- Marketplace source-of-truth: `.codex/plugins/marketplace.json`.
+- Native marketplace source-of-truth: `.agents/plugins/marketplace.json`.
 - Product-owned plugins are referenced from their owning repositories; accepted candidates use `AVAILABLE` + `ON_INSTALL`, while unavailable family members remain dark.
 - Local marketplace identity: `intdata` / `intData`.
 - Public marketplace family is exactly `intbridge`, `intagent`, and `intnode`, as defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
