@@ -29,4 +29,4 @@ def test_uri_format_leaves_canonical_profile_rules_to_semantic_validation() -> N
 
 
 def test_platform_assertion_vectors_pass_with_pinned_dependencies() -> None:
-    assert CONFORMANCE.validate_ppa() == 105
+    assert CONFORMANCE.validate_ppa() == 106

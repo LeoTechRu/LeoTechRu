@@ -275,12 +275,12 @@ def validate_ppa() -> int:
     canonical = jcs(base["claims"])
     if canonical.hex() != base["canonical_claims_utf8_hex"] or hashlib.sha256(canonical).hexdigest() != base["canonical_claims_sha256"]:
         raise ConformanceError("ppa-jcs")
-    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 13:
+    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 14:
         raise ConformanceError("positive-count")
     if not isinstance(vectors["adverse_cases"], list) or len(vectors["adverse_cases"]) != 87:
         raise ConformanceError("adverse-count")
     case_names = [case.get("name") for case in vectors["positive_cases"] + vectors["adverse_cases"] if isinstance(case, dict)]
-    if len(case_names) != 100 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
+    if len(case_names) != 101 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
         raise ConformanceError("case-names")
     checked = 0
     for positive in vectors["positive_cases"]:

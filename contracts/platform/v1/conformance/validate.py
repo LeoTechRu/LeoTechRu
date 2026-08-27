@@ -538,16 +538,16 @@ def validate_delegated_vector_sets(vectors: dict[str, Any]) -> dict[str, int]:
         (
             "urn:intdata:conformance:platform-product-assertion:v1",
             "conformance/platform-product-assertion-v1.vectors.json",
-            "f2a75d414428aeed9b18a3d4ee4a8f6e6daa2b397644bb0a7f5372a68ac75ebd",
+            "b7fc0dca2276ecf8ebf6e82d81f22c9c24def3b7337568b8c90208bb35a18bb8",
             "conformance/terminal-dependency-digests.json",
-            "e8f76456fd50faf89788f47c3c79b47ed18bb9f92c0983f4e68f7ceb2d9ac63c",
+            "c5e42fb976e6264956519c0c4bbfb52755f4250d6879f809ebecda5312a598b3",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-uri:v1",
             "conformance/bridge-oauth-registration-uri-v1.vectors.json",
             "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
             "conformance/terminal-dependency-digests.json",
-            "e8f76456fd50faf89788f47c3c79b47ed18bb9f92c0983f4e68f7ceb2d9ac63c",
+            "c5e42fb976e6264956519c0c4bbfb52755f4250d6879f809ebecda5312a598b3",
         ),
         (
             "urn:intdata:conformance:bridge-oauth-registration-approval-receipt:v1",
