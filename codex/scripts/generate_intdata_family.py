@@ -46,6 +46,7 @@ EXPECTED_SKILLS = {
         "host-diagnostics", "hypothesis-diagnosis", "ssh",
         "firefox-devtools-testing", "vault-maintenance",
     ),
+    "intnode": ("coord",),
 }
 EXPECTED_COMPONENTS = {
     "intbridge": (
@@ -82,6 +83,7 @@ EXPECTED_COMPONENTS = {
         },
     ),
     "intagent": (),
+    "intnode": (),
 }
 LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdev", "intdata-control", "intdata-runtime"}
 EXPECTED_RESOURCE_IDS = {"platform", "punkt-b", "crm", "cms", "brain", "probe", "lms", "agent"}
@@ -89,16 +91,19 @@ PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
+    "intnode": ("private", "authenticated", "owner-only", None),
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
     "intagent": "https://github.com/LeoTechPro/intData-agent.git",
+    "intnode": "https://github.com/LeoTechPro/intData-node.git",
 }
 EXPECTED_PLUGIN_MANIFEST_PATHS = {
     plugin_id: f"{subdir}/.codex-plugin/plugin.json"
     for plugin_id, subdir in {
         "intbridge": "plugins/intbridge",
         "intagent": "plugins/intagent",
+        "intnode": "plugins/intnode",
     }.items()
 }
 EXPECTED_PLUGIN_LICENSE_PATHS = {
@@ -927,7 +932,11 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                     "installation": (
                         "INSTALLED_BY_DEFAULT"
                         if manifest["release_state"] == "released"
-                        else "NOT_AVAILABLE"
+                        else (
+                            "AVAILABLE"
+                            if plugin["availability"] == "available"
+                            else "NOT_AVAILABLE"
+                        )
                     ),
                     "authentication": (
                         "ON_USE" if plugin["install_access"] == "public" else "ON_INSTALL"

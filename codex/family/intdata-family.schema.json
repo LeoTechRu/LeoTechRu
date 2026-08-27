@@ -247,8 +247,8 @@
     },
     "plugin_collection": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 3,
+      "maxItems": 3,
       "items": {"$ref": "#/$defs/plugin"},
       "allOf": [
         {
@@ -258,6 +258,11 @@
         },
         {
           "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intagent"}}},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"type": "object", "required": ["id"], "properties": {"id": {"const": "intnode"}}},
           "minContains": 1,
           "maxContains": 1
         }
@@ -339,10 +344,14 @@
         {
           "if": {"required": ["id"], "properties": {"id": {"const": "intagent"}}},
           "then": {"properties": {"skills": {"const": ["agent-control", "environment-detection", "mode-resolution", "mode-router", "host-diagnostics", "hypothesis-diagnosis", "ssh", "firefox-devtools-testing", "vault-maintenance"]}}}
+        },
+        {
+          "if": {"required": ["id"], "properties": {"id": {"const": "intnode"}}},
+          "then": {"properties": {"skills": {"const": ["coord"]}, "components": {"maxItems": 0}}}
         }
       ],
       "properties": {
-        "id": {"enum": ["intbridge", "intagent"]},
+        "id": {"enum": ["intbridge", "intagent", "intnode"]},
         "display_name": {"type": "string", "minLength": 1},
         "release_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"},
         "owner": {"type": "string", "minLength": 1},

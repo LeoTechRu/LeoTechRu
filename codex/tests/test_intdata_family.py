@@ -398,11 +398,16 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
     assert [entry["name"] for entry in marketplace["plugins"]] == [
         "intagent",
         "intbridge",
+        "intnode",
     ]
-    assert all(
-        entry["policy"]["installation"] == "NOT_AVAILABLE"
+    assert {
+        entry["name"]: entry["policy"]["installation"]
         for entry in marketplace["plugins"]
-    )
+    } == {
+        "intagent": "NOT_AVAILABLE",
+        "intbridge": "NOT_AVAILABLE",
+        "intnode": "AVAILABLE",
+    }
 
 
 def test_resource_repository_identities_match_current_owning_repositories() -> None:
@@ -476,8 +481,8 @@ def test_canonical_family_membership_and_skill_map() -> None:
     family.validate_manifest(manifest, schema, require_release=False)
     plugins = {entry["id"]: entry for entry in manifest["plugins"]}
 
-    assert set(plugins) == {"intbridge", "intagent"}
-    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent")] == [10, 9]
+    assert set(plugins) == {"intbridge", "intagent", "intnode"}
+    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent", "intnode")] == [10, 9, 1]
     assert plugins["intbridge"]["display_name"] == "intData Bridge"
     assert plugins["intbridge"]["owner"] == "intData Bridge"
     assert plugins["intbridge"]["runtime_access"] == "component-gated"
@@ -510,6 +515,11 @@ def test_canonical_family_membership_and_skill_map() -> None:
             "state_boundary": "dba",
         },
     ]
+    assert plugins["intnode"]["display_name"] == "intData Node"
+    assert plugins["intnode"]["owner"] == "intData Node"
+    assert plugins["intnode"]["skills"] == ["coord"]
+    assert plugins["intnode"]["components"] == []
+    assert plugins["intnode"]["oauth_resource"] is None
     assert plugins["intagent"]["components"] == []
     assert "probe-operator" in plugins["intbridge"]["skills"]
     assert "intprobe-operator" not in plugins["intbridge"]["skills"]
@@ -624,7 +634,7 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
         first["intdata.family-release-lock.v1.json"]
     )
     assert marketplace["name"] == "intdata"
-    assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge"]
+    assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge", "intnode"]
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
     assert all(
@@ -638,6 +648,7 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert authentication == {
         "intagent": "ON_INSTALL",
         "intbridge": "ON_INSTALL",
+        "intnode": "ON_INSTALL",
     }
 
 
@@ -732,7 +743,7 @@ def test_schema_override_is_not_a_cli_surface(tmp_path: Path) -> None:
     fake_schema = tmp_path / "schema.json"
     fake_schema.write_text("{}\n", encoding="utf-8")
     result = subprocess.run(
-        ["python3", str(SCRIPT), "validate", "--schema", str(fake_schema)],
+        [sys.executable, str(SCRIPT), "validate", "--schema", str(fake_schema)],
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -966,6 +977,8 @@ def test_commit_bound_plugin_display_name_must_match_family(
         ("intbridge", "runtime_access", "public"),
         ("intagent", "install_access", "public"),
         ("intagent", "oauth_resource", "https://intdata.pro/mcp/probe"),
+        ("intnode", "runtime_access", "public"),
+        ("intnode", "oauth_resource", "https://intdata.pro/mcp/agent"),
     ],
 )
 def test_plugin_access_contracts_cannot_be_weakened(

@@ -355,6 +355,33 @@
         "license_path": "plugins/intagent/LICENSE",
         "license_sha256": "471f75bc6ef38333696dd6549c4355adef05291a74135649131f0a5728f5a45c"
       }
+    },
+    {
+      "id": "intnode",
+      "display_name": "intData Node",
+      "release_version": "1.0.0-dev.1",
+      "owner": "intData Node",
+      "category": "Developer Tools",
+      "visibility": "public",
+      "source_access": "private",
+      "install_access": "authenticated",
+      "runtime_access": "owner-only",
+      "oauth_resource": null,
+      "maturity": "dev",
+      "availability": "available",
+      "skills": ["coord"],
+      "components": [],
+      "provenance": {
+        "repository": "https://github.com/LeoTechPro/intData-node.git",
+        "subdir": "plugins/intnode",
+        "manifest_path": "plugins/intnode/.codex-plugin/plugin.json",
+        "commit": "800b24805c96d3bcd0a45ed7bf2d78414fe2c736",
+        "tree_sha256": "06554b19940e8218e1c5d5e9074ae44cb5921ae2248a251ae4230aace4b319f5",
+        "manifest_sha256": "beb99bdf69ba94c3fd8cf3df942aa0b0310f574b16e30695bf9edc7c34c19571",
+        "license": "Proprietary",
+        "license_path": "plugins/intnode/LICENSE",
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
+      }
     }
   ]
 }
