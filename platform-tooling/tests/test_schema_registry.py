@@ -136,6 +136,52 @@ def test_tracked_schema_set_matches_tooling_profile_authority() -> None:
     SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
 
 
+@pytest.mark.parametrize("version", ["6", "7", "8"])
+def test_platform_product_assertion_accepts_uuid_versions_6_through_8(
+    version: str,
+) -> None:
+    schema_set = SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
+    document = json.loads(
+        (
+            ROOT
+            / "contracts/platform/v1/fixtures/valid/platform-product-assertion-user.json"
+        ).read_text(encoding="utf-8")
+    )
+    document["claims"]["sub"] = f"123e4567-e89b-{version}2d3-a456-426614174000"
+    document["claims"]["organization_id"] = (
+        f"123e4567-e89b-{version}2d3-b456-426614174001"
+    )
+
+    schema_set.validate_value(
+        document, "urn:intdata:schema:platform-product-assertion:v1"
+    )
+
+
+@pytest.mark.parametrize(
+    "uuid",
+    [
+        "123e4567-e89b-02d3-a456-426614174000",
+        "123e4567-e89b-72d3-7456-426614174000",
+    ],
+)
+def test_platform_product_assertion_rejects_invalid_uuid_version_or_variant(
+    uuid: str,
+) -> None:
+    schema_set = SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
+    document = json.loads(
+        (
+            ROOT
+            / "contracts/platform/v1/fixtures/valid/platform-product-assertion-user.json"
+        ).read_text(encoding="utf-8")
+    )
+    document["claims"]["sub"] = uuid
+
+    with pytest.raises(SchemaSetError, match="does not match"):
+        schema_set.validate_value(
+            document, "urn:intdata:schema:platform-product-assertion:v1"
+        )
+
+
 def test_schema_registry_binds_exact_canonical_type_name(tmp_path: Path) -> None:
     set_path = _write_set(tmp_path, [])
     document = json.loads(set_path.read_text(encoding="utf-8"))
