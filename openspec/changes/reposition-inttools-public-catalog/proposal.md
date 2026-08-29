@@ -1,5 +1,12 @@
 # Change: Reposition intTools As Public Tool Catalog
 
+Owner: `/int/tools`.
+
+Specification level: `full`.
+
+Full triggers: public/private boundary, shared catalog governance,
+cross-repository Web ownership and potentially destructive migration/removal.
+
 ## Why
 
 `/int/tools` must be treated as an open-source public catalog of first-party tools, not as a mixed ops/runtime/reference storage area.
@@ -25,7 +32,7 @@ The current tree still contains public tools, private runtime machinery, legacy 
 
 ## Issue
 
-Owning issue: `INT-357` (`Reposition intTools as public tool catalog`).
+Historical provenance: retired `INT-357`; it is not an active lifecycle gate.
 
 ## Acceptance
 
@@ -34,3 +41,7 @@ Owning issue: `INT-357` (`Reposition intTools as public tool catalog`).
 - README describes `intTools` as a public catalog, not a machine-wide ops/runtime repo.
 - `web/tools` contains the public catalog site files and no longer advertises missing stored tools such as `openspec`, `punkt-b`, or `ngt-memory`.
 - IntBrain search/fetch is not presented as an intTools public MCP surface.
+
+Publication, cross-repository Web relocation and destructive cleanup remain
+separate acceptance layers. This package records destinations but does not
+authorize deletion, untracking, submodule recreation or root/Web mutation.

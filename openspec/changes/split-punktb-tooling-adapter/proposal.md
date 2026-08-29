@@ -1,5 +1,12 @@
 # Change: Split PunktB Adapter From Universal Tooling
 
+Owner: `/int/tools`.
+
+Specification level: `full`.
+
+Full triggers: public tooling ownership, compatibility entrypoints, path moves
+and publication of a reusable shared catalog surface.
+
 ## Why
 
 `punkt-b/` currently mixes several different concerns:
@@ -31,7 +38,8 @@ That makes the root catalog misleading: `punkt-b/` looks like one tool, while pa
 
 ## Issue
 
-Owning Multica issue: `INT-348`.
+Historical provenance: retired Multica `INT-348`; it is not an active lifecycle
+or review gate.
 
 ## Acceptance
 
@@ -41,3 +49,7 @@ Owning Multica issue: `INT-348`.
 - `punkt-b/tests/test_legacy_assess_sync.py` no longer imports from the stale `punctb` path.
 - README and website catalog describe `repo-ops/` and the narrowed purpose of `punkt-b/`.
 - OpenSpec validation and relevant unit/smoke checks pass.
+
+Source compatibility, Tools publication and downstream consumer migration are
+independent. This slice does not authorize bulk extraction of release, browser,
+DBA or gate scripts that still contain Punkt Б assumptions.

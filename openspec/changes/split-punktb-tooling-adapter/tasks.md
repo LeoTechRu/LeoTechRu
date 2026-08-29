@@ -1,6 +1,7 @@
 ## 1. Spec and Inventory
 
-- [x] Link the change to Multica issue `INT-348`.
+- [x] Retire Multica `INT-348` as an active gate and retain only historical
+      provenance.
 - [x] Inventory `punkt-b/` and classify product-adapter content vs reusable tooling.
 - [x] Define the target boundary between `punkt-b/` and reusable `repo-ops/`.
 
@@ -22,4 +23,5 @@
 - [x] Validate OpenSpec change strictly.
 - [x] Run affected unit tests.
 - [x] Smoke the moved `repo-ops` cleanup commands in dry-run mode.
-- [ ] Verify git state, commit and publish to `origin/main`.
+- [ ] Reconcile the owning branch, inspect the full ahead range, then commit and
+      publish only to its verified configured upstream.
