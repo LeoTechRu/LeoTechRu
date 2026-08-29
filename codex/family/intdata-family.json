@@ -357,30 +357,30 @@
       }
     },
     {
-      "id": "intdev",
-      "display_name": "intDev",
+      "id": "intnode",
+      "display_name": "intData Node",
       "release_version": "1.0.0-dev.1",
-      "owner": "intData Root Governance",
+      "owner": "intData Node",
       "category": "Developer Tools",
       "visibility": "public",
-      "source_access": "public",
-      "install_access": "public",
-      "runtime_access": "authenticated",
+      "source_access": "private",
+      "install_access": "authenticated",
+      "runtime_access": "owner-only",
       "oauth_resource": null,
-      "maturity": "planned",
-      "availability": "unavailable",
-      "skills": ["approval-guidance", "delivery-acceptance", "issues", "openspec-read", "openspec-mutation", "review-find", "review-fix", "routing", "scope-drift-router"],
+      "maturity": "dev",
+      "availability": "available",
+      "skills": ["coord"],
       "components": [],
       "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-tools.git",
-        "subdir": "codex/plugins/intdev",
-        "manifest_path": "codex/plugins/intdev/.codex-plugin/plugin.json",
-        "commit": "497ff628eb03b2bbee86e729ad4f2268d78ba900",
-        "tree_sha256": "7ec754030440712a9efef2134c6f02478946b0dd600ba7dc9343b9b1461b6abc",
-        "manifest_sha256": "65da00042cae29b7c83c729df42c025549b4e7d9980f7a044da27a205f0da03b",
-        "license": "MIT",
-        "license_path": "codex/plugins/intdev/LICENSE",
-        "license_sha256": "695ec7ab63de97b6205e8c41be4e6009088e9b3050286d6b3e1d62bf500169a1"
+        "repository": "https://github.com/LeoTechPro/intData-node.git",
+        "subdir": "plugins/intnode",
+        "manifest_path": "plugins/intnode/.codex-plugin/plugin.json",
+        "commit": "800b24805c96d3bcd0a45ed7bf2d78414fe2c736",
+        "tree_sha256": "06554b19940e8218e1c5d5e9074ae44cb5921ae2248a251ae4230aace4b319f5",
+        "manifest_sha256": "beb99bdf69ba94c3fd8cf3df942aa0b0310f574b16e30695bf9edc7c34c19571",
+        "license": "Proprietary",
+        "license_path": "plugins/intnode/LICENSE",
+        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       }
     }
   ]

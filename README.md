@@ -175,11 +175,11 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 
 ## intData Codex Plugins
 
-- Marketplace source-of-truth: `.codex/plugins/marketplace.json`.
-- Packaged plugins live in `codex/plugins/<plugin>/` and use `INSTALLED_BY_DEFAULT` + `ON_INSTALL`.
+- Native marketplace source-of-truth: `.agents/plugins/marketplace.json`.
+- Product-owned plugins are referenced from their owning repositories; accepted candidates use `AVAILABLE` + `ON_INSTALL`, while unavailable family members remain dark.
 - Local marketplace identity: `intdata` / `intData`.
-- Public marketplace family is defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
-- Coordination is available only through the external `intnode coord` CLI owned by `/int/node`; intData-tools exposes no coordination plugin skill, alias, MCP tool, or standalone runtime.
+- Public marketplace family is exactly `intbridge`, `intagent`, and `intnode`, as defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
+- `intnode@intdata` exposes only the Node-owned `coord` skill, which routes coordination through the existing `intnode coord` CLI. It ships no binary, standalone `coordctl`, MCP runtime, or OpenSpec skill.
 - Active plugin category: `Developer Tools`.
 - Removed active plugin IDs: `coordctl`, `agent-plane`, `dba`, `intprobe`, `intdba`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
 - Cabinet-related inventory/import tooling is outside public intData-tools; old standalone local product directories are not deleted without count-check and owner acceptance.
@@ -947,7 +947,7 @@ lockctl wrappers, MCP tools or runtime surfaces.
 #### `intnode coord`
 
 `intnode coord` is the Git-aware coordination runtime for parallel agent edits.
-It is owned by `/int/node` and is not part of any intData marketplace plugin.
+It is owned by `/int/node`; the `intnode@intdata` plugin contributes only usage guidance for this existing CLI and does not bundle its runtime.
 
 ##### Shell UX
 
@@ -959,7 +959,8 @@ intnode coord --help
 ```
 
 Implementation/core lives in `/int/node/internal/coordctl`. `/int/tools` owns
-no coordination source, installer, plugin skill, alias, or MCP tool.
+no coordination source, installer, runtime alias, or MCP tool; its marketplace
+entry only points to the Node-owned `coord` guidance skill.
 
 ##### Runtime model
 

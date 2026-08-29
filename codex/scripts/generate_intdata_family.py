@@ -46,11 +46,7 @@ EXPECTED_SKILLS = {
         "host-diagnostics", "hypothesis-diagnosis", "ssh",
         "firefox-devtools-testing", "vault-maintenance",
     ),
-    "intdev": (
-        "approval-guidance", "delivery-acceptance", "issues",
-        "openspec-read", "openspec-mutation", "review-find", "review-fix",
-        "routing", "scope-drift-router",
-    ),
+    "intnode": ("coord",),
 }
 EXPECTED_COMPONENTS = {
     "intbridge": (
@@ -87,27 +83,27 @@ EXPECTED_COMPONENTS = {
         },
     ),
     "intagent": (),
-    "intdev": (),
+    "intnode": (),
 }
-LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdata-control", "intdata-runtime"}
+LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdev", "intdata-control", "intdata-runtime"}
 EXPECTED_RESOURCE_IDS = {"platform", "punkt-b", "crm", "cms", "brain", "probe", "lms", "agent"}
 PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intdev": ("public", "public", "authenticated", None),
+    "intnode": ("private", "authenticated", "owner-only", None),
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
     "intagent": "https://github.com/LeoTechPro/intData-agent.git",
-    "intdev": "https://github.com/LeoTechPro/intData-tools.git",
+    "intnode": "https://github.com/LeoTechPro/intData-node.git",
 }
 EXPECTED_PLUGIN_MANIFEST_PATHS = {
     plugin_id: f"{subdir}/.codex-plugin/plugin.json"
     for plugin_id, subdir in {
         "intbridge": "plugins/intbridge",
         "intagent": "plugins/intagent",
-        "intdev": "codex/plugins/intdev",
+        "intnode": "plugins/intnode",
     }.items()
 }
 EXPECTED_PLUGIN_LICENSE_PATHS = {
@@ -919,6 +915,14 @@ def build_catalog(manifest: dict[str, Any], family_hash: str) -> dict[str, Any]:
     }
 
 
+def marketplace_source_url(plugin: dict[str, Any]) -> str:
+    repository = plugin["provenance"]["repository"]
+    if plugin["source_access"] != "private":
+        return repository
+    _host, owner, repo = canonical_remote(repository)
+    return f"git@github.com:{owner}/{repo}.git"
+
+
 def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
     entries = []
     for plugin in sorted(manifest["plugins"], key=lambda item: item["id"]):
@@ -928,7 +932,7 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                 "name": plugin["id"],
                 "source": {
                     "source": "git-subdir",
-                    "url": provenance["repository"],
+                    "url": marketplace_source_url(plugin),
                     "path": f"./{provenance['subdir']}",
                     "ref": provenance["commit"],
                 },
@@ -936,7 +940,11 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                     "installation": (
                         "INSTALLED_BY_DEFAULT"
                         if manifest["release_state"] == "released"
-                        else "NOT_AVAILABLE"
+                        else (
+                            "AVAILABLE"
+                            if plugin["availability"] == "available"
+                            else "NOT_AVAILABLE"
+                        )
                     ),
                     "authentication": (
                         "ON_USE" if plugin["install_access"] == "public" else "ON_INSTALL"

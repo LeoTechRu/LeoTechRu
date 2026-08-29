@@ -16,9 +16,9 @@ ROOT = Path(__file__).resolve().parents[2]
 MCP_SERVER = ROOT / "codex" / "bin" / "mcp-intdata-cli.py"
 MARKETPLACE_NAME = "intdata"
 MARKETPLACE_DISPLAY_NAME = "intData"
-PUBLIC_PLUGIN_NAMES = ("intagent", "intbridge", "intdev")
+PUBLIC_PLUGIN_NAMES = ("intagent", "intbridge", "intnode")
 COMPATIBILITY_PROFILE_NAMES: tuple[str, ...] = ()
-RETIRED_STANDALONE_PLUGIN_NAMES = {"dba", "intprobe", "intdba"}
+RETIRED_STANDALONE_PLUGIN_NAMES = {"dba", "intprobe", "intdba", "intdev"}
 FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane", *RETIRED_STANDALONE_PLUGIN_NAMES}
 EXPECTED_COUNTS = {
     "intdata-control": 12,
@@ -208,7 +208,7 @@ def tools_for(profile: str) -> list[dict[str, Any]]:
 
 
 def verify_manifests(report: dict[str, Any]) -> None:
-    marketplace_path = ROOT / ".codex" / "plugins" / "marketplace.json"
+    marketplace_path = ROOT / ".agents" / "plugins" / "marketplace.json"
     if not marketplace_path.exists():
         report["manifest_errors"].append(f"missing required marketplace catalog: {display_path(marketplace_path)}")
         return
