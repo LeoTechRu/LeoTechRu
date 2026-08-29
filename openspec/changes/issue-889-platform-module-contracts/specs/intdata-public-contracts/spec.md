@@ -135,7 +135,8 @@ existing terminal manifest remains a four-artifact aggregate and is not a PPA
 aggregate.
 
 `sub` and `organization_id` MUST match lowercase canonical UUID regex
-`[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`.
+`[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`.
+UUID versions 1 through 8, including UUIDv7, are valid while non-RFC variants remain forbidden.
 `principal_type` MUST be `user` or `service_account`; `product_id` MUST match
 `[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?`; `client_id` and `session_id` MUST match
 `[A-Za-z0-9._:-]{1,128}`. `scopes` MUST be a non-empty lexicographically sorted

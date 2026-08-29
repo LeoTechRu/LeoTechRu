@@ -156,6 +156,26 @@ def canonical_schema_reason(error: Any) -> str:
     return f"{pointer}#{keyword}"
 
 
+def is_rfc3986_uri(value: object) -> bool:
+    if not isinstance(value, str):
+        return True
+    try:
+        raw = value.encode("ascii", "strict")
+    except UnicodeEncodeError:
+        return False
+    if (
+        not raw
+        or any(byte <= 0x20 or byte == 0x7F for byte in raw)
+        or b"\\" in raw
+        or not re.fullmatch(r"[A-Za-z0-9:/?#\[\]@!$&'()*+,;=._~%-]+", value)
+    ):
+        return False
+    return all(
+        re.fullmatch(r"[0-9A-Fa-f]{2}", suffix[:2])
+        for suffix in value.split("%")[1:]
+    )
+
+
 def validate_verifier(verifier: Any) -> None:
     require_keys(verifier, {"issuer", "audience", "product_id", "verifier_now", "clock_skew_seconds"}, "verifier")
     if not isinstance(verifier["issuer"], str) or not isinstance(verifier["audience"], str):
@@ -239,7 +259,9 @@ def validate_ppa() -> int:
     if schema["$id"] != PPA_SCHEMA_ID:
         raise ConformanceError("schema-id")
     Draft202012Validator.check_schema(schema)
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    format_checker = FormatChecker()
+    format_checker.checks("uri")(is_rfc3986_uri)
+    validator = Draft202012Validator(schema, format_checker=format_checker)
     vectors = load_json(PPA_VECTORS_PATH)
     require_keys(vectors, {"vector_set_id", "version", "schema_id", "protected_header_contract", "base", "positive_cases", "adverse_cases", "raw_json_cases"}, "ppa-vectors")
     if vectors["vector_set_id"] != PPA_VECTOR_ID or vectors["version"] != "v1" or vectors["schema_id"] != PPA_SCHEMA_ID:
@@ -253,12 +275,12 @@ def validate_ppa() -> int:
     canonical = jcs(base["claims"])
     if canonical.hex() != base["canonical_claims_utf8_hex"] or hashlib.sha256(canonical).hexdigest() != base["canonical_claims_sha256"]:
         raise ConformanceError("ppa-jcs")
-    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 11:
+    if not isinstance(vectors["positive_cases"], list) or len(vectors["positive_cases"]) != 17:
         raise ConformanceError("positive-count")
     if not isinstance(vectors["adverse_cases"], list) or len(vectors["adverse_cases"]) != 87:
         raise ConformanceError("adverse-count")
     case_names = [case.get("name") for case in vectors["positive_cases"] + vectors["adverse_cases"] if isinstance(case, dict)]
-    if len(case_names) != 98 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
+    if len(case_names) != 104 or any(not isinstance(name, str) or not name for name in case_names) or len(set(case_names)) != len(case_names):
         raise ConformanceError("case-names")
     checked = 0
     for positive in vectors["positive_cases"]:

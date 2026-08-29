@@ -1,5 +1,12 @@
 # Change: Add PunktB prod to intdata dev refresh migrator
 
+Owner: `/int/tools` (`intdb` workflow).
+
+Specification level: `full`.
+
+Full triggers: production-data access, destructive dev full-replace semantics,
+auth bootstrap, credentials/profiles and DB apply/rollback evidence.
+
 ## Why
 INT-332 needs a repeatable way to refresh the intdata dev database with the current PunktB production client state for testing, while guaranteeing that `punkt_b_prod` is only read through the read-only profile.
 
@@ -17,3 +24,13 @@ INT-332 needs a repeatable way to refresh the intdata dev database with the curr
 - Affected code: `intdb/lib/intdb.py`, `intdb/tests/test_intdb.py`, `intdb/README.md`
 - Runtime targets: source `punkt_b_prod` read-only; target `intdata` dev admin
 - Issue: `INT-332`
+
+## Boundaries and acceptance
+
+- The Issue reference is optional historical provenance.
+- `/int/tools` owns workflow guardrails; production and dev database owners
+  retain access/apply authority.
+- Source/tests, production read-only export, dry-run target rollback, canonical
+  dev apply and post-apply verification are independent gates.
+- This package does not authorize credentials, grants, production writes or a
+  canonical dev refresh by itself.

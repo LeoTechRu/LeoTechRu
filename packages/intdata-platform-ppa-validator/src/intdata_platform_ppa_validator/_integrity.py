@@ -9,20 +9,20 @@ from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 PLATFORM_ROOT = PACKAGE_ROOT / "platform"
-PPA_AGGREGATE_SHA256 = "fa09e94feb956e1f837e1e62082c0d0c694cf07bfa1c2ae7fafb0084ab536277"
-TERMINAL_AGGREGATE_SHA256 = "94843c3f5b83b207aa6e3b45cf3c02f8f6f66350c64dce00fc71d9fb2b2072c6"
+PPA_AGGREGATE_SHA256 = "b2c7e7bb14c8868d4e7d5719122371e3ac86fd1ff87eb2d37955cdcfcb9fd5b5"
+TERMINAL_AGGREGATE_SHA256 = "0edd6ccf8d13a197ab5317fb53788ccca3b98d4e8bd2d66daa8f84e1aa27ec3d"
 AGGREGATE_ENCODING = (
     "For each artifact in listed path order: lowercase SHA-256, two ASCII spaces, "
     "path, LF; SHA-256 the concatenated UTF-8 bytes."
 )
 RAW_SHA256 = {
-    "schemas/platform-product-assertion.schema.json": "97c6cd64c9f8b9b79c3889b47b05d567353af4efb8618ede7e8ec5ca1ebd441b",
-    "conformance/platform-product-assertion-v1.vectors.json": "6517584d65b3c8bcb7be1b50e0de8806a199f20c7f290f2986a7f08d71b5fa46",
-    "conformance/platform-product-assertion-v1.digests.json": "3e821076803b3bac76a1021fe2919690596d340af1c474edd08328ef8c6dff3a",
+    "schemas/platform-product-assertion.schema.json": "449498ec8705c29b0aa8729d32a458f447118027c511b12b211fff9b453dc4b7",
+    "conformance/platform-product-assertion-v1.vectors.json": "6f0242fc47c7727e10ce6b8568c94d60a753389f6b487de149acd23913e711af",
+    "conformance/platform-product-assertion-v1.digests.json": "6f814e44bf04ae62e55e2b719af64a48d80e2fae5da936f4db8797674465ecb8",
     "conformance/bridge-oauth-registration-uri-v1.profile.json": "24ce608e4f000206e97d6e50bcfb16055064049675434629ba8e85560f7fe070",
     "conformance/bridge-oauth-registration-uri-v1.vectors.json": "2712a642ff85abf7e7caac42123afe01639413963bb5ca92c667dcc735c37c89",
-    "conformance/terminal-dependency-digests.json": "000e868d2b972d8ad11af021f7df052fbf81fb3d60f09ed1373ed114e273a9e4",
-    "conformance/validate-terminal-dependencies.py": "9eb7ce0eac565585adcab4958da95678e62ba5b34f23d5cd6fcbdc9c5ca22d43",
+    "conformance/terminal-dependency-digests.json": "693bbc09653671e1643d0a5bdcee3935acac00f893fa5df300216f96127777e1",
+    "conformance/validate-terminal-dependencies.py": "35b53b6f1298d03ab4f503c219fb29070807709639cb593eb1f15f9a8ac0531c",
 }
 
 

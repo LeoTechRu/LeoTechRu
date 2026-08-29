@@ -29,4 +29,5 @@
 - [x] Validate catalog manifest coverage.
 - [x] Run focused unit tests for first public-tool batch.
 - [x] Verify website catalog syntax and JSON load from `web/tools`.
-- [ ] Remove or untrack forbidden legacy artifacts after explicit destructive approval.
+- [ ] Remove or untrack forbidden legacy artifacts only under exact destructive
+      approval; record destination, recoverability and owning commit separately.

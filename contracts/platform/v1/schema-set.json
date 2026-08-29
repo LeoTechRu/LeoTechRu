@@ -91,7 +91,7 @@
       "version": "v1",
       "id": "urn:intdata:schema:platform-product-assertion:v1",
       "filename": "schemas/platform-product-assertion.schema.json",
-      "sha256": "97c6cd64c9f8b9b79c3889b47b05d567353af4efb8618ede7e8ec5ca1ebd441b"
+      "sha256": "449498ec8705c29b0aa8729d32a458f447118027c511b12b211fff9b453dc4b7"
     }
   ],
   "profiles": [
@@ -109,7 +109,7 @@
       "id": "platform-v1-conformance",
       "version": "1.0.0",
       "filename": "conformance/vectors.json",
-      "sha256": "5dcc39307e1766f61f051f9aa7a1b900094c4f1891aa976eab34e5e1a06f781a"
+      "sha256": "42492e2cec48db5002aea6c674b2611f80feb5afaa8b81faec53342f9ac90a90"
     }
   ]
 }

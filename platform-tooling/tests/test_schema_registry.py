@@ -136,6 +136,52 @@ def test_tracked_schema_set_matches_tooling_profile_authority() -> None:
     SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
 
 
+@pytest.mark.parametrize("version", ["6", "7", "8"])
+def test_platform_product_assertion_accepts_uuid_versions_6_through_8(
+    version: str,
+) -> None:
+    schema_set = SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
+    document = json.loads(
+        (
+            ROOT
+            / "contracts/platform/v1/fixtures/valid/platform-product-assertion-user.json"
+        ).read_text(encoding="utf-8")
+    )
+    document["claims"]["sub"] = f"123e4567-e89b-{version}2d3-a456-426614174000"
+    document["claims"]["organization_id"] = (
+        f"123e4567-e89b-{version}2d3-b456-426614174001"
+    )
+
+    schema_set.validate_value(
+        document, "urn:intdata:schema:platform-product-assertion:v1"
+    )
+
+
+@pytest.mark.parametrize(
+    "uuid",
+    [
+        "123e4567-e89b-02d3-a456-426614174000",
+        "123e4567-e89b-72d3-7456-426614174000",
+    ],
+)
+def test_platform_product_assertion_rejects_invalid_uuid_version_or_variant(
+    uuid: str,
+) -> None:
+    schema_set = SchemaSet.load(ROOT / "contracts/platform/v1/schema-set.json")
+    document = json.loads(
+        (
+            ROOT
+            / "contracts/platform/v1/fixtures/valid/platform-product-assertion-user.json"
+        ).read_text(encoding="utf-8")
+    )
+    document["claims"]["sub"] = uuid
+
+    with pytest.raises(SchemaSetError, match="does not match"):
+        schema_set.validate_value(
+            document, "urn:intdata:schema:platform-product-assertion:v1"
+        )
+
+
 def test_schema_registry_binds_exact_canonical_type_name(tmp_path: Path) -> None:
     set_path = _write_set(tmp_path, [])
     document = json.loads(set_path.read_text(encoding="utf-8"))
@@ -182,6 +228,43 @@ def test_unknown_field_is_rejected_by_closed_schema(tmp_path: Path) -> None:
     schema_set = SchemaSet.load(_write_set(tmp_path, [("module-manifest", schema)]))
     with pytest.raises(SchemaSetError, match="Additional properties"):
         schema_set.validate_raw(b'{"known":"ok","unknown":true}', schema["$id"])
+
+
+def test_validate_value_rejects_floating_point_integer(tmp_path: Path) -> None:
+    schema = _schema("module-manifest", type="integer")
+    schema_set = SchemaSet.load(_write_set(tmp_path, [("module-manifest", schema)]))
+
+    with pytest.raises(SchemaSetError, match="floating-point value"):
+        schema_set.validate_value(1.0, schema["$id"])
+
+
+def test_validation_error_order_is_deterministic(tmp_path: Path) -> None:
+    messages = []
+    for directory, required in (
+        ("forward", ["zeta", "alpha"]),
+        ("reverse", ["alpha", "zeta"]),
+    ):
+        root = tmp_path / directory
+        root.mkdir()
+        schema = _schema(
+            "module-manifest",
+            type="object",
+            additionalProperties=False,
+            required=required,
+            properties={
+                "alpha": {"type": "string"},
+                "zeta": {"type": "string"},
+            },
+        )
+        schema_set = SchemaSet.load(
+            _write_set(root, [("module-manifest", schema)])
+        )
+        with pytest.raises(SchemaSetError) as caught:
+            schema_set.validate_raw(b"{}", schema["$id"])
+        messages.append(str(caught.value))
+
+    assert messages[0] == messages[1]
+    assert messages[0].endswith("'alpha' is a required property")
 
 
 def test_unknown_or_remote_reference_fails_before_network(
