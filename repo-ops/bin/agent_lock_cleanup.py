@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Delegate expired coordination cleanup to coordctl gc."""
+"""Delegate expired coordination cleanup to intnode coord gc."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ import shutil
 import subprocess
 import sys
 
-COORDCTL_BIN = os.environ.get("COORDCTL_BIN", "coordctl")
+INTNODE_BIN = os.environ.get("INTNODE_BIN", "intnode")
 
 
-def resolve_coordctl_bin() -> str:
-    candidate = COORDCTL_BIN.strip()
+def resolve_intnode_bin() -> str:
+    candidate = INTNODE_BIN.strip()
     if not candidate:
-        raise RuntimeError("coordctl command is empty")
+        raise RuntimeError("intnode command is empty")
     if "/" in candidate or "\\" in candidate or re.match(r"^[A-Za-z]:", candidate):
         path = Path(candidate).expanduser()
         if os.name == "nt" and not path.is_absolute() and candidate.startswith("/") and not candidate.startswith("//"):
@@ -49,34 +49,33 @@ def resolve_coordctl_bin() -> str:
                     break
         if path.exists():
             return str(path)
-        raise RuntimeError(f"missing coordctl: {path}")
+        raise RuntimeError(f"missing intnode: {path}")
     resolved = shutil.which(candidate)
     if resolved:
         return resolved
-    raise RuntimeError(f"missing coordctl in PATH: {candidate}")
+    raise RuntimeError(f"missing intnode in PATH: {candidate}")
 
 
-def coordctl_cmd(*args: str) -> list[str]:
-    coordctl = resolve_coordctl_bin()
-    if coordctl.lower().endswith(".py"):
-        return [sys.executable, coordctl, *args]
-    return [coordctl, *args]
+def intnode_coord_cmd(*args: str) -> list[str]:
+    intnode = resolve_intnode_bin()
+    prefix = [sys.executable, intnode] if intnode.lower().endswith(".py") else [intnode]
+    return [*prefix, "coord", *args]
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Delete expired coordctl sessions and leases via coordctl gc.")
+    parser = argparse.ArgumentParser(description="Delete expired coordination sessions and leases via intnode coord gc.")
     parser.add_argument("--dry-run", action="store_true", help="Print compatibility summary only.")
     args = parser.parse_args()
 
     try:
-        cmd = coordctl_cmd("gc", "--dry-run" if args.dry_run else "--apply", "--format", "json")
+        cmd = intnode_coord_cmd("gc", "--dry-run" if args.dry_run else "--apply", "--format", "json")
     except RuntimeError as exc:
-        print(f"[COORDCTL_MISSING] {exc}", file=sys.stderr)
+        print(f"[INTNODE_MISSING] {exc}", file=sys.stderr)
         return 2
 
     cp = subprocess.run(cmd, text=True, capture_output=True, check=False)
     if cp.returncode != 0:
-        print(cp.stderr.strip() or cp.stdout.strip() or "[COORDCTL_FAILED] gc failed", file=sys.stderr)
+        print(cp.stderr.strip() or cp.stdout.strip() or "[INTNODE_COORD_FAILED] gc failed", file=sys.stderr)
         return cp.returncode
     try:
         payload = json.loads(cp.stdout)

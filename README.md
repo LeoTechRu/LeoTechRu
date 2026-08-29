@@ -958,8 +958,8 @@ intnode coord
 intnode coord --help
 ```
 
-Implementation/core lives in `/int/node/internal/coordctl`. `/int/tools` owns
-no coordination source, installer, runtime alias, or MCP tool; its marketplace
+Implementation/core lives in `/int/node`. `/int/tools` owns no coordination
+source, installer, runtime alias, or MCP tool; its marketplace
 entry only points to the Node-owned `coord` guidance skill.
 
 ##### Runtime model

@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# Best-effort, NEVER-BLOCKING coordctl presence hook.
+#!/bin/sh
+# Best-effort, NEVER-BLOCKING intnode coord presence hook.
 # Formula: tool = always-write + warn, agent = stop-on-real-overlap.
 # This hook records provenance and prints advisory warnings; it always exits 0.
 set -u
@@ -7,19 +7,19 @@ set -u
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$repo_root" ] || exit 0
 
-coordctl_bin="$(command -v coordctl || true)"
-if [ -z "$coordctl_bin" ] && [ -x "$repo_root/coordctl/coordctl" ]; then
-  coordctl_bin="$repo_root/coordctl/coordctl"
+intnode_bin="${INTNODE_BIN:-}"
+if [ -z "$intnode_bin" ]; then
+  intnode_bin="$(command -v intnode || true)"
 fi
-[ -n "$coordctl_bin" ] || exit 0
+[ -n "$intnode_bin" ] || exit 0
 
-owner="${COORDCTL_OWNER:-${USER:-agent}:pre-commit}"
+owner="${INTNODE_COORD_OWNER:-${USER:-agent}:pre-commit}"
 
 # Record presence (cheap, append-only, non-blocking).
-"$coordctl_bin" begin --repo-root "$repo_root" --owner "$owner" --format json >/dev/null 2>&1 || true
+"$intnode_bin" coord begin --repo-root "$repo_root" --owner "$owner" --format json >/dev/null 2>&1 || true
 
 # Advisory commit-scope report: surface warnings, never fail the commit.
-report="$("$coordctl_bin" commit-scope-report --repo-root "$repo_root" --format json 2>/dev/null || true)"
+report="$("$intnode_bin" coord commit-scope-report --repo-root "$repo_root" --format json 2>/dev/null || true)"
 if [ -n "$report" ]; then
   printf '%s' "$report" | python3 -c '
 import json, sys
@@ -30,7 +30,7 @@ except Exception:
 for w in d.get("warnings", []) + d.get("observations", []):
     code = w.get("code", "")
     paths = ", ".join(w.get("paths", [])[:5])
-    print(f"pre-commit[coordctl advisory]: {code} {paths}", file=sys.stderr)
+    print(f"pre-commit[intnode coord advisory]: {code} {paths}", file=sys.stderr)
 ' 2>/dev/null || true
 fi
 

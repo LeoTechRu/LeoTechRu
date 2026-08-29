@@ -48,9 +48,9 @@ SECTION_TITLE_MAP = {
     "replication status": "replication_status",
 }
 
-COORDCTL_CANDIDATES = [
-    os.environ.get("COORDCTL_BIN", "").strip() or None,
-    "coordctl",
+INTNODE_CANDIDATES = [
+    os.environ.get("INTNODE_BIN", "").strip() or None,
+    "intnode",
 ]
 COORD_OWNER = "codex:review-sql-fix"
 
@@ -544,31 +544,31 @@ def resolve_repo_fix_path(fix_path: str, repo_targets: list[Path]) -> Path:
     raise PipelineError(f"unable to resolve repo fix path '{fix_path}' inside repo_targets")
 
 
-def resolve_coordctl() -> list[str]:
-    for candidate in COORDCTL_CANDIDATES:
+def resolve_intnode() -> list[str]:
+    for candidate in INTNODE_CANDIDATES:
         if not candidate:
             continue
         if "/" in candidate or "\\" in candidate:
             path = Path(candidate).expanduser()
             if path.exists():
-                return [str(path)]
+                return [sys.executable, str(path)] if path.suffix.lower() == ".py" else [str(path)]
             continue
         resolved = shutil.which(candidate)
         if resolved:
             return [resolved]
-    raise PipelineError("coordctl not found in PATH; set COORDCTL_BIN")
+    raise PipelineError("intnode not found in PATH; set INTNODE_BIN")
 
 
-def run_coordctl(args: list[str]) -> dict[str, Any]:
-    cmd = [*resolve_coordctl(), *args, "--format", "json"]
+def run_intnode_coord(args: list[str]) -> dict[str, Any]:
+    cmd = [*resolve_intnode(), "coord", *args, "--format", "json"]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         stderr = proc.stderr.strip() or proc.stdout.strip()
-        raise PipelineError(f"coordctl {' '.join(args[:1])} failed: {stderr}")
+        raise PipelineError(f"intnode coord {' '.join(args[:1])} failed: {stderr}")
     try:
         return json.loads(proc.stdout or "{}")
     except json.JSONDecodeError as exc:
-        raise PipelineError(f"coordctl returned invalid JSON: {proc.stdout}") from exc
+        raise PipelineError(f"intnode coord returned invalid JSON: {proc.stdout}") from exc
 
 
 def current_git_ref(repo_root: Path) -> tuple[str, str]:
@@ -584,50 +584,28 @@ def current_git_ref(repo_root: Path) -> tuple[str, str]:
     return branch, commit
 
 
-def acquire_coordctl_intent(repo_root: Path, rel_path: str) -> str:
-    branch, base = current_git_ref(repo_root)
-    session_payload = run_coordctl([
-        "session-start",
+def acquire_coord_intent(repo_root: Path, rel_path: str) -> str:
+    _branch, base = current_git_ref(repo_root)
+    session_payload = run_intnode_coord([
+        "begin",
         "--repo-root",
         str(repo_root),
         "--owner",
         COORD_OWNER,
-        "--branch",
-        branch,
         "--base",
         base,
-        "--lease-sec",
-        "600",
+        "--path",
+        rel_path,
     ])
     session = session_payload.get("session") or {}
     session_id = str(session.get("session_id") or "")
     if not session_id:
-        raise PipelineError(f"coordctl session-start did not return session_id: {session_payload}")
-
-    run_coordctl([
-        "intent-acquire",
-        "--repo-root",
-        str(repo_root),
-        "--path",
-        rel_path,
-        "--owner",
-        COORD_OWNER,
-        "--base",
-        base,
-        "--region-kind",
-        "file",
-        "--region-id",
-        "full",
-        "--session-id",
-        session_id,
-        "--lease-sec",
-        "600",
-    ])
+        raise PipelineError(f"intnode coord begin did not return session_id: {session_payload}")
     return session_id
 
 
-def release_coordctl_session(session_id: str) -> None:
-    run_coordctl(["release", "--session-id", session_id])
+def release_coord_session(session_id: str) -> None:
+    run_intnode_coord(["release", "--session-id", session_id])
 
 
 def apply_repo_lane(
@@ -696,7 +674,7 @@ def apply_repo_lane(
         rel_path = str(target.resolve().relative_to(repo_root.resolve()))
         coord_session_id = ""
         try:
-            coord_session_id = acquire_coordctl_intent(repo_root, rel_path)
+            coord_session_id = acquire_coord_intent(repo_root, rel_path)
 
             original = target.read_text(encoding="utf-8")
             if search not in original:
@@ -722,7 +700,7 @@ def apply_repo_lane(
             )
         finally:
             if coord_session_id:
-                release_coordctl_session(coord_session_id)
+                release_coord_session(coord_session_id)
 
     return results
 

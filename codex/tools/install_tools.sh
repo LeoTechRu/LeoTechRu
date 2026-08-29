@@ -3,4 +3,4 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "OpenSpec управляется глобально через @fission-ai/openspec: openspec --version"
-echo "coordctl теперь поставляется intData Node: /int/node/coordctl"
+echo "Coordination предоставляет intData Node только через установленную команду: intnode coord --help"

@@ -62,7 +62,7 @@ Always generate 5 artifacts in `output_dir`:
 4. Run apply (if policy allows).
 - Runtime DB lane: only `confirmed` / `partially confirmed`, in small groups.
 - If `runtime_executor` is configured, execute live SQL; otherwise record `applied_simulated`.
-- Repo SQL lane: mutate only inside `repo_targets`, coordinate each file with `coordctl`, no unrelated refactors.
+- Repo SQL lane: mutate only inside `repo_targets`, coordinate each file with `intnode coord`, no unrelated refactors.
 - Reject dangerous SQL unless `allow_dangerous=true`.
 
 5. Run postcheck.

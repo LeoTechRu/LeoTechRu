@@ -55,8 +55,8 @@ Allow only with explicit `allow_dangerous=true` in input.
 ## Repo Lane Policy
 
 - `repo_fixes` can mutate only paths inside explicit `repo_targets`.
-- Acquire a `coordctl` intent lease before each file write.
-- Release the `coordctl` session after write (or on failure in finally block).
+- Acquire an `intnode coord` intent lease before each file write.
+- Release the `intnode coord` session after write (or on failure in finally block).
 - No unrelated refactors.
 - When SQL is auto-derived from section recommendations, section with multiple findings must use explicit `runtime_actions` mapping (`finding_id` per action).
 
