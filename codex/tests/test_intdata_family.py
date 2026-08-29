@@ -1295,6 +1295,13 @@ def test_intnode_public_snapshot_is_exact_and_discoverable(
     intnode_snapshot_root: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     assert intnode_snapshot_errors(intnode_snapshot_root, monkeypatch) == []
+    plugin_dir = intnode_snapshot_root / "codex" / "plugins" / "intnode"
+    manifest = json.loads(
+        (plugin_dir / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    assert manifest["license"] == "MIT"
+    license_text = (plugin_dir / "LICENSE").read_text(encoding="utf-8")
+    assert "Permission is hereby granted, free of charge" in license_text
 
 
 @pytest.mark.parametrize(
@@ -1327,6 +1334,15 @@ def test_intnode_public_snapshot_is_exact_and_discoverable(
                 '{"name":"intnode","skills":"./wrong"}\n', encoding="utf-8"
             ),
             "manifest_skills",
+        ),
+        (
+            lambda root: (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json").write_text(
+                (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json")
+                .read_text(encoding="utf-8")
+                .replace('"license": "MIT"', '"license": "Proprietary"'),
+                encoding="utf-8",
+            ),
+            "manifest_license",
         ),
         (
             lambda root: (root / "codex" / "plugins" / "intnode" / ".codex-plugin" / "plugin.json").write_text(

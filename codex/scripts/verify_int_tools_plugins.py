@@ -32,12 +32,12 @@ PLUGIN_DIRS = {
 
 INTNODE_SNAPSHOT_FILES = {
     ".codex-plugin/plugin.json": {
-        "sha256": "beb99bdf69ba94c3fd8cf3df942aa0b0310f574b16e30695bf9edc7c34c19571",
-        "size_bytes": 1116,
+        "sha256": "206e8dff38305471f0b53a34b73319e897eecc604cf1542ba7ca543817e21dee",
+        "size_bytes": 1108,
     },
     "LICENSE": {
-        "sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0",
-        "size_bytes": 258,
+        "sha256": "695ec7ab63de97b6205e8c41be4e6009088e9b3050286d6b3e1d62bf500169a1",
+        "size_bytes": 1064,
     },
     "skills/coord/SKILL.md": {
         "sha256": "f27ec2f58a8ebef0fdcfc07e864c97c43df5c628094ab12979564d3fb1dbc2ae",
@@ -368,6 +368,8 @@ def verify_intnode_public_snapshot(report: dict[str, Any]) -> None:
             errors.append({"manifest_name": manifest.get("name"), "expected": "intnode"})
         if manifest.get("skills") != "./skills":
             errors.append({"manifest_skills": manifest.get("skills"), "expected": "./skills"})
+        if manifest.get("license") != "MIT":
+            errors.append({"manifest_license": manifest.get("license"), "expected": "MIT"})
         if manifest_has_forbidden_intnode_declaration(manifest):
             errors.append({"forbidden_manifest_declaration": display_path(manifest_path)})
 

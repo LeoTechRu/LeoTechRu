@@ -7,7 +7,7 @@
     "url": "https://intdata.pro"
   },
   "repository": "https://github.com/LeoTechPro/intData-node",
-  "license": "Proprietary",
+  "license": "MIT",
   "keywords": ["intnode", "coordination", "leases", "commit-scope"],
   "skills": "./skills",
   "interface": {
