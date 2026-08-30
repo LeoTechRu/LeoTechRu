@@ -91,7 +91,15 @@ PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
 EXPECTED_PLUGIN_ACCESS = {
     "intbridge": ("private", "authenticated", "component-gated", None),
     "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intnode": ("private", "authenticated", "owner-only", None),
+    "intnode": ("public", "public", "owner-only", None),
+}
+PUBLIC_DISTRIBUTION_REPOSITORY = "https://github.com/LeoTechPro/intData-tools.git"
+EXPECTED_INTNODE_DISTRIBUTION = {
+    "repository": PUBLIC_DISTRIBUTION_REPOSITORY,
+    "subdir": "codex/plugins/intnode",
+    "manifest_path": "codex/plugins/intnode/.codex-plugin/plugin.json",
+    "license": "MIT",
+    "license_path": "codex/plugins/intnode/LICENSE",
 }
 EXPECTED_PLUGIN_REPOSITORIES = {
     "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
@@ -793,6 +801,28 @@ def validate_manifest(
             raise FamilyManifestError(f"{plugin_id} source manifest path differs from the canonical path")
         if plugin["provenance"]["license_path"] != EXPECTED_PLUGIN_LICENSE_PATHS[plugin_id]:
             raise FamilyManifestError(f"{plugin_id} license path differs from the canonical path")
+        distribution = plugin.get("distribution")
+        if plugin_id == "intnode":
+            if not distribution:
+                raise FamilyManifestError("intnode requires a public distribution")
+            for field, expected_value in EXPECTED_INTNODE_DISTRIBUTION.items():
+                if distribution.get(field) != expected_value:
+                    raise FamilyManifestError(
+                        f"intnode distribution {field} differs from the public Tools contract"
+                    )
+            safe_repo_path(distribution["subdir"], field="intnode distribution.subdir")
+            safe_repo_path(
+                distribution["manifest_path"],
+                field="intnode distribution.manifest_path",
+                allow_dot=False,
+            )
+            safe_repo_path(
+                distribution["license_path"],
+                field="intnode distribution.license_path",
+                allow_dot=False,
+            )
+        elif distribution is not None:
+            raise FamilyManifestError(f"{plugin_id} must not declare a distribution mirror")
         safe_repo_path(plugin["provenance"]["subdir"], field=f"{plugin_id} provenance.subdir")
         safe_repo_path(
             plugin["provenance"]["manifest_path"],
@@ -885,7 +915,7 @@ def validate_manifest(
                 )
             if (
                 plugin["install_access"] == "public"
-                and plugin["provenance"]["license"] == "Proprietary"
+                and (plugin.get("distribution") or plugin["provenance"])["license"] == "Proprietary"
             ):
                 raise FamilyManifestError(
                     f"public-install plugin {plugin['id']} requires a redistribution-permitting license"
@@ -897,10 +927,21 @@ def validate_manifest(
             ]
             if missing:
                 raise FamilyManifestError(f"{entry['id']} lacks immutable provenance: {missing}")
+            if distribution := entry.get("distribution"):
+                missing_distribution = [
+                    field for field in (*PROVENANCE_FIELDS, "license_sha256")
+                    if not distribution.get(field)
+                ]
+                if missing_distribution:
+                    raise FamilyManifestError(
+                        f"{entry['id']} lacks immutable distribution provenance: {missing_distribution}"
+                    )
         if source_roots is None:
             raise FamilyManifestError("release validation requires trusted source checkouts")
         for entry in [*manifest["mcp_resources"], *manifest["plugins"]]:
             verify_provenance(entry, source_roots)
+            if distribution := entry.get("distribution"):
+                verify_provenance({**entry, "provenance": distribution}, source_roots)
 
 
 def build_catalog(manifest: dict[str, Any], family_hash: str) -> dict[str, Any]:
@@ -916,7 +957,7 @@ def build_catalog(manifest: dict[str, Any], family_hash: str) -> dict[str, Any]:
 
 
 def marketplace_source_url(plugin: dict[str, Any]) -> str:
-    repository = plugin["provenance"]["repository"]
+    repository = (plugin.get("distribution") or plugin["provenance"])["repository"]
     if plugin["source_access"] != "private":
         return repository
     _host, owner, repo = canonical_remote(repository)
@@ -926,7 +967,7 @@ def marketplace_source_url(plugin: dict[str, Any]) -> str:
 def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
     entries = []
     for plugin in sorted(manifest["plugins"], key=lambda item: item["id"]):
-        provenance = plugin["provenance"]
+        provenance = plugin.get("distribution") or plugin["provenance"]
         entries.append(
             {
                 "name": plugin["id"],
@@ -1006,7 +1047,12 @@ def build_outputs(
             for item in normalized["mcp_resources"]
         ],
         "plugins": [
-            {"id": item["id"], "version": item["release_version"], **item["provenance"]}
+            {
+                "id": item["id"],
+                "version": item["release_version"],
+                **item["provenance"],
+                **({"distribution": item["distribution"]} if item.get("distribution") else {}),
+            }
             for item in normalized["plugins"]
         ],
     }

@@ -363,8 +363,8 @@
       "owner": "intData Node",
       "category": "Developer Tools",
       "visibility": "public",
-      "source_access": "private",
-      "install_access": "authenticated",
+      "source_access": "public",
+      "install_access": "public",
       "runtime_access": "owner-only",
       "oauth_resource": null,
       "maturity": "dev",
@@ -381,6 +381,17 @@
         "license": "Proprietary",
         "license_path": "plugins/intnode/LICENSE",
         "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
+      },
+      "distribution": {
+        "repository": "https://github.com/LeoTechPro/intData-tools.git",
+        "subdir": "codex/plugins/intnode",
+        "manifest_path": "codex/plugins/intnode/.codex-plugin/plugin.json",
+        "commit": "3bf78521fddd56eea52f577430f01977ffc113c7",
+        "tree_sha256": "a206cb23986b8609b042d87bab3db436003884a03111f640285dac632d29a689",
+        "manifest_sha256": "206e8dff38305471f0b53a34b73319e897eecc604cf1542ba7ca543817e21dee",
+        "license": "MIT",
+        "license_path": "codex/plugins/intnode/LICENSE",
+        "license_sha256": "695ec7ab63de97b6205e8c41be4e6009088e9b3050286d6b3e1d62bf500169a1"
       }
     }
   ]

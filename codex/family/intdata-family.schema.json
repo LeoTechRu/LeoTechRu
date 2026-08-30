@@ -347,7 +347,29 @@
         },
         {
           "if": {"required": ["id"], "properties": {"id": {"const": "intnode"}}},
-          "then": {"properties": {"skills": {"const": ["coord"]}, "components": {"maxItems": 0}}}
+          "then": {
+            "required": ["distribution"],
+            "properties": {
+              "skills": {"const": ["coord"]},
+              "components": {"maxItems": 0},
+              "source_access": {"const": "public"},
+              "install_access": {"const": "public"},
+              "distribution": {
+                "allOf": [
+                  {"$ref": "#/$defs/provenance"},
+                  {
+                    "properties": {
+                      "repository": {"const": "https://github.com/LeoTechPro/intData-tools.git"},
+                      "subdir": {"const": "codex/plugins/intnode"},
+                      "manifest_path": {"const": "codex/plugins/intnode/.codex-plugin/plugin.json"},
+                      "license": {"const": "MIT"},
+                      "license_path": {"const": "codex/plugins/intnode/LICENSE"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
         }
       ],
       "properties": {
@@ -378,7 +400,8 @@
           "items": {"$ref": "#/$defs/component"},
           "uniqueItems": true
         },
-        "provenance": {"$ref": "#/$defs/provenance"}
+        "provenance": {"$ref": "#/$defs/provenance"},
+        "distribution": {"$ref": "#/$defs/provenance"}
       }
     },
     "component": {

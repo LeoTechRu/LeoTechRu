@@ -39,6 +39,36 @@ def load_inputs() -> tuple[dict, dict]:
     return family.load_json(MANIFEST), family.load_json(SCHEMA)
 
 
+def test_intnode_marketplace_uses_public_tools_distribution() -> None:
+    manifest, _schema = load_inputs()
+    intnode = next(plugin for plugin in manifest["plugins"] if plugin["id"] == "intnode")
+    entry = next(
+        plugin for plugin in family.build_marketplace(manifest)["plugins"]
+        if plugin["name"] == "intnode"
+    )
+
+    assert intnode["provenance"]["repository"] == "https://github.com/LeoTechPro/intData-node.git"
+    assert entry["source"] == {
+        "source": "git-subdir",
+        "url": "https://github.com/LeoTechPro/intData-tools.git",
+        "path": "./codex/plugins/intnode",
+        "ref": "3bf78521fddd56eea52f577430f01977ffc113c7",
+    }
+    assert entry["policy"] == {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE",
+    }
+
+
+def test_intnode_without_public_distribution_is_rejected() -> None:
+    manifest, schema = load_inputs()
+    intnode = next(plugin for plugin in manifest["plugins"] if plugin["id"] == "intnode")
+    intnode.pop("distribution", None)
+
+    with pytest.raises(family.FamilyManifestError, match="distribution"):
+        family.validate_manifest(manifest, schema, require_release=False)
+
+
 def run_git(repo: Path, *args: str) -> str:
     result = subprocess.run(
         ["git", "-C", str(repo), *args],
@@ -363,6 +393,7 @@ def materialized_release(tmp_path: Path) -> tuple[dict, dict, dict[str, Path]]:
         provenance["license_sha256"] = family.sha256_bytes(
             family.blob_bytes(repo, commit, provenance["license_path"])
         )
+    source_roots[family.PUBLIC_DISTRIBUTION_REPOSITORY] = ROOT
     return release, schema, source_roots
 
 
@@ -410,10 +441,14 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
         "intbridge": "NOT_AVAILABLE",
         "intnode": "AVAILABLE",
     }
-    assert all(
-        entry["source"]["url"].startswith("git@github.com:LeoTechPro/")
+    assert {
+        entry["name"]: entry["source"]["url"]
         for entry in marketplace["plugins"]
-    )
+    } == {
+        "intagent": "git@github.com:LeoTechPro/intData-agent.git",
+        "intbridge": "git@github.com:LeoTechPro/intData-bridge.git",
+        "intnode": "https://github.com/LeoTechPro/intData-tools.git",
+    }
     assert not LEGACY_MARKETPLACE.exists()
 
 
@@ -655,8 +690,12 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert authentication == {
         "intagent": "ON_INSTALL",
         "intbridge": "ON_INSTALL",
-        "intnode": "ON_INSTALL",
+        "intnode": "ON_USE",
     }
+    locked_intnode = next(entry for entry in lock["plugins"] if entry["id"] == "intnode")
+    manifest_intnode = next(entry for entry in release["plugins"] if entry["id"] == "intnode")
+    assert locked_intnode["repository"] == manifest_intnode["provenance"]["repository"]
+    assert locked_intnode["distribution"] == manifest_intnode["distribution"]
 
 
 def test_generated_at_is_an_immutable_hash_input(tmp_path: Path) -> None:

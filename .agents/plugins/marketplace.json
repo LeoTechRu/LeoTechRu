@@ -36,13 +36,13 @@
       "name": "intnode",
       "source": {
         "source": "git-subdir",
-        "url": "git@github.com:LeoTechPro/intData-node.git",
-        "path": "./plugins/intnode",
-        "ref": "800b24805c96d3bcd0a45ed7bf2d78414fe2c736"
+        "url": "https://github.com/LeoTechPro/intData-tools.git",
+        "path": "./codex/plugins/intnode",
+        "ref": "3bf78521fddd56eea52f577430f01977ffc113c7"
       },
       "policy": {
         "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
+        "authentication": "ON_USE"
       },
       "category": "Developer Tools"
     }
