@@ -120,11 +120,11 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `python /int/tools/vault/installers/runtime_vault_gc.py --dry-run --brain-root /int/brain` — dry-run архивации и очистки canonical runtime-root (`/int/.tmp/brain-runtime-vault`);
 - `python /int/tools/vault/installers/runtime_vault_gc.py --dry-run --runtime-root /int/brain/runtime/vault` — compatibility-режим для legacy runtime-path (с deprecation warning);
 - `python /int/tools/dba/lib/dba.py doctor --profile intdata-dev` — проверка native PostgreSQL CLI, TCP и SQL для локально настроенного DB profile;
-- `ssh dev@vds.intdata.pro 'cd /int/tools && python /int/tools/dba/lib/dba.py migrate status --target intdata-dev'` — сравнение remote `schema_migrations` и `migration_manifest.lock` из `dev@vds.intdata.pro:/int/data`;
+- `ssh dev@intdata.pro 'cd /int/tools && python /int/tools/dba/lib/dba.py migrate status --target intdata-dev'` — сравнение remote `schema_migrations` и `migration_manifest.lock` из `dev@intdata.pro:/int/data`;
 - В owner-facing командах `commit/push/publish/выкатывай/публикуй` агент обязан сначала проверить `git status --short --branch`; при неожиданных или чужих modified/untracked файлах нужно остановиться и спросить владельца. Самостоятельно `stash`/`restore`/`checkout --`/`reset --hard`/`clean`/скрывать/откладывать "чужие" правки из publication-state запрещено.
 - `ssh vds-intdata-intdata` — canonical remote shell для IntData deploy/apply/smoke на `vds.intdata.pro`;
 - `ssh vds` — canonical remote shell для Codex/Hermes runtime на `vds.intdata.pro` (`dev`);
-- Для dev backend intdata с локальной Windows-машины не используйте `D:\int\data`; рабочий checkout — `dev@vds.intdata.pro:/int/data`.
+- Для dev backend intdata с локальной Windows-машины не используйте `D:\int\data`; рабочий checkout — `dev@intdata.pro:/int/data`.
 - `python -m agent_plane.server --host 127.0.0.1 --port 9192` — локальный запуск neutral Agent Tool Plane;
 - `python -m agent_plane.local_harness --help` — local smoke через neutral plane;
 - `/int/tools/codex/bin/codex-host-bootstrap` — bootstrap рабочего минимума Codex/OpenClaw/cloud tooling;
@@ -378,7 +378,7 @@ bash /int/tools/codex/tools/obsidian-desktop/install.sh
 - локальный `.env` допустим только как untracked runtime-файл рядом с инструментом;
 - временные dump/log/CSV-артефакты живут только в ignored путях `.tmp/` и `logs/`;
 - `DBA_DATA_REPO` может задаваться как через process env, так и через локальный `dba/.env`; типовые runtime-ошибки должны выходить как обычные `intDBA:` сообщения без traceback;
-- на Windows `dba` не должен автоматически подхватывать `D:\int\data`; для dev backend работы используется `dev@vds.intdata.pro:/int/data`, а локальный disposable flow требует явный `--repo`/`DBA_DATA_REPO`;
+- на Windows `dba` не должен автоматически подхватывать `D:\int\data`; для dev backend работы используется `dev@intdata.pro:/int/data`, а локальный disposable flow требует явный `--repo`/`DBA_DATA_REPO`;
 - native migration-path тоже должен быть самодостаточным: `bootstrap` использует тот же profile-password, а `incremental` при необходимости сам прокидывает найденный PostgreSQL `bin` в `PATH` дочернего `bash`;
 - для `/int/data` tool не дублирует schema ownership и migration engine, а переиспользует owner flow через `init/010_supabase_migrate.sh`, `init/schema.sql` и `migration_manifest.lock`.
 

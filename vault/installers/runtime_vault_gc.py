@@ -28,7 +28,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Archive and clean vault runtime artifacts (canonical root in .tmp)."
     )
-    parser.add_argument("--brain-root", default="dev@vds.intdata.pro:/int/brain", help="int/brain repo root on dev@vds.intdata.pro.")
+    parser.add_argument("--brain-root", default="dev@intdata.pro:/int/brain", help="int/brain repo root on dev@intdata.pro.")
     parser.add_argument(
         "--runtime-root",
         default="",

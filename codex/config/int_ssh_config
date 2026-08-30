@@ -2,16 +2,16 @@
 # Use with: ssh -F /int/tools/codex/config/int_ssh_config <host-alias>
 
 Host int-dev-intdata-public
-    HostName vds.intdata.pro
-    User intdata
-    IdentityFile ~/.ssh/id_ed25519_vds_intdata_intdata
+    HostName intdata.pro
+    User dev
+    IdentityFile ~/.ssh/id_ed25519_vds_intdata_dev
     IdentitiesOnly yes
     BatchMode yes
     ConnectTimeout 5
     StrictHostKeyChecking accept-new
 
 Host int-dev-runtime-public int-dev-codex-public int-dev-hermes-public
-    HostName vds.intdata.pro
+    HostName intdata.pro
     User dev
     IdentityFile ~/.ssh/id_ed25519_vds_intdata_dev
     IdentitiesOnly yes
@@ -30,8 +30,8 @@ Host int-prod-leon-public
 
 Host int-dev-intdata-tailnet
     HostName vds-intdata-pro.tailf0f164.ts.net
-    User intdata
-    IdentityFile ~/.ssh/id_ed25519_vds_intdata_intdata
+    User dev
+    IdentityFile ~/.ssh/id_ed25519_vds_intdata_dev
     IdentitiesOnly yes
     BatchMode yes
     ConnectTimeout 5

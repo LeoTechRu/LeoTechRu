@@ -13,6 +13,7 @@ if str(ROUTER_ROOT) not in __import__("sys").path:
     __import__("sys").path.insert(0, str(ROUTER_ROOT))
 
 import agent_tool_routing as routing  # noqa: E402
+import int_ssh_resolve as ssh_resolve  # noqa: E402
 EXPECTED_V1_CAPABILITIES = {
     "int_ssh_resolve",
     "firefox-default",
@@ -44,6 +45,14 @@ class AgentToolRoutingTest(unittest.TestCase):
     def test_validate_registry_succeeds(self) -> None:
         result = routing.validate_registry(str(REPO_ROOT / "codex" / "config" / "agent-tool-routing.v1.json"))
         self.assertTrue(result["ok"], result["errors"])
+
+    def test_intdata_routes_use_dev_identity(self) -> None:
+        for logical_host in ("dev-intdata", "dev-runtime"):
+            spec = ssh_resolve.build_spec(logical_host)
+            self.assertIsNotNone(spec)
+            self.assertEqual(spec.user, "dev")
+            self.assertEqual(spec.public_host, "intdata.pro")
+            self.assertEqual(spec.identity_file, "~/.ssh/id_ed25519_vds_intdata_dev")
 
     def test_all_v1_capabilities_are_present(self) -> None:
         payload = self._load_registry()

@@ -13,7 +13,7 @@ _client: httpx.AsyncClient | None = None
 
 
 def _api_key() -> str:
-    key = os.environ.get("UNISENDER_API_KEY", "").strip()
+    key = os.environ.get("UNISENDER_API_KEY", "").strip().rstrip("\x00")
     if not key:
         raise RuntimeError("UNISENDER_API_KEY is not configured")
     return key
@@ -62,6 +62,18 @@ async def unisender_api_read(method: str, params: dict | None = None) -> dict:
     """Call one allowlisted read-only Unisender API method."""
     if method not in SAFE_READ_METHODS:
         return {"ok": False, "error": "Method is not allowlisted", "allowed": sorted(SAFE_READ_METHODS)}
+    return await _call(method, params)
+
+
+@mcp.tool()
+async def unisender_api_call(method: str, params: dict | None = None, confirm_mutation: bool = False) -> dict:
+    """Call any UniSender API method. Set confirm_mutation=True for methods that change data or send messages."""
+    if method in SAFE_READ_METHODS:
+        return await _call(method, params)
+    if confirm_mutation is not True:
+        return {"ok": False, "error": "confirm_mutation=True is required for non-read API methods"}
+    if not method or not method.replace("_", "").isalnum():
+        return {"ok": False, "error": "Invalid API method name"}
     return await _call(method, params)
 
 

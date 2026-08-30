@@ -75,20 +75,20 @@ def get_suffix() -> str:
 def build_spec(logical_host: str) -> TargetSpec | None:
     suffix = get_suffix()
     if logical_host == "dev-intdata":
-        public_host = os.getenv("INT_SSH_DEV_PUBLIC_HOST", "vds.intdata.pro").strip() or "vds.intdata.pro"
+        public_host = os.getenv("INT_SSH_DEV_PUBLIC_HOST", "intdata.pro").strip() or "intdata.pro"
         tail_node = os.getenv("INT_SSH_DEV_TAILNET_NODE", "vds-intdata-pro").strip() or "vds-intdata-pro"
         tailnet_host = os.getenv("INT_SSH_DEV_TAILNET_HOST", "").strip() or f"{tail_node}.{suffix}"
         return TargetSpec(
             logical_host=logical_host,
-            user="intdata",
-            identity_file="~/.ssh/id_ed25519_vds_intdata_intdata",
+            user="dev",
+            identity_file="~/.ssh/id_ed25519_vds_intdata_dev",
             public_host=public_host,
             tailnet_host=tailnet_host,
             public_alias="int-dev-intdata-public",
             tailnet_alias="int-dev-intdata-tailnet",
         )
     if logical_host == "dev-runtime":
-        public_host = os.getenv("INT_SSH_DEV_PUBLIC_HOST", "vds.intdata.pro").strip() or "vds.intdata.pro"
+        public_host = os.getenv("INT_SSH_DEV_PUBLIC_HOST", "intdata.pro").strip() or "intdata.pro"
         tail_node = os.getenv("INT_SSH_DEV_TAILNET_NODE", "vds-intdata-pro").strip() or "vds-intdata-pro"
         tailnet_host = os.getenv("INT_SSH_DEV_TAILNET_HOST", "").strip() or f"{tail_node}.{suffix}"
         return TargetSpec(

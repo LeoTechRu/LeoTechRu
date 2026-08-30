@@ -30,7 +30,7 @@ class IntSshExecTest(unittest.TestCase):
     def test_direct_fallback_rejects_untrusted_bare_alias(self):
         with self.assertRaises(ValueError):
             ssh_exec.validate_direct_destination("work-alias")
-        self.assertEqual(ssh_exec.validate_direct_destination("dev@vds.intdata.pro"), "dev@vds.intdata.pro")
+        self.assertEqual(ssh_exec.validate_direct_destination("dev@intdata.pro"), "dev@intdata.pro")
 
     def test_remote_command_quotes_argv_and_cwd(self):
         command = ssh_exec.build_remote_command(["printf", "%s", "a; $(id)"], "/srv/space dir")
@@ -51,9 +51,9 @@ class IntSshExecTest(unittest.TestCase):
         self.assertEqual(command[-1], "exec uname -a")
 
     def test_direct_fallback_isolates_user_config_and_agent(self):
-        route = {"ssh_args": ["dev@vds.intdata.pro"], "destination": "dev@vds.intdata.pro", "transport": "legacy", "fallback_used": False, "logical_host": None}
+        route = {"ssh_args": ["dev@intdata.pro"], "destination": "dev@intdata.pro", "transport": "legacy", "fallback_used": False, "logical_host": None}
         with mock.patch.object(ssh_exec, "resolve_target", return_value=route), mock.patch.object(ssh_exec, "resolve_ssh_executable", return_value="ssh"):
-            command, _ = ssh_exec.build_ssh_command("dev@vds.intdata.pro", ["true"])
+            command, _ = ssh_exec.build_ssh_command("dev@intdata.pro", ["true"])
         self.assertIn("-F", command)
         self.assertIn("none", command)
         self.assertIn("IdentityAgent=none", command)
