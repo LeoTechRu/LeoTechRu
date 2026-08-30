@@ -8,7 +8,7 @@ It must not replace existing public ingress (`22/80/443`, reverse-proxy, externa
 ## Scope
 
 - local PC: Windows 11 (`intData-PC`)
-- dev host: `vds.intdata.pro`
+- dev host: `intdata.pro`
 - prod host: `vds.punkt-b.pro`
 - tailnet mode: one owner tailnet
 - vpn/proxy-first compatibility: required
@@ -45,7 +45,7 @@ Tailnet-first rollout считается безопасным только по�
   - state: `Running`.
   - MagicDNS suffix: `tailf0f164.ts.net`.
   - local node DNS: `intdata-pc.tailf0f164.ts.net`.
-- dev (`vds.intdata.pro`):
+- dev (`intdata.pro`):
   - `tailscale` installed (`1.96.4`), `tailscaled` enabled.
   - state: `NeedsLogin`.
   - existing proxy contour: `v2raya/v2ray` TPROXY + policy routing.
@@ -117,7 +117,7 @@ Post-change checks must confirm:
 
 Operator entrypoints in current workspace:
 
-- `ssh vds`
+- `ssh intdata.pro`
 
 ## Process Matrix (tailnet-first vs public)
 

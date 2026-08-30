@@ -98,7 +98,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `codex/tools/obsidian-desktop/` хранит repo-managed launcher и desktop config для Obsidian;
 - `codex/assets/codex-home/skills/javascript/` хранит repo-managed resources, scripts и templates для JavaScript skill assets;
 - runtime OpenClaw живёт в `~/.openclaw`, а versioned overlay и runbooks — в `openclaw/`.
-- На `vds.intdata.pro` canonical host-user split такой: IntData automation/deploy, Codex и Hermes/OpenClaw runtime — `dev`; `agents` не используется на этом хосте. Automation под `leon` для этого хоста не является допустимым default-path.
+- На `intdata.pro` единственный канонический SSH-маршрут — `dev@intdata.pro`; `agents` и `leon` на этом хосте не используются.
 
 ### Firefox browser testing
 
@@ -122,8 +122,7 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `python /int/tools/dba/lib/dba.py doctor --profile intdata-dev` — проверка native PostgreSQL CLI, TCP и SQL для локально настроенного DB profile;
 - `ssh dev@intdata.pro 'cd /int/tools && python /int/tools/dba/lib/dba.py migrate status --target intdata-dev'` — сравнение remote `schema_migrations` и `migration_manifest.lock` из `dev@intdata.pro:/int/data`;
 - В owner-facing командах `commit/push/publish/выкатывай/публикуй` агент обязан сначала проверить `git status --short --branch`; при неожиданных или чужих modified/untracked файлах нужно остановиться и спросить владельца. Самостоятельно `stash`/`restore`/`checkout --`/`reset --hard`/`clean`/скрывать/откладывать "чужие" правки из publication-state запрещено.
-- `ssh vds-intdata-intdata` — canonical remote shell для IntData deploy/apply/smoke на `vds.intdata.pro`;
-- `ssh vds` — canonical remote shell для Codex/Hermes runtime на `vds.intdata.pro` (`dev`);
+- `ssh intdata.pro` — единственный canonical remote shell для IntData deploy/apply/smoke и Codex/Hermes runtime (`dev`);
 - Для dev backend intdata с локальной Windows-машины не используйте `D:\int\data`; рабочий checkout — `dev@intdata.pro:/int/data`.
 - `python -m agent_plane.server --host 127.0.0.1 --port 9192` — локальный запуск neutral Agent Tool Plane;
 - `python -m agent_plane.local_harness --help` — local smoke через neutral plane;
@@ -142,9 +141,9 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ## Tailscale Private Admin Channel (v1)
 
-- Tailscale используется как приватный ops/admin канал между `local PC`, `vds.intdata.pro` и `vds.punkt-b.pro`, а не как замена публичного ingress.
+- Tailscale используется как приватный ops/admin канал между `local PC`, `intdata.pro` и `vds.punkt-b.pro`, а не как замена публичного ingress.
 - Канонический runbook: `/int/tools/codex/docs/runbooks/tailscale-tailnet-v1.md`.
-- Для `vds.intdata.pro` canonical user — `dev`; учётная запись `agents` относится только к production `vds.punkt-b.pro`.
+- Для `intdata.pro` допустим только `dev`; учётная запись `agents` относится только к `vds.punkt-b.pro`.
 - Для `prod` действует stricter policy: default-path только read-first и отдельный restricted SSH user; full root workflow не открывается автоматически.
 
 ### Tailnet-First SSH Transport (repo-managed)
@@ -352,7 +351,7 @@ node /int/tools/codex/tools/mcp-obsidian-memory/scripts/smoke-client.mjs
 - `obsidian.json` — канонический список vault-ов
 - `install.sh` — ставит симлинки в `~/.local` и `~/.config`
 
-Этот helper остаётся owner-manual exception и не входит в automation/runtime migration для `vds.intdata.pro`.
+Этот helper остаётся owner-manual exception и не входит в automation/runtime migration для `intdata.pro`.
 
 ##### Применение
 ```bash
