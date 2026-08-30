@@ -94,8 +94,8 @@ REQUIRED_CARD_MARKERS = [
     "Fallback/blocker:",
 ]
 
-# Destructive maintenance that still requires owner approval. coordctl
-# coordination writes (session_start/begin/intent_acquire/heartbeat/release) are
+# Destructive maintenance that still requires owner approval. `intnode coord`
+# coordination writes (begin/intent/heartbeat/release) are
 # intentionally NOT here: they are advisory provenance, not high-risk mutation.
 GUARDED_TOOLS = {
     "openspec_archive", "openspec_change_mutate", "openspec_spec_mutate", "openspec_new", "openspec_exec_mutate",

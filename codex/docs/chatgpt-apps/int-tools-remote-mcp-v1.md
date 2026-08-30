@@ -32,7 +32,7 @@ Do not expose in v1:
 - raw profile tools from `mcp-intdata-cli.py`;
 - OpenSpec tools, until OpenSpec has a separate MCP surface or an explicit compatibility exception;
 - mutating IntBrain writes;
-- coordctl tools; coordctl is owned by intData Node, not intData-tools remote MCP;
+- coordination commands; coordination is exposed only through Node-owned `intnode coord`, not intData-tools remote MCP;
 - retired coordination tools;
 - Multica operations;
 - DB apply/migrations;
