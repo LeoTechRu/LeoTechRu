@@ -35,65 +35,13 @@ GIT_SSH_COMMAND = (
     "-o PasswordAuthentication=no -o KbdInteractiveAuthentication=no "
     "-o ConnectTimeout=10 -o ConnectionAttempts=1"
 )
-EXPECTED_SKILLS = {
-    "intbridge": (
-        "probe-operator", "fleet-diagnostics", "client-control",
-        "incident-response", "probe-administration",
-        "dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply",
-    ),
-    "intagent": (
-        "agent-control", "environment-detection", "mode-resolution", "mode-router",
-        "host-diagnostics", "hypothesis-diagnosis", "ssh",
-        "firefox-devtools-testing", "vault-maintenance",
-    ),
-    "intnode": ("coord",),
-}
-EXPECTED_COMPONENTS = {
-    "intbridge": (
-        {
-            "id": "probe",
-            "display_name": "intData Bridge Probe",
-            "skills": (
-                "probe-operator", "fleet-diagnostics", "client-control",
-                "incident-response", "probe-administration",
-            ),
-            "runtime_access": "owner-only",
-            "mcp_resource": "probe",
-            "oauth_resource": "https://intdata.pro/mcp/probe",
-            "scopes": (),
-            "approval_policy": "probe-confirmation",
-            "credential_boundary": "probe",
-            "service_boundary": "probe",
-            "state_boundary": "probe",
-        },
-        {
-            "id": "dba",
-            "display_name": "intData Bridge DBA",
-            "skills": (
-                "dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply",
-            ),
-            "runtime_access": "policy-gated",
-            "mcp_resource": None,
-            "oauth_resource": None,
-            "scopes": (),
-            "approval_policy": "route-specific",
-            "credential_boundary": "dba",
-            "service_boundary": "dba",
-            "state_boundary": "dba",
-        },
-    ),
-    "intagent": (),
-    "intnode": (),
-}
+EXPECTED_SKILLS = {"intnode": ("coord",)}
+EXPECTED_COMPONENTS = {"intnode": ()}
 LEGACY_PLUGIN_IDS = {"dba", "intprobe", "intdba", "intdev", "intdata-control", "intdata-runtime"}
 EXPECTED_RESOURCE_IDS = {"platform", "punkt-b", "crm", "cms", "brain", "probe", "lms", "agent"}
 PROVENANCE_FIELDS = ("commit", "tree_sha256", "manifest_sha256")
-EXPECTED_PLUGIN_ACCESS = {
-    "intbridge": ("private", "authenticated", "component-gated", None),
-    "intagent": ("private", "authenticated", "owner-only", "https://intdata.pro/mcp/agent"),
-    "intnode": ("public", "public", "owner-only", None),
-}
-PUBLIC_DISTRIBUTION_REPOSITORY = "https://github.com/LeoTechPro/intData-tools.git"
+EXPECTED_PLUGIN_ACCESS = {"intnode": ("public", "public", "owner-only", None)}
+PUBLIC_DISTRIBUTION_REPOSITORY = "https://github.com/LeoTechPro/Tools.git"
 EXPECTED_INTNODE_DISTRIBUTION = {
     "repository": PUBLIC_DISTRIBUTION_REPOSITORY,
     "subdir": "codex/plugins/intnode",
@@ -101,18 +49,10 @@ EXPECTED_INTNODE_DISTRIBUTION = {
     "license": "MIT",
     "license_path": "codex/plugins/intnode/LICENSE",
 }
-EXPECTED_PLUGIN_REPOSITORIES = {
-    "intbridge": "https://github.com/LeoTechPro/intData-bridge.git",
-    "intagent": "https://github.com/LeoTechPro/intData-agent.git",
-    "intnode": "https://github.com/LeoTechPro/intData-node.git",
-}
+EXPECTED_PLUGIN_REPOSITORIES = {"intnode": "https://github.com/LeoTechPro/intData-node.git"}
 EXPECTED_PLUGIN_MANIFEST_PATHS = {
     plugin_id: f"{subdir}/.codex-plugin/plugin.json"
-    for plugin_id, subdir in {
-        "intbridge": "plugins/intbridge",
-        "intagent": "plugins/intagent",
-        "intnode": "plugins/intnode",
-    }.items()
+    for plugin_id, subdir in {"intnode": "plugins/intnode"}.items()
 }
 EXPECTED_PLUGIN_LICENSE_PATHS = {
     plugin_id: f"{PurePosixPath(path).parents[1].as_posix()}/LICENSE"
@@ -741,28 +681,6 @@ def validate_manifest(
         raise FamilyManifestError(f"plugin IDs must be exactly {sorted(EXPECTED_SKILLS)}")
     if set(plugins) & LEGACY_PLUGIN_IDS:
         raise FamilyManifestError("legacy plugin IDs are forbidden")
-    probe_resource = next(
-        (resource for resource in manifest["mcp_resources"] if resource["id"] == "probe"),
-        None,
-    )
-    if probe_resource is None:
-        raise FamilyManifestError(f"MCP resource IDs must be exactly {sorted(EXPECTED_RESOURCE_IDS)}")
-    probe_component = next(
-        (
-            component
-            for component in plugins["intbridge"]["components"]
-            if component["id"] == "probe"
-        ),
-        None,
-    )
-    if probe_component is None:
-        raise FamilyManifestError("intbridge component mapping must include probe")
-    if probe_component["scopes"] != probe_resource["scopes"]:
-        raise FamilyManifestError("probe component scopes must match probe resource scopes")
-    if plugins["intbridge"]["display_name"] != "intData Bridge":
-        raise FamilyManifestError("intbridge display_name must be intData Bridge")
-    if plugins["intbridge"]["owner"] != "intData Bridge":
-        raise FamilyManifestError("intbridge owner must be intData Bridge")
     for plugin_id, expected in EXPECTED_SKILLS.items():
         plugin = plugins[plugin_id]
         actual = tuple(plugins[plugin_id]["skills"])
@@ -776,10 +694,6 @@ def validate_manifest(
             }
             for component in EXPECTED_COMPONENTS[plugin_id]
         ]
-        if plugin_id == "intbridge":
-            next(
-                component for component in expected_components if component["id"] == "probe"
-            )["scopes"] = list(probe_resource["scopes"])
         if plugin["components"] != expected_components:
             raise FamilyManifestError(f"{plugin_id} component mapping differs from the canonical map")
         component_skills = tuple(

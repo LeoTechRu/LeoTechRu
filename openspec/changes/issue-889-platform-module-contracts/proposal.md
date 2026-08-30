@@ -25,8 +25,9 @@ cut. Он forward-supersedes только конфликтующие актив�
   conformance; runtime solver, persistence, DB и apply остаются Backend-owned.
 - #875 carrier доводится до immutable `0.1.0`, затем connector semantic authority
   закрепляется в stable v1 и public TypeScript SDK `@intdata/connector-sdk`.
-- Family переходит на `intdata.family-manifest/v2`, сохраняя plugin IDs
-  `intbridge`, `intagent`, `intdev` и выполняя публичный Probe→Bridge Observer cut.
+- Public family projection использует `inttools` / `intData Tools` и содержит
+  единственный MIT plugin `intnode`; private distribution records исключаются,
+  а generic schemas/MCP resource descriptors остаются metadata.
 - Tools создаёт immutable release lock/activation projection, но не публикует,
   не активирует и не переключает runtime самостоятельно.
 
@@ -37,7 +38,7 @@ cut. Он forward-supersedes только конфликтующие актив�
 - `intdata-public-contracts`: versioned schemas и canonical serialization.
 - `intdata-deterministic-release-tooling`: deterministic pack/sign/verify CLI.
 - `intdata-connector-sdk`: stable connector contract, SDK и conformance.
-- `intdata-family-marketplace-v2`: exact family catalog/release lock без Probe.
+- `intdata-family-marketplace-v2`: public-only catalog/release lock с `intnode`.
 
 ### Modified Capabilities
 

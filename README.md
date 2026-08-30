@@ -176,9 +176,9 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 
 - Native marketplace source-of-truth: `.agents/plugins/marketplace.json`.
 - Product-owned plugins are referenced from their owning repositories; accepted candidates use `AVAILABLE` + `ON_INSTALL`, while unavailable family members remain dark.
-- Local marketplace identity: `intdata` / `intData`.
-- Public marketplace family is exactly `intbridge`, `intagent`, and `intnode`, as defined in `codex/family/intdata-family.json`; Bridge control/runtime workflow skills live only in the canonical `intbridge` plugin.
-- `intnode@intdata` exposes only the Node-owned `coord` skill, which routes coordination through the existing `intnode coord` CLI. It ships no binary, standalone `coordctl`, MCP runtime, or OpenSpec skill.
+- Public marketplace identity: `inttools` / `intData Tools`.
+- Public marketplace contains exactly the MIT `intnode` package. Private plugins and Codex adapters are owned by `LeoTechPro/Plugins`.
+- `intnode@inttools` exposes only the Node-owned `coord` skill, which routes coordination through the existing `intnode coord` CLI. It ships no binary, standalone `coordctl`, MCP runtime, or OpenSpec skill.
 - Active plugin category: `Developer Tools`.
 - Removed active plugin IDs: `coordctl`, `agent-plane`, `dba`, `intprobe`, `intdba`, `lockctl`, `multica`, `openspec`, `intdata-governance`, `intdata-vault`, `mempalace`, `cabinet`.
 - Cabinet-related inventory/import tooling is outside public intData-tools; old standalone local product directories are not deleted without count-check and owner acceptance.
@@ -946,7 +946,7 @@ lockctl wrappers, MCP tools or runtime surfaces.
 #### `intnode coord`
 
 `intnode coord` is the Git-aware coordination runtime for parallel agent edits.
-It is owned by `/int/node`; the `intnode@intdata` plugin contributes only usage guidance for this existing CLI and does not bundle its runtime.
+It is owned by `/int/node`; the `intnode@inttools` plugin contributes only usage guidance for this existing CLI and does not bundle its runtime.
 
 ##### Shell UX
 

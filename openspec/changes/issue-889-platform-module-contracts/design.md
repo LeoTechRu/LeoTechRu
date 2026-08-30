@@ -197,10 +197,11 @@ TypeScript package переименовывается в `@intdata/connector-sdk
 `0.x`. Public SDK использует exact MIT LICENSE/package metadata и сохраняет все
 third-party LICENSE/NOTICE в каждом archive.
 
-### 7. Family v2 and Probe hard cut
+### 7. Public inttools projection and resource metadata
 
-Plugin IDs остаются ровно `intbridge`, `intagent`, `intdev`. `intdev` public/MIT;
-два остальных private/authenticated с safe public metadata. Resource IDs v2:
+Plugin ID остаётся ровно один: public/MIT `intnode` в marketplace `inttools` /
+`intData Tools`. Private packages и concrete provenance records принадлежат
+`LeoTechPro/Plugins` и не проецируются Tools. Resource IDs v2:
 `agent,brain,bridge,platform,punkt-b,crm,cms,lms`. Target endpoints exact:
 `https://bridge.intdata.pro/mcp`, `https://brain.intdata.pro/mcp`,
 `https://crm.intdata.pro/mcp`, `https://cms.intdata.pro/mcp`,
@@ -220,8 +221,8 @@ Observer skills. Node internal `node.internal.probe-collector/v1` разрешё
 
 Immutable family release содержит catalog/schema/marketplace/release-lock/
 activation/SHA256SUMS/SBOM/release manifest/DSSE/scan attestation. Candidate
-marketplace сохраняет три IDs с `policy.installation=NOT_AVAILABLE`; installable
-marketplace возникает только в signed immutable release после terminal #898.
+marketplace содержит `intnode` с `AVAILABLE`/`ON_USE`; immutable release
+сохраняет ту же public-only membership.
 Terminal receipt связывает remotely reachable Bridge/Tools/all-consumer SHAs,
 zero active Probe scan и successful atomic rollback rehearsal. Zero-scan имеет
 tracked scope и отдельный historical/generic/internal allowlist. Tools генерирует

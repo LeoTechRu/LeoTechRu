@@ -1,6 +1,6 @@
 # Agent Plane
 
-`agent_plane` is a public first-party runtime package for policy-aware tool dispatch and local agent-tool harnesses.
+`agent_plane` is a public first-party runtime package for policy-aware tool dispatch and local agent-tool harnesses. Agent-specific adapters, including the Codex MCP package, are private plugins owned by `LeoTechPro/Plugins`.
 
 It provides reusable dispatcher, policy, audit, and server modules without binding the core package to one agent UI.
 

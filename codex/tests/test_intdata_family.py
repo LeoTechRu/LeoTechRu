@@ -50,9 +50,9 @@ def test_intnode_marketplace_uses_public_tools_distribution() -> None:
     assert intnode["provenance"]["repository"] == "https://github.com/LeoTechPro/intData-node.git"
     assert entry["source"] == {
         "source": "git-subdir",
-        "url": "https://github.com/LeoTechPro/intData-tools.git",
+        "url": "https://github.com/LeoTechPro/Tools.git",
         "path": "./codex/plugins/intnode",
-        "ref": "3bf78521fddd56eea52f577430f01977ffc113c7",
+        "ref": "f548a8727546473005627ba8480b037db4c0d0cc",
     }
     assert entry["policy"] == {
         "installation": "AVAILABLE",
@@ -428,26 +428,18 @@ def test_checked_in_marketplace_is_exact_family_projection() -> None:
     marketplace = family.load_json(CHECKED_MARKETPLACE)
 
     assert marketplace == family.build_marketplace(manifest)
-    assert [entry["name"] for entry in marketplace["plugins"]] == [
-        "intagent",
-        "intbridge",
-        "intnode",
-    ]
+    assert [entry["name"] for entry in marketplace["plugins"]] == ["intnode"]
     assert {
         entry["name"]: entry["policy"]["installation"]
         for entry in marketplace["plugins"]
     } == {
-        "intagent": "NOT_AVAILABLE",
-        "intbridge": "NOT_AVAILABLE",
         "intnode": "AVAILABLE",
     }
     assert {
         entry["name"]: entry["source"]["url"]
         for entry in marketplace["plugins"]
     } == {
-        "intagent": "git@github.com:LeoTechPro/intData-agent.git",
-        "intbridge": "git@github.com:LeoTechPro/intData-bridge.git",
-        "intnode": "https://github.com/LeoTechPro/intData-tools.git",
+        "intnode": "https://github.com/LeoTechPro/Tools.git",
     }
     assert not LEGACY_MARKETPLACE.exists()
 
@@ -503,6 +495,18 @@ def test_intdev_is_retired_and_absent_from_the_family() -> None:
     assert "intdev" not in {entry["id"] for entry in manifest["plugins"]}
 
 
+def test_public_family_contains_only_intnode() -> None:
+    manifest, schema = load_inputs()
+    family.validate_manifest(manifest, schema, require_release=False)
+    assert [entry["id"] for entry in manifest["plugins"]] == ["intnode"]
+    assert manifest["plugins"][0]["skills"] == ["coord"]
+    assert manifest["marketplace"] == {
+        "id": "inttools",
+        "display_name": "intData Tools",
+        "repository": "https://github.com/LeoTechPro/Tools.git",
+    }
+
+
 def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path: Path) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
     alternate_schema = copy.deepcopy(schema)
@@ -516,61 +520,6 @@ def test_release_builder_rejects_schema_override_and_unverified_sources(tmp_path
         )
     with pytest.raises(family.FamilyManifestError, match="trusted source checkouts"):
         family.build_outputs(release)
-
-
-def test_canonical_family_membership_and_skill_map() -> None:
-    manifest, schema = load_inputs()
-    family.validate_manifest(manifest, schema, require_release=False)
-    plugins = {entry["id"]: entry for entry in manifest["plugins"]}
-
-    assert set(plugins) == {"intbridge", "intagent", "intnode"}
-    assert [len(plugins[name]["skills"]) for name in ("intbridge", "intagent", "intnode")] == [10, 9, 1]
-    assert plugins["intbridge"]["display_name"] == "intData Bridge"
-    assert plugins["intbridge"]["owner"] == "intData Bridge"
-    assert plugins["intbridge"]["runtime_access"] == "component-gated"
-    assert plugins["intbridge"]["oauth_resource"] is None
-    assert plugins["intbridge"]["components"] == [
-        {
-            "id": "probe",
-            "display_name": "intData Bridge Probe",
-            "skills": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration"],
-            "runtime_access": "owner-only",
-            "mcp_resource": "probe",
-            "oauth_resource": "https://intdata.pro/mcp/probe",
-            "scopes": [],
-            "approval_policy": "probe-confirmation",
-            "credential_boundary": "probe",
-            "service_boundary": "probe",
-            "state_boundary": "probe",
-        },
-        {
-            "id": "dba",
-            "display_name": "intData Bridge DBA",
-            "skills": ["dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"],
-            "runtime_access": "policy-gated",
-            "mcp_resource": None,
-            "oauth_resource": None,
-            "scopes": [],
-            "approval_policy": "route-specific",
-            "credential_boundary": "dba",
-            "service_boundary": "dba",
-            "state_boundary": "dba",
-        },
-    ]
-    assert plugins["intnode"]["display_name"] == "intData Node"
-    assert plugins["intnode"]["owner"] == "intData Node"
-    assert plugins["intnode"]["skills"] == ["coord"]
-    assert plugins["intnode"]["components"] == []
-    assert plugins["intnode"]["oauth_resource"] is None
-    assert plugins["intagent"]["components"] == []
-    assert "probe-operator" in plugins["intbridge"]["skills"]
-    assert "intprobe-operator" not in plugins["intbridge"]["skills"]
-    assert "dba" not in plugins
-    resources = {entry["id"]: entry for entry in manifest["mcp_resources"]}
-    assert set(resources) == family.EXPECTED_RESOURCE_IDS
-    assert resources["probe"]["display_name"] == "intData Bridge Probe"
-    assert resources["probe"]["owner"] == "intData Bridge"
-    assert resources["probe"]["provenance"]["repository"] == "https://github.com/LeoTechPro/intData-bridge.git"
 
 
 @pytest.mark.parametrize(
@@ -604,35 +553,6 @@ def test_probe_failure_policy_is_route_local_and_os_aware() -> None:
         "probe_mutations": "fail-closed",
         "os_aware": True,
     }
-
-
-@pytest.mark.parametrize(
-    ("field", "value"),
-    [
-        ("oauth_resource", "https://intdata.pro/mcp/probe"),
-        ("mcp_resource", "probe"),
-        ("scopes", ["probe.admin"]),
-        ("credential_boundary", "probe"),
-        ("state_boundary", "probe"),
-    ],
-)
-def test_intbridge_dba_component_cannot_cross_probe_boundary(field: str, value) -> None:
-    manifest, schema = load_inputs()
-    dba = next(item for item in manifest["plugins"] if item["id"] == "intbridge")["components"][1]
-    dba[field] = value
-    with pytest.raises(family.FamilyManifestError, match="component mapping|plugins/0/components/1"):
-        family.validate_manifest(manifest, schema, require_release=False)
-
-
-def test_intbridge_component_skill_reassignment_is_rejected_even_with_flat_union() -> None:
-    manifest, schema = load_inputs()
-    components = next(item for item in manifest["plugins"] if item["id"] == "intbridge")["components"]
-    components[0]["skills"][0], components[1]["skills"][0] = components[1]["skills"][0], components[0]["skills"][0]
-    assert sorted(skill for component in components for skill in component["skills"]) == sorted(
-        next(item for item in manifest["plugins"] if item["id"] == "intbridge")["skills"]
-    )
-    with pytest.raises(family.FamilyManifestError, match="component mapping|components/0/skills"):
-        family.validate_manifest(manifest, schema, require_release=False)
 
 
 def test_agent_resource_is_owner_only_and_audience_isolated() -> None:
@@ -675,8 +595,8 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert activation["projections"]["release_lock"]["sha256"] == family.sha256_bytes(
         first["intdata.family-release-lock.v1.json"]
     )
-    assert marketplace["name"] == "intdata"
-    assert [entry["name"] for entry in marketplace["plugins"]] == ["intagent", "intbridge", "intnode"]
+    assert marketplace["name"] == "inttools"
+    assert [entry["name"] for entry in marketplace["plugins"]] == ["intnode"]
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
     assert all(
@@ -688,8 +608,6 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
         for entry in marketplace["plugins"]
     }
     assert authentication == {
-        "intagent": "ON_INSTALL",
-        "intbridge": "ON_INSTALL",
         "intnode": "ON_USE",
     }
     locked_intnode = next(entry for entry in lock["plugins"] if entry["id"] == "intnode")
@@ -709,7 +627,7 @@ def test_generated_at_is_an_immutable_hash_input(tmp_path: Path) -> None:
 
 def test_wrong_skill_owner_and_missing_provenance_fail_closed(tmp_path: Path) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
-    release["plugins"][0]["skills"] = list(reversed(release["plugins"][0]["skills"]))
+    release["plugins"][0]["skills"].append("private-skill")
     with pytest.raises(family.FamilyManifestError, match="skill mapping|plugins/0/skills"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
 
@@ -717,49 +635,6 @@ def test_wrong_skill_owner_and_missing_provenance_fail_closed(tmp_path: Path) ->
     release["plugins"][0]["provenance"]["commit"] = None
     with pytest.raises(family.FamilyManifestError, match="immutable provenance"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_release_rejects_commit_absent_from_advertised_refs(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    entry = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[entry["provenance"]["repository"]]
-    advertised_commit = entry["provenance"]["commit"]
-    manifest_path = repo / entry["provenance"]["manifest_path"]
-    manifest_path.write_text(
-        manifest_path.read_text(encoding="utf-8") + "\n", encoding="utf-8"
-    )
-    commit_and_rebind(entry, repo)
-
-    def advertised_refs(candidate: Path) -> tuple[tuple[str, str], ...]:
-        commit = (
-            advertised_commit
-            if candidate.resolve() == repo.resolve()
-            else run_git(candidate, "rev-parse", "HEAD")
-        )
-        return ((commit, "refs/heads/main"),)
-
-    monkeypatch.setattr(family, "advertised_remote_refs", advertised_refs)
-    with pytest.raises(family.FamilyManifestError, match="not reachable"):
-        family.validate_manifest(
-            release, schema, require_release=True, source_roots=source_roots
-        )
-
-
-def test_release_accepts_commit_reachable_from_advertised_descendant(
-    tmp_path: Path,
-) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    entry = next(item for item in release["plugins"] if item["id"] == "intagent")
-    repo = source_roots[entry["provenance"]["repository"]]
-    (repo / "published-after-source.txt").write_text("descendant\n", encoding="utf-8")
-    run_git(repo, "add", "published-after-source.txt")
-    run_git(repo, "commit", "-q", "-m", "advertised descendant")
-
-    family.validate_manifest(
-        release, schema, require_release=True, source_roots=source_roots
-    )
 
 
 def test_check_detects_projection_drift(tmp_path: Path) -> None:
@@ -812,8 +687,8 @@ def test_plugin_verifier_strictly_rejects_duplicate_marketplace_keys(
     marketplace_path = tmp_path / ".agents" / "plugins" / "marketplace.json"
     marketplace_path.parent.mkdir(parents=True)
     duplicate = CHECKED_MARKETPLACE.read_text(encoding="utf-8").replace(
-        '  "name": "intdata",',
-        '  "name": "intdata",\n  "name": "intdata",',
+        '  "name": "inttools",',
+        '  "name": "inttools",\n  "name": "inttools",',
         1,
     )
     marketplace_path.write_text(duplicate, encoding="utf-8")
@@ -828,20 +703,13 @@ def test_plugin_verifier_strictly_rejects_duplicate_marketplace_keys(
     )
 
 
-def test_schema_rejects_duplicate_plugin_ids_and_nonempty_agent_components() -> None:
+def test_schema_rejects_duplicate_public_plugin() -> None:
     manifest, schema = load_inputs()
     duplicate = copy.deepcopy(manifest)
-    duplicate["plugins"][1] = copy.deepcopy(duplicate["plugins"][0])
+    duplicate["plugins"].append(copy.deepcopy(duplicate["plugins"][0]))
     duplicate_errors = list(family.jsonschema.Draft202012Validator(schema).iter_errors(duplicate))
     assert any(list(error.absolute_path) == ["plugins"] for error in duplicate_errors)
 
-    nonempty = copy.deepcopy(manifest)
-    nonempty["plugins"][1]["components"] = [copy.deepcopy(nonempty["plugins"][0]["components"][0])]
-    nonempty_errors = list(family.jsonschema.Draft202012Validator(schema).iter_errors(nonempty))
-    assert any(
-        list(error.absolute_path) == ["plugins", 1, "components"]
-        for error in nonempty_errors
-    )
 
 
 def test_schema_requires_exact_canonical_resource_ids() -> None:
@@ -861,39 +729,6 @@ def test_schema_requires_exact_canonical_resource_ids() -> None:
         list(error.absolute_path) == ["mcp_resources"]
         for error in validator.iter_errors(duplicate)
     )
-
-
-@pytest.mark.parametrize(
-    "mutation",
-    [
-        lambda value: value["plugins"][0]["components"][1].__setitem__("mcp_resource", "probe"),
-        lambda value: value["plugins"][0]["components"][1].__setitem__("runtime_access", "public"),
-        lambda value: value["plugins"][0]["components"][0]["skills"].__setitem__(0, "dba-health"),
-    ],
-)
-def test_schema_rejects_noncanonical_intbridge_component_mutations(mutation) -> None:
-    manifest, schema = load_inputs()
-    mutation(manifest)
-    errors = list(family.jsonschema.Draft202012Validator(schema).iter_errors(manifest))
-    assert errors
-
-
-def test_catalog_schema_rejects_duplicate_intagent_plugin() -> None:
-    manifest, schema = load_inputs()
-    catalog = family.build_catalog(manifest, "0" * 64)
-    intagent = next(item for item in catalog["plugins"] if item["id"] == "intagent")
-    catalog["plugins"] = [copy.deepcopy(intagent) for _ in range(3)]
-    errors = list(
-        family.jsonschema.Draft202012Validator(
-            family.projection_schema(
-                schema,
-                "family_catalog",
-                schema_id="https://intdata.pro/schemas/test-catalog.json",
-                title="test",
-            )
-        ).iter_errors(catalog)
-    )
-    assert errors
 
 
 def test_catalog_schema_requires_exact_canonical_resource_ids() -> None:
@@ -946,40 +781,10 @@ def test_activation_schema_rejects_projection_path_permutation() -> None:
     assert errors
 
 
-def test_probe_component_scopes_must_match_probe_resource() -> None:
-    manifest, schema = load_inputs()
-    probe = next(item for item in manifest["mcp_resources"] if item["id"] == "probe")
-    probe["scopes"] = ["probe.read"]
-    probe["availability"] = "available"
-    probe["authorization"] = {
-        "state": "configured",
-        "audience": probe["oauth_resource"],
-        "issuer": "https://issuer.intdata.pro",
-        "verification": {"method": "jwks", "jwks_uri": "https://issuer.intdata.pro/.well-known/jwks.json"},
-        "token_type": "jwt",
-        "subject_claim": "sub",
-        "entitlement_claim": "scope",
-        "entitlement_max_age_seconds": 300,
-        "external_bearer_forwarding": False,
-        "downstream_credential": {
-            "kind": "bounded-internal-assertion",
-            "issuer": "intdata-family",
-            "audience": "https://intdata.pro/internal/probe",
-            "algorithm": "EdDSA",
-            "key_id": "probe-dev",
-            "ttl_seconds": 30,
-        },
-    }
-    with pytest.raises(family.FamilyManifestError, match="probe component scopes"):
-        family.validate_manifest(manifest, schema, require_release=False)
-    manifest["plugins"][0]["components"][0]["scopes"] = ["probe.read"]
-    family.validate_manifest(manifest, schema, require_release=False)
-
-
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [
-            (lambda value: value["plugins"].__setitem__(1, copy.deepcopy(value["plugins"][0])), "plugin IDs|plugins"),
+        (lambda value: value["plugins"].append(copy.deepcopy(value["plugins"][0])), "plugin IDs|plugins"),
         (lambda value: value["plugins"][0].__setitem__("aliases", ["dba"]), "Additional properties"),
         (lambda value: value["plugins"][0]["provenance"].__setitem__("repository", "file:///tmp/local"), "does not match"),
         (lambda value: value["plugins"][0]["provenance"].__setitem__("commit", "main"), "not valid"),
@@ -993,48 +798,6 @@ def test_release_identity_and_source_shape_fail_closed(
     mutation(release)
     with pytest.raises(family.FamilyManifestError, match=message):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-@pytest.mark.parametrize("display_name", [None, "Wrong Bridge"])
-def test_commit_bound_plugin_display_name_must_match_family(
-    tmp_path: Path, display_name: str | None
-) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    path = repo / intbridge["provenance"]["manifest_path"]
-    source = json.loads(path.read_text(encoding="utf-8"))
-    if display_name is None:
-        source.pop("interface")
-        expected = "interface is required"
-    else:
-        source["interface"]["displayName"] = display_name
-        expected = "displayName differs"
-    path.write_text(json.dumps(source) + "\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match=expected):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-@pytest.mark.parametrize(
-    ("plugin_id", "field", "value"),
-    [
-        ("intbridge", "source_access", "public"),
-        ("intbridge", "runtime_access", "public"),
-        ("intagent", "install_access", "public"),
-        ("intagent", "oauth_resource", "https://intdata.pro/mcp/probe"),
-        ("intnode", "runtime_access", "public"),
-        ("intnode", "oauth_resource", "https://intdata.pro/mcp/agent"),
-    ],
-)
-def test_plugin_access_contracts_cannot_be_weakened(
-    plugin_id: str, field: str, value
-) -> None:
-    manifest, schema = load_inputs()
-    plugin = next(item for item in manifest["plugins"] if item["id"] == plugin_id)
-    plugin[field] = value
-    with pytest.raises(family.FamilyManifestError, match="access/OAuth contract"):
-        family.validate_manifest(manifest, schema, require_release=False)
 
 
 def test_agent_brain_probe_audiences_and_metadata_cannot_collapse() -> None:
@@ -1068,6 +831,7 @@ def test_released_plugins_must_be_installable_and_beyond_planned_maturity() -> N
     manifest, schema = load_inputs()
     release = copy.deepcopy(manifest)
     release["release_state"] = "released"
+    release["plugins"][0]["maturity"] = "planned"
 
     with pytest.raises(family.FamilyManifestError, match="must be installable"):
         family.validate_manifest(release, schema, require_release=True)
@@ -1164,71 +928,6 @@ def test_release_lock_binds_resource_versions(tmp_path: Path) -> None:
     assert all(item["version"] for item in lock["mcp_resources"])
 
 
-def test_arbitrary_source_manifest_and_license_paths_are_rejected(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    intbridge["provenance"]["manifest_path"] = "plugins/intbridge/skills/dba-health/SKILL.md"
-    intbridge["provenance"]["license_path"] = "plugins/intbridge/skills/sql-apply/SKILL.md"
-    with pytest.raises(family.FamilyManifestError, match="source manifest path|license path"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-@pytest.mark.parametrize(
-    ("field", "value"),
-    [("name", "dba"), ("version", "9.9.9"), ("license", "MIT")],
-)
-def test_commit_bound_plugin_manifest_must_match_family(
-    tmp_path: Path, field: str, value: str
-) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    path = repo / intbridge["provenance"]["manifest_path"]
-    source = json.loads(path.read_text(encoding="utf-8"))
-    source[field] = value
-    path.write_text(json.dumps(source) + "\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match=f"source plugin {field}"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_commit_bound_plugin_skills_cannot_add_legacy_alias(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    alias = repo / "plugins" / "intbridge" / "skills" / "dba" / "SKILL.md"
-    alias.parent.mkdir(parents=True)
-    alias.write_text("---\nname: dba\ndescription: Legacy alias.\n---\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match="source plugin skills"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_commit_bound_plugin_manifest_cannot_declare_aliases(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    path = repo / intbridge["provenance"]["manifest_path"]
-    source = json.loads(path.read_text(encoding="utf-8"))
-    source["aliases"] = ["dba"]
-    path.write_text(json.dumps(source) + "\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match="aliases are forbidden"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_noncanonical_nested_skill_entrypoint_is_rejected(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    nested = repo / "plugins" / "intbridge" / "skills" / "legacy" / "nested" / "SKILL.md"
-    nested.parent.mkdir(parents=True)
-    nested.write_text("---\nname: dba\ndescription: Legacy.\n---\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match="non-canonical skill entrypoint"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
 def test_commit_bound_resource_contract_must_match_family(tmp_path: Path) -> None:
     release, schema, source_roots = materialized_release(tmp_path)
     crm = next(item for item in release["mcp_resources"] if item["id"] == "crm")
@@ -1255,64 +954,6 @@ def test_commit_bound_resource_full_contract_must_match_family(
     path.write_text(json.dumps(source) + "\n", encoding="utf-8")
     commit_and_rebind(crm, repo)
     with pytest.raises(family.FamilyManifestError, match=f"source resource {field}"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-@pytest.mark.parametrize(
-    "scopes",
-    [None, ["*"], ["agent.admin", "agent.mutate", "agent.read"], ["probe.admin"]],
-)
-def test_commit_bound_agent_scopes_must_match_exactly(
-    tmp_path: Path, scopes: list[str] | None
-) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    agent = next(item for item in release["mcp_resources"] if item["id"] == "agent")
-    repo = source_roots[agent["provenance"]["repository"]]
-    path = repo / agent["provenance"]["manifest_path"]
-    source = json.loads(path.read_text(encoding="utf-8"))
-    if scopes is None:
-        source.pop("scopes")
-    else:
-        source["scopes"] = scopes
-    path.write_text(json.dumps(source) + "\n", encoding="utf-8")
-    commit_and_rebind(agent, repo)
-    intagent = next(item for item in release["plugins"] if item["id"] == "intagent")
-    intagent["provenance"]["commit"] = agent["provenance"]["commit"]
-    intagent["provenance"]["tree_sha256"] = family.tree_digest(
-        repo, agent["provenance"]["commit"], intagent["provenance"]["subdir"]
-    )
-    with pytest.raises(family.FamilyManifestError, match="source resource scopes"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_license_blob_must_match_declared_contract(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    intbridge = next(item for item in release["plugins"] if item["id"] == "intbridge")
-    repo = source_roots[intbridge["provenance"]["repository"]]
-    (repo / intbridge["provenance"]["license_path"]).write_text("MIT\n", encoding="utf-8")
-    commit_and_rebind(intbridge, repo)
-    with pytest.raises(family.FamilyManifestError, match="Proprietary contract"):
-        family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_single_ssh_github_origin_matches_canonical_https_identity(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    repository = family.EXPECTED_PLUGIN_REPOSITORIES["intbridge"]
-    run_git(source_roots[repository], "remote", "set-url", "origin", "git@github.com:LeoTechPro/intData-bridge.git")
-    family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
-
-
-def test_multiple_origin_urls_are_rejected_as_ambiguous(tmp_path: Path) -> None:
-    release, schema, source_roots = materialized_release(tmp_path)
-    repository = family.EXPECTED_PLUGIN_REPOSITORIES["intbridge"]
-    run_git(
-        source_roots[repository],
-        "config",
-        "--add",
-        "remote.origin.url",
-        "git@github.com:LeoTechPro/intData-bridge.git",
-    )
-    with pytest.raises(family.FamilyManifestError, match="exactly one origin"):
         family.validate_manifest(release, schema, require_release=True, source_roots=source_roots)
 
 

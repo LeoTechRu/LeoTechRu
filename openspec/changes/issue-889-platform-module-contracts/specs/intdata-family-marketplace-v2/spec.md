@@ -7,18 +7,18 @@ the atomic Probe→Bridge Observer hard cut.
 
 ## ADDED Requirements
 
-### Requirement: Family v2 MUST preserve exact plugin identities
+### Requirement: Public family MUST expose only intnode
 
-Family schema `intdata.family-manifest/v2` MUST contain exactly plugin IDs
-`intbridge`, `intagent`, `intdev`; `intprobe`, `intdba`, `dba` and aliases MUST be
-rejected. `intbridge` and `intagent` remain private/authenticated; `intdev` remains
-public/MIT and MUST NOT contain private `/int` governance.
+Public marketplace MUST use ID `inttools`, display name `intData Tools` and
+contain exactly MIT `intnode` with `AVAILABLE` and `ON_USE`. Concrete private or
+proprietary plugin records, manifests, commits and release pins MUST be rejected.
+Generic schemas and MCP resource descriptors MAY remain metadata only.
 
 #### Scenario: Candidate catalog is generated
 
-- **WHEN** current three plugin sources are validated
-- **THEN** exact IDs/access/license/provenance are preserved
-- **AND** checked-in marketplace marks all three `NOT_AVAILABLE`
+- **WHEN** marketplace and tracked plugin tree are validated
+- **THEN** exact selector is `intnode@inttools`
+- **AND** tracked `codex/plugins/**` contains exactly `intnode`
 
 ### Requirement: Public resource identity MUST hard-cut from Probe to Bridge
 
@@ -86,11 +86,10 @@ entry MUST set endpoint, metadata URI, OAuth resource and audience to null and
 
 ### Requirement: Installable marketplace MUST exist only in immutable release
 
-Candidate checked-in marketplace MUST contain exact three plugin IDs with
-`policy.installation=NOT_AVAILABLE`. Installable entries MAY be generated only as
-part of one signed immutable release whose catalog/schema/lock/activation hashes
-agree, whose source commits are remotely reachable and whose terminal #898 receipt
-binds provider/consumer SHAs, zero-Probe scan and atomic rollback rehearsal.
+Candidate checked-in marketplace MUST contain only public `intnode` with
+`AVAILABLE` and `ON_USE`. Immutable release projections MUST preserve the same
+public-only membership and exact remotely reachable Tools source commit; private
+plugin publication MUST NOT be reconstructed here.
 
 #### Scenario: Candidate or mismatched release is generated
 

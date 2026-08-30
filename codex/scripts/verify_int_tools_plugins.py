@@ -15,9 +15,9 @@ import generate_intdata_family as family
 
 ROOT = Path(__file__).resolve().parents[2]
 MCP_SERVER = ROOT / "codex" / "bin" / "mcp-intdata-cli.py"
-MARKETPLACE_NAME = "intdata"
-MARKETPLACE_DISPLAY_NAME = "intData"
-PUBLIC_PLUGIN_NAMES = ("intagent", "intbridge", "intnode")
+MARKETPLACE_NAME = "inttools"
+MARKETPLACE_DISPLAY_NAME = "intData Tools"
+PUBLIC_PLUGIN_NAMES = ("intnode",)
 COMPATIBILITY_PROFILE_NAMES: tuple[str, ...] = ()
 RETIRED_STANDALONE_PLUGIN_NAMES = {"dba", "intprobe", "intdba", "intdev"}
 FORBIDDEN_PUBLIC_PLUGIN_NAMES = {"coordctl", "agent-plane", *RETIRED_STANDALONE_PLUGIN_NAMES}
@@ -266,6 +266,18 @@ def verify_retired_standalone_plugin_surfaces(report: dict[str, Any]) -> None:
             )
 
     plugin_root = ROOT / "codex" / "plugins"
+    tracked_plugin_roots = {
+        Path(path).parts[2]
+        for path in subprocess.run(
+            ["git", "ls-files", "codex/plugins"], cwd=ROOT, check=True,
+            stdout=subprocess.PIPE, text=True,
+        ).stdout.splitlines()
+        if len(Path(path).parts) >= 3
+    }
+    if tracked_plugin_roots != {"intnode"}:
+        report["retired_surface_errors"].append(
+            {"tracked_public_plugin_directories": sorted(tracked_plugin_roots), "expected": ["intnode"]}
+        )
     for manifest_path in sorted(plugin_root.glob("*/.codex-plugin/plugin.json")):
         try:
             plugin_name = json.loads(manifest_path.read_text(encoding="utf-8")).get("name")
@@ -280,6 +292,10 @@ def verify_retired_standalone_plugin_surfaces(report: dict[str, Any]) -> None:
                     "retired_plugin_manifest": display_path(manifest_path),
                     "name": plugin_name,
                 }
+            )
+        if plugin_name != "intnode":
+            report["retired_surface_errors"].append(
+                {"private_or_proprietary_plugin_manifest": display_path(manifest_path), "name": plugin_name}
             )
 
     registration_path = ROOT / "codex" / "bin" / "intdata_mcp_registration.py"

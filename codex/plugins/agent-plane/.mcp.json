@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "agent-plane": {
-      "command": "python",
-      "args": ["D:\\int\\tools\\agent_plane\\mcp_server.py"]
-    }
-  }
-}

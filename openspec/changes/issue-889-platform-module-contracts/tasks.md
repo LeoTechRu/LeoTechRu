@@ -36,6 +36,8 @@
 
 ## 4. Family marketplace v2
 
+- [x] 4.0 Split private plugin distribution into `intdata`; make `inttools`
+  public-only with MIT `intnode` while retaining MCP resources as metadata.
 - [ ] 4.1 Freeze Bridge provider and all public Probe consumers.
 - [ ] 4.2 Add terminal #898 receipt, resource `bridge`, component `observer` and skills.
 - [ ] 4.3 Remove all active public Probe identities without alias or redirect.

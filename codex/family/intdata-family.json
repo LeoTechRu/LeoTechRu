@@ -6,9 +6,9 @@
   "revision": 1,
   "generated_at": "2026-08-05T20:00:00Z",
   "marketplace": {
-    "id": "intdata",
-    "display_name": "intData",
-    "repository": "https://github.com/LeoTechPro/intData-tools.git"
+    "id": "inttools",
+    "display_name": "intData Tools",
+    "repository": "https://github.com/LeoTechPro/Tools.git"
   },
   "routing_policy": {
     "probe_failure_scope": "probe-route-only",
@@ -28,7 +28,11 @@
       "install_access": "not-applicable",
       "runtime_access": "owner-only",
       "oauth_resource": "https://intdata.pro/mcp/agent",
-      "scopes": ["agent.read", "agent.mutate", "agent.admin"],
+      "scopes": [
+        "agent.read",
+        "agent.mutate",
+        "agent.admin"
+      ],
       "maturity": "planned",
       "availability": "unavailable",
       "authorization": {
@@ -276,87 +280,6 @@
   ],
   "plugins": [
     {
-      "id": "intbridge",
-      "display_name": "intData Bridge",
-      "release_version": "1.0.0-dev.1",
-      "owner": "intData Bridge",
-      "category": "Developer Tools",
-      "visibility": "public",
-      "source_access": "private",
-      "install_access": "authenticated",
-      "runtime_access": "component-gated",
-      "oauth_resource": null,
-      "maturity": "planned",
-      "availability": "unavailable",
-      "skills": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration", "dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"],
-      "components": [
-        {
-          "id": "probe",
-          "display_name": "intData Bridge Probe",
-          "skills": ["probe-operator", "fleet-diagnostics", "client-control", "incident-response", "probe-administration"],
-          "runtime_access": "owner-only",
-          "mcp_resource": "probe",
-          "oauth_resource": "https://intdata.pro/mcp/probe",
-          "scopes": [],
-          "approval_policy": "probe-confirmation",
-          "credential_boundary": "probe",
-          "service_boundary": "probe",
-          "state_boundary": "probe"
-        },
-        {
-          "id": "dba",
-          "display_name": "intData Bridge DBA",
-          "skills": ["dba-health", "doctor-status", "local-smoke", "migrations", "sql-apply"],
-          "runtime_access": "policy-gated",
-          "mcp_resource": null,
-          "oauth_resource": null,
-          "scopes": [],
-          "approval_policy": "route-specific",
-          "credential_boundary": "dba",
-          "service_boundary": "dba",
-          "state_boundary": "dba"
-        }
-      ],
-      "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-bridge.git",
-        "subdir": "plugins/intbridge",
-        "manifest_path": "plugins/intbridge/.codex-plugin/plugin.json",
-        "commit": "8ef3a2cf5f5460ad85556a65fbb6bb1f9e39401c",
-        "tree_sha256": "62304853a2bf39106ce05563d6897a2cc5b11cb252b4193a3c05631e6aee1974",
-        "manifest_sha256": "7836e2d8ebd07d0124e71b00274fe0850fad074f33ca266c1ad1c2140391a4ea",
-        "license": "Proprietary",
-        "license_path": "plugins/intbridge/LICENSE",
-        "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
-      }
-    },
-    {
-      "id": "intagent",
-      "display_name": "intAgent",
-      "release_version": "1.0.0-dev.1",
-      "owner": "intData Agent",
-      "category": "Developer Tools",
-      "visibility": "public",
-      "source_access": "private",
-      "install_access": "authenticated",
-      "runtime_access": "owner-only",
-      "oauth_resource": "https://intdata.pro/mcp/agent",
-      "maturity": "planned",
-      "availability": "unavailable",
-      "skills": ["agent-control", "environment-detection", "mode-resolution", "mode-router", "host-diagnostics", "hypothesis-diagnosis", "ssh", "firefox-devtools-testing", "vault-maintenance"],
-      "components": [],
-      "provenance": {
-        "repository": "https://github.com/LeoTechPro/intData-agent.git",
-        "subdir": "plugins/intagent",
-        "manifest_path": "plugins/intagent/.codex-plugin/plugin.json",
-        "commit": "e2aa07ed8373e19cf6d5e875734fc887b53b6ecd",
-        "tree_sha256": "c6350c656133b37b780f571f67d41c64a950dda142036e281d0e32b629a8a4bd",
-        "manifest_sha256": "554624475c7f94477204850e4e2e4ff0360eaa5fc646235d36ad0f11e526f73c",
-        "license": "MIT",
-        "license_path": "plugins/intagent/LICENSE",
-        "license_sha256": "471f75bc6ef38333696dd6549c4355adef05291a74135649131f0a5728f5a45c"
-      }
-    },
-    {
       "id": "intnode",
       "display_name": "intData Node",
       "release_version": "1.0.0-dev.1",
@@ -369,7 +292,9 @@
       "oauth_resource": null,
       "maturity": "dev",
       "availability": "available",
-      "skills": ["coord"],
+      "skills": [
+        "coord"
+      ],
       "components": [],
       "provenance": {
         "repository": "https://github.com/LeoTechPro/intData-node.git",
@@ -383,10 +308,10 @@
         "license_sha256": "3031748e7e11ef3e1772738704df5e3e83d949085e04a8a9fc54206758791bb0"
       },
       "distribution": {
-        "repository": "https://github.com/LeoTechPro/intData-tools.git",
+        "repository": "https://github.com/LeoTechPro/Tools.git",
         "subdir": "codex/plugins/intnode",
         "manifest_path": "codex/plugins/intnode/.codex-plugin/plugin.json",
-        "commit": "3bf78521fddd56eea52f577430f01977ffc113c7",
+        "commit": "f548a8727546473005627ba8480b037db4c0d0cc",
         "tree_sha256": "a206cb23986b8609b042d87bab3db436003884a03111f640285dac632d29a689",
         "manifest_sha256": "206e8dff38305471f0b53a34b73319e897eecc604cf1542ba7ca543817e21dee",
         "license": "MIT",
