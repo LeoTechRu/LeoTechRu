@@ -72,17 +72,13 @@ The validator checks that every tracked non-hidden top-level directory is presen
 
 ## OpenSpec governance
 
-- Для любых tracked-мутаций repo-owned tooling в `/int/tools/**` канонический process source-of-truth живёт в master/manifest репозитории `/int`, вне публичного `intData-tools`.
-- OpenSpec управляется через канонический глобальный CLI `openspec` (@fission-ai/openspec), а агенты в MCP-enabled рантаймах используют `intdata-control` OpenSpec tools.
-- Agents resolve `INT-*` through authenticated `gh` against `LeoTechPro/int`; legacy numbers use the tracked workspace mapping and all API/auth/mapping failures fail closed for outward gates.
-- Перед первой правкой обязателен owner-approved change package в master-level `openspec/changes/<change-id>/`:
-  - `proposal.md`
-  - `tasks.md`
-  - релевантный `spec.md` delta в `specs/**`
-  - `design.md`, если меняется архитектура enforcement/runtime/resolver.
-- Каждый active OpenSpec package должен быть связан с GitHub issue: в change указываем `GitHub issue: INT-*`, а в issue указываем `OpenSpec change: openspec/changes/<change-id>/`.
-- OpenSpec является source-of-truth по requirements/spec/acceptance; `LeoTechPro/int` Issues хранят scope/status/links/material evidence. В issue не дублируем полный OpenSpec, prompts или reasoning.
-- `AGENTS.md`, `README.md` и managed governance docs в этом repo должны обновляться только вместе с соответствующим OpenSpec change, а не отдельно от него.
+В managed workspace `/int` процесс определяется workspace `AGENTS.md` и
+`/int/openspec/specs/process/spec.md`. Требования Tools хранятся в локальном
+`openspec/`; общие межрепозиторные требования принадлежат root.
+Для OpenSpec используйте native CLI `openspec` и его штатные `openspec-*` skills.
+Уровень спецификации выбирается по характеру изменения; исправления документации
+и внутренние рефакторинги сами по себе не требуют нового пакета. GitHub Issues
+служат необязательными ссылками на контекст работы.
 
 ## Codex и OpenClaw
 
@@ -130,7 +126,6 @@ The validator checks that every tracked non-hidden top-level directory is presen
 - `pwsh -File /int/tools/codex/scripts/bootstrap_windows_toolchain.ps1 -AllowUserFallback` — idempotent bootstrap Windows CLI-toolchain (`rg`, `fd`, `yq`, `uv`, `pnpm`, `terraform`, `make`, PATH-normalization, fallback для `cmake/7z`);
 - `pwsh -File /int/tools/codex/scripts/codex_preflight.ps1` — preflight-проверка ключевых CLI с machine-readable режимом `-Json`;
 - `openspec --version` — канонический CLI OpenSpec (@fission-ai/openspec);
-- Native git sync/publish path: `git status --short --branch`, `git fetch --prune origin`, `git pull --ff-only` only on a clean checkout when behind, and owner-approved `ALLOW_MAIN_PUSH=1 git push origin main:main` for `main`;
 - `python /int/tools/codex/bin/agent_tool_routing.py validate --strict --json` — validate registry и blocker-rules для V1 high-risk tooling;
 - `bash /int/tools/codex/bin/register-intdata-mcp.sh` или `pwsh -File D:\int\tools\codex\bin\register-intdata-mcp.ps1` — read-only проверка двух host-native регистраций `intdata-control` и `intdata-runtime`;
 - те же команды с `--apply` создают отсутствующие регистрации через `codex mcp add`; замена drift требует `--replace`, а восстановление выполняется как `--rollback <backup.json> --apply`;
@@ -175,7 +170,6 @@ Do not add IntBrain memory/search/fetch, people graph, PM, or context tools to a
 ## intData Codex Plugins
 
 - Native marketplace source-of-truth: `.agents/plugins/marketplace.json`.
-- Product-owned plugins are referenced from their owning repositories; accepted candidates use `AVAILABLE` + `ON_INSTALL`, while unavailable family members remain dark.
 - Public marketplace identity: `inttools` / `intData Tools`.
 - Public marketplace contains exactly the MIT `intnode` package. Private plugins and Codex adapters are owned by `LeoTechPro/Plugins`.
 - `intnode@inttools` exposes only the Node-owned `coord` skill, which routes coordination through the existing `intnode coord` CLI. It ships no binary, standalone `coordctl`, MCP runtime, or OpenSpec skill.
