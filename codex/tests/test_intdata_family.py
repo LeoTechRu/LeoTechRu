@@ -39,8 +39,10 @@ def load_inputs() -> tuple[dict, dict]:
     return family.load_json(MANIFEST), family.load_json(SCHEMA)
 
 
-def test_intnode_marketplace_uses_public_tools_distribution() -> None:
+@pytest.mark.parametrize("release_state", ["candidate", "released"])
+def test_intnode_marketplace_uses_public_tools_distribution(release_state: str) -> None:
     manifest, _schema = load_inputs()
+    manifest["release_state"] = release_state
     intnode = next(plugin for plugin in manifest["plugins"] if plugin["id"] == "intnode")
     entry = next(
         plugin for plugin in family.build_marketplace(manifest)["plugins"]
@@ -58,6 +60,17 @@ def test_intnode_marketplace_uses_public_tools_distribution() -> None:
         "installation": "AVAILABLE",
         "authentication": "ON_USE",
     }
+
+
+@pytest.mark.parametrize("release_state", ["candidate", "released"])
+def test_unavailable_plugin_is_not_installable_after_release(release_state: str) -> None:
+    manifest, _schema = load_inputs()
+    manifest["release_state"] = release_state
+    manifest["plugins"][0]["availability"] = "unavailable"
+
+    entry = family.build_marketplace(manifest)["plugins"][0]
+
+    assert entry["policy"]["installation"] == "NOT_AVAILABLE"
 
 
 def test_intnode_without_public_distribution_is_rejected() -> None:
@@ -600,7 +613,7 @@ def test_release_outputs_are_deterministic_and_bound_by_one_hash(tmp_path: Path)
     assert all(len(entry["source"]["ref"]) == 40 for entry in marketplace["plugins"])
     assert all(entry["source"]["source"] == "git-subdir" for entry in marketplace["plugins"])
     assert all(
-        entry["policy"]["installation"] == "INSTALLED_BY_DEFAULT"
+        entry["policy"]["installation"] == "AVAILABLE"
         for entry in marketplace["plugins"]
     )
     authentication = {

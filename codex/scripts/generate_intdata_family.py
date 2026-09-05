@@ -893,13 +893,9 @@ def build_marketplace(manifest: dict[str, Any]) -> dict[str, Any]:
                 },
                 "policy": {
                     "installation": (
-                        "INSTALLED_BY_DEFAULT"
-                        if manifest["release_state"] == "released"
-                        else (
-                            "AVAILABLE"
-                            if plugin["availability"] == "available"
-                            else "NOT_AVAILABLE"
-                        )
+                        "AVAILABLE"
+                        if plugin["availability"] == "available"
+                        else "NOT_AVAILABLE"
                     ),
                     "authentication": (
                         "ON_USE" if plugin["install_access"] == "public" else "ON_INSTALL"
